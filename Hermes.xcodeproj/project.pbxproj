@@ -46,6 +46,7 @@
 		83A5E50A8D17E3A5199AD64C /* HermesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesTests.swift; sourceTree = "<group>"; };
 		879E13AC8B194B046DB43536 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		99EB988A7D30BA8538B0B992 /* update-project.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "update-project.sh"; sourceTree = "<group>"; };
+		B5FD4669BE018E63279E21A4 /* Hermes Design System Document.markdown */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Hermes Design System Document.markdown"; sourceTree = "<group>"; };
 		CE1ECFEDCDEF8D9225801C26 /* HermesUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		D96B96D95D73EC565736C46E /* project.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = project.yml; sourceTree = "<group>"; };
 		F012672482D38DE55D37BD08 /* HermesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HermesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -86,6 +87,7 @@
 			children = (
 				59825AD5632CEE9A50E51641 /* CLAUDE.md */,
 				F65B08246782F58F64B2044B /* Hermes App Specifications (Optimized for Claude Code Parsing).markdown */,
+				B5FD4669BE018E63279E21A4 /* Hermes Design System Document.markdown */,
 				D96B96D95D73EC565736C46E /* project.yml */,
 				697B3D31DF356A0319C334B9 /* XCODEGEN_WORKFLOW.md */,
 				B00E47D4295E43E9F1922F8F /* Hermes */,

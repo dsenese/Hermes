@@ -24,6 +24,9 @@ targets:
       - path: "Hermes App Specifications (Optimized for Claude Code Parsing).markdown"
         optional: true
         buildPhase: none
+      - path: "Hermes Design System Document.markdown"
+        optional: true
+        buildPhase: none
       - path: XCODEGEN_WORKFLOW.md
         optional: true
         buildPhase: none
@@ -103,6 +106,7 @@ fileGroups:
     children:
       - CLAUDE.md
       - "Hermes App Specifications (Optimized for Claude Code Parsing).markdown"
+      - "Hermes Design System Document.markdown"
       - XCODEGEN_WORKFLOW.md
   - path: ProjectConfig
     children:
