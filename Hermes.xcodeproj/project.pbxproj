@@ -7,12 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F7259542373A616BF878048 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6EA0FBCADACC4307BA66C7DA /* WhisperKit */; };
+		106F5BC24FB5A649060FFC8B /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 6B90E6DA4F61315D16AF1D04 /* Supabase */; };
+		23BE3ABA162FA5DB216D4445 /* DictationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B703735220F562C2762BD887 /* DictationEngine.swift */; };
+		366261331CE88E12B4399247 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8285A6903606EFDBCB8773B3 /* AudioManager.swift */; };
 		36D0E1248D79C90B8FCBC68F /* HermesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A5E50A8D17E3A5199AD64C /* HermesTests.swift */; };
 		431349B62FEFA9EB288E5624 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879E13AC8B194B046DB43536 /* Constants.swift */; };
 		4941BB5516737C28B46A1BFC /* HermesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23FE201D19FBB8B52EC51054 /* HermesUITests.swift */; };
 		62378D16F2D1531400BB869F /* HermesUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE1ECFEDCDEF8D9225801C26 /* HermesUITestsLaunchTests.swift */; };
+		72AC9FDE2E3A40BD62210C49 /* DictationPopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7D9D40F24F0FF49262A28D5 /* DictationPopupView.swift */; };
 		72F3913958D936C246800CAE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F773009CA054ECEAEFE118D /* ContentView.swift */; };
 		7306E3FDE04C3897397139AE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4693F5BFE2BE28D26D1024BA /* Assets.xcassets */; };
+		8CFAB41FC688E1A2E4DDF8CC /* TextInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935958C324CFE87913F3E242 /* TextInjector.swift */; };
+		B02552D5460E689031DA604F /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB4860E77B3C2149C3F7684 /* MenuBarView.swift */; };
+		B6205FAECFAA968E7B659DF7 /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BCD2E15F5C0181EF1ABF23B /* TranscriptionService.swift */; };
 		DFC833FFF0EB39A95018A695 /* HermesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7130403DBD0EBF1BDECC6CD9 /* HermesApp.swift */; };
 /* End PBXBuildFile section */
 
@@ -36,6 +44,7 @@
 /* Begin PBXFileReference section */
 		0ACE1F82742DEB21B90093C1 /* HermesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HermesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16E4296A43753AB9028AF0E4 /* Hermes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hermes.entitlements; sourceTree = "<group>"; };
+		1CB4860E77B3C2149C3F7684 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		23FE201D19FBB8B52EC51054 /* HermesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesUITests.swift; sourceTree = "<group>"; };
 		4693F5BFE2BE28D26D1024BA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4F773009CA054ECEAEFE118D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -43,18 +52,42 @@
 		697B3D31DF356A0319C334B9 /* XCODEGEN_WORKFLOW.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = XCODEGEN_WORKFLOW.md; sourceTree = "<group>"; };
 		6CDAD721460ADCBB56CBF826 /* Hermes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hermes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7130403DBD0EBF1BDECC6CD9 /* HermesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesApp.swift; sourceTree = "<group>"; };
+		7BCD2E15F5C0181EF1ABF23B /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
+		8285A6903606EFDBCB8773B3 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		83A5E50A8D17E3A5199AD64C /* HermesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesTests.swift; sourceTree = "<group>"; };
 		879E13AC8B194B046DB43536 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		935958C324CFE87913F3E242 /* TextInjector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInjector.swift; sourceTree = "<group>"; };
 		99EB988A7D30BA8538B0B992 /* update-project.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "update-project.sh"; sourceTree = "<group>"; };
 		B5FD4669BE018E63279E21A4 /* Hermes Design System Document.markdown */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Hermes Design System Document.markdown"; sourceTree = "<group>"; };
+		B703735220F562C2762BD887 /* DictationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationEngine.swift; sourceTree = "<group>"; };
 		CE1ECFEDCDEF8D9225801C26 /* HermesUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		D96B96D95D73EC565736C46E /* project.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = project.yml; sourceTree = "<group>"; };
+		E7D9D40F24F0FF49262A28D5 /* DictationPopupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationPopupView.swift; sourceTree = "<group>"; };
 		F012672482D38DE55D37BD08 /* HermesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HermesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F65B08246782F58F64B2044B /* Hermes App Specifications (Optimized for Claude Code Parsing).markdown */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Hermes App Specifications (Optimized for Claude Code Parsing).markdown"; sourceTree = "<group>"; };
 		F8FFD21A5C3F89F7B24ACF0A /* pre-build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "pre-build.sh"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFrameworksBuildPhase section */
+		6B4A6D0A4262736D1D39B023 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0F7259542373A616BF878048 /* WhisperKit in Frameworks */,
+				106F5BC24FB5A649060FFC8B /* Supabase in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
 /* Begin PBXGroup section */
+		16C436A90700800BDEB0F498 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
 		1B245E7644D22C411B766E63 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -74,12 +107,30 @@
 			path = scripts;
 			sourceTree = "<group>";
 		};
+		4CAD21644D8F5BDEF329B282 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		4E1161F0C64335F383A2FA67 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				8285A6903606EFDBCB8773B3 /* AudioManager.swift */,
 				879E13AC8B194B046DB43536 /* Constants.swift */,
+				B703735220F562C2762BD887 /* DictationEngine.swift */,
+				935958C324CFE87913F3E242 /* TextInjector.swift */,
+				7BCD2E15F5C0181EF1ABF23B /* TranscriptionService.swift */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		64544CF4E7DEB53F9B740199 /* Team */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Team;
 			sourceTree = "<group>";
 		};
 		88F1DDC177D65A76DA7B8E73 = {
@@ -101,6 +152,15 @@
 			tabWidth = 4;
 			usesTabs = 0;
 		};
+		937C59FA2BD97575600F3283 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				E7D9D40F24F0FF49262A28D5 /* DictationPopupView.swift */,
+				1CB4860E77B3C2149C3F7684 /* MenuBarView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
 		B00E47D4295E43E9F1922F8F /* Hermes */ = {
 			isa = PBXGroup;
 			children = (
@@ -109,6 +169,10 @@
 				16E4296A43753AB9028AF0E4 /* Hermes.entitlements */,
 				7130403DBD0EBF1BDECC6CD9 /* HermesApp.swift */,
 				4E1161F0C64335F383A2FA67 /* Core */,
+				16C436A90700800BDEB0F498 /* Features */,
+				64544CF4E7DEB53F9B740199 /* Team */,
+				937C59FA2BD97575600F3283 /* UI */,
+				4CAD21644D8F5BDEF329B282 /* Utilities */,
 			);
 			path = Hermes;
 			sourceTree = "<group>";
@@ -157,6 +221,7 @@
 			buildPhases = (
 				B07BACF1FAD509254195EE6D /* Sources */,
 				D9DAAFDD825F094030F7E745 /* Resources */,
+				6B4A6D0A4262736D1D39B023 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -164,6 +229,8 @@
 			);
 			name = Hermes;
 			packageProductDependencies = (
+				6EA0FBCADACC4307BA66C7DA /* WhisperKit */,
+				6B90E6DA4F61315D16AF1D04 /* Supabase */,
 			);
 			productName = Hermes;
 			productReference = 6CDAD721460ADCBB56CBF826 /* Hermes.app */;
@@ -215,6 +282,10 @@
 			);
 			mainGroup = 88F1DDC177D65A76DA7B8E73;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E2A31871970995591CA2AB24 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				83475FD8BEF6D84FD55AE86A /* XCRemoteSwiftPackageReference "WhisperKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
@@ -251,9 +322,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				366261331CE88E12B4399247 /* AudioManager.swift in Sources */,
 				431349B62FEFA9EB288E5624 /* Constants.swift in Sources */,
 				72F3913958D936C246800CAE /* ContentView.swift in Sources */,
+				23BE3ABA162FA5DB216D4445 /* DictationEngine.swift in Sources */,
+				72AC9FDE2E3A40BD62210C49 /* DictationPopupView.swift in Sources */,
 				DFC833FFF0EB39A95018A695 /* HermesApp.swift in Sources */,
+				B02552D5460E689031DA604F /* MenuBarView.swift in Sources */,
+				8CFAB41FC688E1A2E4DDF8CC /* TextInjector.swift in Sources */,
+				B6205FAECFAA968E7B659DF7 /* TranscriptionService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -550,6 +627,38 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		83475FD8BEF6D84FD55AE86A /* XCRemoteSwiftPackageReference "WhisperKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/argmaxinc/WhisperKit";
+			requirement = {
+				kind = exactVersion;
+				version = 0.13.0;
+			};
+		};
+		E2A31871970995591CA2AB24 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = exactVersion;
+				version = 2.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6B90E6DA4F61315D16AF1D04 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E2A31871970995591CA2AB24 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		6EA0FBCADACC4307BA66C7DA /* WhisperKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 83475FD8BEF6D84FD55AE86A /* XCRemoteSwiftPackageReference "WhisperKit" */;
+			productName = WhisperKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0E2B07F5EEECECBDF16167EB /* Project object */;
 }

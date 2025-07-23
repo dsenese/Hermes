@@ -50,6 +50,9 @@ targets:
         GENERATE_INFOPLIST_FILE: true
         INFOPLIST_KEY_CFBundleDisplayName: Hermes
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
+    dependencies:
+      - package: WhisperKit
+      - package: Supabase
     entitlements:
       path: Hermes/Hermes.entitlements
       
@@ -123,8 +126,11 @@ fileGroups:
 # - Hermes/Team/ (SupabaseManager, AuthManager, TeamDashboard)
 # - Hermes/Utilities/ (Extensions, Constants, Logger)
 
-# Future packages to be added via SPM
-# packages:
-#   Supabase:
-#     url: https://github.com/supabase/supabase-swift
-#     version: 2.5.1
+# Swift Package Manager dependencies
+packages:
+  WhisperKit:
+    url: https://github.com/argmaxinc/WhisperKit
+    version: 0.13.0
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    version: 2.5.1
