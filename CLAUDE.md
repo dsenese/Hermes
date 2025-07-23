@@ -52,6 +52,7 @@ xcodegen
 ```
 Hermes/
 ├── Hermes App Specifications (Optimized for Claude Code Parsing).markdown  # Complete project specs
+├── Hermes Design System Document.markdown  # UI/UX design system and component specs
 ├── CLAUDE.md                   # This file - development guidance
 ├── XCODEGEN_WORKFLOW.md        # xcodegen workflow documentation
 ├── project.yml                 # xcodegen project configuration
@@ -98,6 +99,17 @@ Refer to the comprehensive specifications document for the 8-step build process:
 - **MLX**: Local AI for smart text formatting
 - **WebRTC VAD**: Voice activity detection for silence
 - **Supabase SDK**: Auth, database, and storage for team features
+
+## Design System
+
+Refer to the **Hermes Design System Document.markdown** for comprehensive UI/UX guidelines:
+- **Color Palette**: Neon Robin (#CCFF00) primary accent, minimalist with high contrast
+- **Typography**: SF Pro font family with dynamic scaling for accessibility  
+- **Components**: Fluid, animated SwiftUI components with theme-aware design
+- **Layout**: Icon-based sidebar, white main background, rounded cards inspired by Wispr Flow
+- **Principles**: "Speak naturally, design fluidly" - simplicity, accessibility, performance
+
+The design document is structured for direct use in AI prompts when implementing UI components.
 
 ## Development Guidelines
 
@@ -154,7 +166,7 @@ Refer to the comprehensive specifications document for the 8-step build process:
 
 ## Repository Information
 
-- **Version Control**: Intended for GitHub with feature branches
+- **Version Control**: GitHub repository with feature branches (https://github.com/dsenese/Hermes.git)
 - **Development Timeline**: 5-month cycle (started July 23, 2025)
 - **Deployment**: App Store via TestFlight for beta testing
 
