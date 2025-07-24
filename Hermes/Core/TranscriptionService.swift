@@ -16,6 +16,8 @@ class TranscriptionService: ObservableObject {
     @Published private(set) var isInitialized = false
     @Published private(set) var currentModel: String = ""
     @Published private(set) var availableModels: [String] = []
+    @Published private(set) var isDownloadingModel = false
+    @Published private(set) var downloadProgress: Double = 0.0
     
     // MARK: - Private Properties
     private var whisperKit: WhisperKit?
@@ -97,10 +99,20 @@ class TranscriptionService: ObservableObject {
             audioBuffer.removeFirst(audioBuffer.count - maxSamples)
         }
         
-        // Process if we have enough audio (minimum 1 second)
+        // Process if we have enough audio (minimum 1 second for initial transcription)
         let minSamples = Int(1.0 * HermesConstants.sampleRate)
         if audioBuffer.count >= minSamples {
             await transcribeAudio(floatArray: audioBuffer)
+        }
+        
+        // For real-time feedback, also process smaller chunks as partial results
+        // This provides faster user feedback while building up the full transcription
+        let partialSamples = Int(0.5 * HermesConstants.sampleRate) // 500ms chunks
+        if audioBuffer.count >= partialSamples && audioBuffer.count % partialSamples == 0 {
+            // Process last 2 seconds for partial results to maintain context
+            let contextSamples = min(Int(2.0 * HermesConstants.sampleRate), audioBuffer.count)
+            let contextAudio = Array(audioBuffer.suffix(contextSamples))
+            await transcribeAudioPartial(floatArray: contextAudio)
         }
     }
     
@@ -114,46 +126,191 @@ class TranscriptionService: ObservableObject {
     // MARK: - Private Methods
     
     private func loadAvailableModels() async {
-        // Load available models from WhisperKit
-        let models = ["openai_whisper-large-v3-turbo", "openai_whisper-distil-large-v3", "openai_whisper-base"]
-        availableModels = models
+        print("🔍 Loading available WhisperKit models...")
+        
+        // Get available models from WhisperKit
+        // These are the models we want to support in Hermes
+        let preferredModels = [
+            primaryModel,      // "openai_whisper-large-v3-turbo"
+            fallbackModel,     // "openai_whisper-distil-large-v3"
+            "openai_whisper-base"  // Lightweight option
+        ]
+        
+        availableModels = preferredModels
         print("📋 Available models: \(availableModels)")
+        
+        // TODO: In the future, we could query WhisperKit for actually available models
+        // This would require checking downloaded models and available models online
     }
     
     private func initializeWhisperKit(with modelName: String) async throws -> WhisperKit {
-        return try await WhisperKit(
-            model: modelName,
-            verbose: false,
-            prewarm: true,
-            download: true
-        )
+        print("📥 Initializing WhisperKit with model: \(modelName)")
+        
+        isDownloadingModel = true
+        downloadProgress = 0.0
+        
+        defer {
+            isDownloadingModel = false
+            downloadProgress = 0.0
+        }
+        
+        do {
+            let whisperKit = try await WhisperKit(
+                model: modelName,
+                verbose: false,
+                prewarm: true,
+                download: true
+            )
+            
+            print("✅ WhisperKit model '\(modelName)' loaded successfully")
+            return whisperKit
+            
+        } catch {
+            print("❌ Failed to initialize WhisperKit with model '\(modelName)': \(error)")
+            throw error
+        }
     }
     
     private func transcribeAudio(floatArray: [Float]) async {
-        guard whisperKit != nil else { return }
+        guard let whisperKit = whisperKit else { 
+            print("⚠️ WhisperKit not available for transcription")
+            return 
+        }
         
         let startTime = Date()
         
-        // For now, let's use a simpler approach and create a dummy result
-        // TODO: Implement proper WhisperKit integration once API is clarified
-        let dummyText = "Transcription placeholder - implement WhisperKit API"
+        do {
+            // Normalize float array to [-1.0, 1.0] range if needed
+            let normalizedAudio = normalizeAudioArray(floatArray)
+            
+            // Transcribe using WhisperKit's Float array method
+            let results = try await whisperKit.transcribe(audioArray: normalizedAudio)
+            
+            let latency = Date().timeIntervalSince(startTime)
+            
+            // Extract transcription text from first result
+            let transcriptionText = results.first?.text ?? ""
+            
+            // Skip empty results
+            guard !transcriptionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                print("🔄 Empty transcription result, skipping")
+                return
+            }
+            
+            // Create Hermes result with actual transcription
+            let result = HermesTranscriptionResult(
+                text: transcriptionText,
+                type: .final,
+                confidence: calculateConfidence(from: results.first),
+                latency: latency,
+                timestamp: Date(),
+                modelUsed: currentModel
+            )
+            
+            // Emit result
+            transcriptionSubject.send(result)
+            
+            print("✅ Transcription completed: '\(transcriptionText)' (latency: \(String(format: "%.2f", latency * 1000))ms)")
+            
+        } catch {
+            print("❌ Transcription failed: \(error)")
+            
+            let latency = Date().timeIntervalSince(startTime)
+            
+            // Send error result
+            let errorResult = HermesTranscriptionResult(
+                text: "",
+                type: .final,
+                confidence: 0.0,
+                latency: latency,
+                timestamp: Date(),
+                modelUsed: currentModel
+            )
+            
+            transcriptionSubject.send(errorResult)
+            
+            // Try fallback model if primary fails repeatedly
+            if !isUsingFallback {
+                await tryFallbackModel()
+            }
+        }
+    }
+    
+    /// Transcribes audio for partial/real-time results
+    private func transcribeAudioPartial(floatArray: [Float]) async {
+        guard let whisperKit = whisperKit else { 
+            return 
+        }
         
-        let latency = Date().timeIntervalSince(startTime)
+        let startTime = Date()
         
-        // Create a simple result
-        let result = HermesTranscriptionResult(
-            text: dummyText,
-            type: .final,
-            confidence: 0.8,
-            latency: latency,
-            timestamp: Date(),
-            modelUsed: currentModel
-        )
+        do {
+            // Normalize audio
+            let normalizedAudio = normalizeAudioArray(floatArray)
+            
+            // Transcribe with lower priority for partial results
+            let results = try await whisperKit.transcribe(audioArray: normalizedAudio)
+            
+            let latency = Date().timeIntervalSince(startTime)
+            
+            // Extract transcription text
+            let transcriptionText = results.first?.text ?? ""
+            
+            // Only send partial results if they contain meaningful content
+            let trimmedText = transcriptionText.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmedText.isEmpty && trimmedText.count > 2 else {
+                return
+            }
+            
+            // Create partial result
+            let result = HermesTranscriptionResult(
+                text: transcriptionText,
+                type: .partial,
+                confidence: calculateConfidence(from: results.first),
+                latency: latency,
+                timestamp: Date(),
+                modelUsed: currentModel
+            )
+            
+            // Emit partial result
+            transcriptionSubject.send(result)
+            
+            print("🔄 Partial transcription: '\(trimmedText.prefix(50))...' (latency: \(String(format: "%.2f", latency * 1000))ms)")
+            
+        } catch {
+            // Silently ignore partial transcription errors to avoid spam
+            // They're not as critical as final transcription failures
+        }
+    }
+    
+    /// Normalizes audio array to [-1.0, 1.0] range
+    private func normalizeAudioArray(_ audio: [Float]) -> [Float] {
+        guard !audio.isEmpty else { return audio }
         
-        // Emit result
-        transcriptionSubject.send(result)
+        let maxAmplitude = audio.map { abs($0) }.max() ?? 1.0
         
-        print("🔄 Placeholder transcription sent (WhisperKit integration pending)")
+        // If already normalized or very quiet, return as-is
+        if maxAmplitude <= 1.0 {
+            return audio
+        }
+        
+        // Normalize to prevent clipping
+        let normalizationFactor = 1.0 / maxAmplitude
+        return audio.map { $0 * normalizationFactor }
+    }
+    
+    /// Extracts confidence score from WhisperKit result
+    private func calculateConfidence(from result: Any?) -> Double {
+        // WhisperKit's confidence implementation may vary by version
+        // For now, return a reasonable default and log for debugging
+        // TODO: Update when WhisperKit confidence API is clarified
+        let defaultConfidence = 0.85
+        
+        if result != nil {
+            return defaultConfidence
+        } else {
+            return 0.0
+        }
     }
     
     

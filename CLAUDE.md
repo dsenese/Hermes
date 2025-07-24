@@ -4,28 +4,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Hermes is a macOS dictation app built with SwiftUI, competing with Wispr Flow and WillowVoice. The app prioritizes local AI processing for privacy-focused real-time dictation with <400ms latency. Currently in early development stage (basic Xcode template).
+Hermes is a macOS dictation app built with SwiftUI, competing with Wispr Flow and WillowVoice. The app prioritizes local AI processing for privacy-focused real-time dictation with <400ms latency.
+
+**Current Status**: Advanced UI implementation with comprehensive onboarding flow, menu bar architecture, and core engine foundation. Ready for WhisperKit integration.
 
 **Key Architecture**: 
-- **Frontend**: SwiftUI for macOS (menu bar app with floating dictation popup)
-- **Audio Processing**: AVFoundation for 16kHz mono WAV capture with WebRTC VAD
-- **AI Models**: WhisperKit with Large-V3-Turbo (Q4 quantized), Distil-Whisper fallback
-- **Smart Formatting**: MLX for AI-powered text enhancement
-- **Backend**: Supabase for team features, auth, and storage
-- **Target**: Apple Silicon optimization, <400MB size, <4% CPU idle
+- **Frontend**: SwiftUI menu bar app (.accessory) with multi-window management
+- **Audio Processing**: AVFoundation for 16kHz mono WAV capture, energy-based VAD
+- **AI Models**: WhisperKit service layer ready (Large-V3-Turbo + Distil-Large-V3 fallback)
+- **Text Injection**: macOS Accessibility API with keyboard simulation fallback
+- **State Management**: Combine + SwiftUI reactive architecture with async/await
+- **Target**: Apple Silicon optimization, <400MB size, <4% CPU idle, <400ms latency
 
 ## Development Commands
 
 ### Build and Test
 ```bash
-# Build project (standard Xcode)
-⌘+B in Xcode
+# Build project in Xcode (Cmd+B) or command line
+xcodebuild -project Hermes.xcodeproj -scheme Hermes -configuration Debug build
 
-# Install dependencies (when implementing)
-brew install whisperkit-cli
+# Check for build errors quickly
+xcodebuild -project Hermes.xcodeproj -scheme Hermes build 2>&1 | grep -E "error:|warning:|Build succeeded|Build failed"
 
-# Add Supabase SDK
-# Via Swift Package Manager in Xcode: https://github.com/supabase/supabase-swift
+# Run tests (Swift Testing framework)
+xcodebuild test -project Hermes.xcodeproj -scheme Hermes
+
+# Run specific test
+# Note: Uses @Test annotations, not XCTest
+xcodebuild test -project Hermes.xcodeproj -scheme Hermes -only-testing:HermesTests
 ```
 
 ### Project Management with xcodegen
@@ -72,12 +78,16 @@ Hermes/
 ```
 
 ### Current Modular Structure
-Files are organized into these implemented groups:
-- `Hermes/Core/` - ✅ DictationEngine, AudioManager, TranscriptionService, TextInjector, Constants
-- `Hermes/UI/` - ✅ Complete UI system with MenuBarView, MainAppView, DictationPopupView, FloatingDictationMarker, full Onboarding flow, and Components/ library
-- `Hermes/Features/` - 📁 Empty (ready for SmartFormatting, CommandMode, etc.)
-- `Hermes/Team/` - 📁 Empty (ready for SupabaseManager, AuthManager, TeamDashboard)  
-- `Hermes/Utilities/` - ✅ Extensions (Color hex support, notification helpers)
+```
+Hermes/
+├── Core/              # ✅ DictationEngine, AudioManager, TranscriptionService, TextInjector, Constants
+├── UI/                # ✅ Complete UI system with menu bar, main app, onboarding flow
+│   ├── Components/    # ✅ ButtonStyles, HermesTextField, HermesDropdown
+│   └── Onboarding/    # ✅ 4-step flow with sub-navigation
+├── Features/          # 📁 Ready for SmartFormatting, CommandMode, etc.
+├── Team/              # 📁 Ready for SupabaseManager, AuthManager
+└── Utilities/         # ✅ Extensions (Color hex, notifications)
+```
 
 ## Implementation Roadmap
 
@@ -137,48 +147,84 @@ The design document is structured for direct use in AI prompts when implementing
 - **Launch Offer**: Limited $150 lifetime access
 - **Free Trial**: 14-day trial period
 
-## Current Implementation Status
+## Core Architecture Implementation
 
-**ADVANCED UI DEVELOPMENT**: Project has evolved significantly beyond basic template:
+### Menu Bar App Architecture Pattern
+```
+HermesApp (@main entry point)
+├── AppDelegate (NSApplicationDelegateAdaptor)
+│   ├── MenuBarWindowController → MenuBarView (status item dropdown)
+│   ├── MainAppWindowController → MainAppView (dashboard)
+│   ├── DictationPopupWindowController → DictationPopupView
+│   └── FloatingDictationController → FloatingDictationMarker
+└── OnboardingView (first-run overlay on MainAppView)
+```
 
-### Completed Core Architecture
-- **DictationEngine**: Advanced async/await engine with performance tracking, real-time transcription handling, and comprehensive error management
-- **Menu Bar App**: Complete NSApplicationDelegateAdaptor architecture with multiple window controllers for menu bar, main app, dictation popup, and floating marker
-- **State Management**: Reactive updates using @StateObject/@ObservableObject, environment objects, and Combine framework integration
+### Core Engine Coordination
+```
+DictationEngine (Main Coordinator - @ObservableObject)
+├── AudioManager (AVFoundation capture, VAD)
+├── TranscriptionService (WhisperKit integration layer)
+└── TextInjector (Accessibility API + keyboard fallback)
+```
 
-### Implemented UI Components
-- **Main Dashboard**: Complete app interface with sidebar navigation, activity timeline, user stats, and upgrade prompts  
-- **Menu Bar Interface**: Fully functional with status indicators, quick settings panel, control buttons, and material backgrounds
-- **Floating Dictation System**: Advanced floating overlay with hover states, waveform animations, and click-to-dictate functionality
-- **Complete Onboarding Flow**: 4-step professional onboarding with OAuth authentication, permissions, setup, and interactive demos
+**State Flow**: Audio → VAD → Transcription → Text Injection
+- Uses Combine publishers for reactive data flow
+- Modern async/await concurrency throughout
+- Actor isolation for voice activity detection
+- MainActor for UI-related classes
 
-### Custom Component Library
-- **ButtonStyles.swift**: Primary/secondary buttons, OAuth buttons following official design guidelines (Google, Microsoft, Apple, SSO), 3D keyboard keys
-- **HermesTextField.swift**: Custom input fields with hover/focus states, integrated with design system  
-- **HermesDropdown.swift**: Professional dropdown component for forms
-- **OnboardingCoordinator**: State management for multi-step onboarding flow with sub-steps
+### Key Architectural Decisions
 
-### UI Implementation Highlights  
-- Professional OAuth integration with proper brand guidelines
-- Real-time transcription display with audio visualization
-- Privacy mode selection and welcome surveys
-- Responsive animations with consistent timing
-- Accessibility focus management and VoiceOver considerations
+1. **Local-First Privacy**: All transcription on-device, no cloud audio transmission
+2. **Multi-Model Strategy**: Large-V3-Turbo (accuracy) + Distil-Large-V3 (performance)
+3. **Universal Text Injection**: Accessibility API primary, CGEvent keyboard fallback
+4. **Performance Monitoring**: Built-in latency tracking toward <400ms target
+5. **XcodeGen Management**: Never edit `.xcodeproj` manually, use `./scripts/update-project.sh`
 
-### Interfaces Ready for Integration
-- **TranscriptionService**: Interface ready for WhisperKit integration
-- **AudioManager**: Audio capture infrastructure in place
-- **TextInjector**: System text injection capabilities
-- **Team Features**: Folder structure ready for Supabase integration
+### Current Implementation Status
 
-## Next Steps for Development
+**✅ Fully Implemented:**
+- Complete menu bar app structure with window management
+- Comprehensive 4-step onboarding flow with sub-navigation
+- Main dashboard UI with sidebar, trial info, dark/light mode
+- Audio capture pipeline (16kHz mono, energy-based VAD)
+- Text injection system (Accessibility API + keyboard simulation)
+- Custom UI component library with design system consistency
+- Performance tracking and error handling infrastructure
 
-1. Integrate WhisperKit with TranscriptionService interface
-2. Implement actual audio processing in AudioManager  
-3. Connect DictationEngine to real transcription models
-4. Add Supabase SDK for team features and authentication
-5. Implement MLX smart formatting in Features/ folder
-6. Add comprehensive unit and integration tests
+**⚠️ Service Layers Ready for Integration:**
+- WhisperKit service structure (using placeholder transcription)
+- Global hotkey management (framework in place, needs implementation)
+- Team features folder structure (ready for Supabase)
+
+**❌ Major Features Pending:**
+- WhisperKit model downloading and initialization
+- Smart text formatting with MLX
+- In-app purchases and subscription management
+- Performance optimization to meet <400ms latency target
+
+## Next Priority Development Tasks
+
+1. **WhisperKit Integration**: Complete `TranscriptionService.swift` with actual model loading
+   - Initialize Large-V3-Turbo and Distil-Large-V3 models
+   - Replace placeholder transcription in `transcribe()` method
+   - Implement model downloading with progress tracking
+
+2. **Performance Optimization**: Meet <400ms latency target
+   - Optimize audio chunking strategy
+   - Implement more sophisticated VAD (WebRTC integration)
+   - Add model quantization and acceleration
+
+3. **Global Hotkey Implementation**: Complete hotkey detection
+   - Implement system-wide keyboard monitoring
+   - Add customizable hotkey combinations
+   - Handle hotkey conflicts gracefully
+
+4. **Team Features Backend**: Supabase integration for collaboration
+   - Authentication flow implementation
+   - Shared dictionary and settings sync
+   - Team dashboard and admin features
 
 ## Testing Strategy
 
@@ -201,24 +247,28 @@ The design document is structured for direct use in AI prompts when implementing
 - **Close Xcode** before running the update script for best results
 - See `XCODEGEN_WORKFLOW.md` for detailed workflow documentation
 
-## Architecture Patterns and Development Guidelines
+## Development Standards and Patterns
 
-### App Architecture
-- **Menu Bar App Pattern**: Uses NSApplicationDelegateAdaptor with AppDelegate for multiple window controllers
-- **SwiftUI + AppKit Integration**: NSHostingView for SwiftUI content in NSWindow/NSPanel structures
-- **Floating Window System**: Custom NSFloatingPanel for always-on-top dictation interfaces
-- **Modern Swift Concurrency**: Async/await throughout DictationEngine and audio processing
-- **Reactive State Management**: @StateObject/@ObservableObject with Combine framework integration
+### SwiftUI + Modern Swift Architecture
+- **Primary Framework**: SwiftUI for all UI unless AppKit required (floating windows, global hotkeys)
+- **Concurrency**: Async/await throughout, actor isolation for audio processing
+- **State Management**: Combine publishers + @StateObject/@ObservableObject reactive patterns
+- **App Lifecycle**: `.accessory` activation policy (menu bar only, no dock icon)
 
-### UI Component Patterns
-- **Design System Consistency**: All components use HermesConstants.primaryAccentColor (#CCFF00 Neon Robin)
-- **Modular Component Library**: Custom ButtonStyles, HermesTextField, HermesDropdown with convenience extensions
-- **OAuth Integration**: Follow official design guidelines for Google, Microsoft, Apple, SSO buttons
-- **Animation Standards**: Consistent timing with .easeInOut(duration: 0.1-0.3) patterns
-- **Accessibility First**: Proper focus management, VoiceOver support, WCAG 2.1 compliance
+### Component Design System
+- **Color Consistency**: `HermesConstants.primaryAccentColor` (#CCFF00 Neon Robin) for all accents
+- **Button Extensions**: `.primaryButtonStyle()`, `.gmailButtonStyle()`, `.microsoftButtonStyle()` etc.
+- **Animation Standards**: `.easeInOut(duration: 0.1-0.3)` for consistent timing
+- **Dark/Light Mode**: Use design system colors (`F5F5F7` light, `2C2C2E` dark for sidebar)
 
-### Development Standards
-- **SwiftUI Primary**: Use SwiftUI unless AppKit-specific features required (floating windows, global hotkeys)
-- **macOS Native**: Follow Apple Human Interface Guidelines, use SF Symbols, target latest macOS APIs
-- **Swift 6 Ready**: Use modern Swift language features, async/await, actors, and Swift macros where applicable
-- **Component Reusability**: Create extensions like .primaryButtonStyle(), .gmailButtonStyle() for consistent usage
+### Performance and Privacy Requirements
+- **Latency Target**: <400ms end-to-end transcription
+- **Local Processing**: All AI on-device, no cloud audio transmission
+- **Resource Limits**: <400MB app size, <4% CPU idle, <4s launch time
+- **Accessibility**: WCAG 2.1 compliance, VoiceOver support throughout
+
+### File Organization and Naming
+- **Automatic Detection**: Swift files auto-included in `project.yml` structure
+- **Group Structure**: Core/, UI/, Features/, Team/, Utilities/ logical organization
+- **Component Library**: UI/Components/ for reusable elements
+- **Extensions**: Utilities/Extensions.swift for framework extensions

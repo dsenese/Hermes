@@ -549,16 +549,7 @@ struct MainAppView: View {
     }
     
     private var notesContent: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Text("Notes")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.primary)
-            
-            Text("Voice notes and recordings coming soon...")
-                .font(.system(size: 14))
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        NotesView(dictationEngine: dictationEngine)
     }
     
     // MARK: - Computed Properties

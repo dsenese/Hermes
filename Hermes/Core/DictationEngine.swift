@@ -19,8 +19,8 @@ class DictationEngine: ObservableObject {
     @Published private(set) var errorMessage: String?
     
     // MARK: - Dependencies
-    private let audioManager: AudioManager
-    private let transcriptionService: TranscriptionService
+    let audioManager: AudioManager
+    let transcriptionService: TranscriptionService
     private let textInjector: TextInjector
     
     // MARK: - Private Properties
