@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AppKit
+import AVFoundation
 
 @main
 struct HermesApp: App {
@@ -27,10 +28,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBarWindowController: MenuBarWindowController?
     private var dictationPopupController: DictationPopupWindowController?
     private var globalHotkeyManager: GlobalHotkeyManager?
+    private var mainAppWindowController: MainAppWindowController?
+    private var floatingDictationController: FloatingDictationController?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
+        print("🚀 Starting Hermes application launch...")
+        
         // Hide dock icon for menu bar only app
         NSApp.setActivationPolicy(.accessory)
+        print("✅ App activation policy set to accessory")
         
         // Setup menu bar
         setupMenuBar()
@@ -38,28 +44,65 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Setup global hotkeys
         setupGlobalHotkeys()
         
-        // Request necessary permissions
-        requestPermissions()
+        // Setup main app window (initially hidden)
+        setupMainAppWindow()
+        
+        // Setup floating dictation marker
+        setupFloatingDictationMarker()
+        
+        // Note: Permissions are now handled in the onboarding flow only
+        
+        // Setup notification observers
+        setupNotificationObservers()
         
         print("🚀 Hermes launched successfully")
+        print("👀 Look for the waveform icon in your menu bar (top right of screen)")
     }
     
     private func setupMenuBar() {
-        // Create status bar item
-        statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        // Create status bar item with fixed length first
+        statusBarItem = NSStatusBar.system.statusItem(withLength: 30)
         
-        guard let statusBarItem = statusBarItem else { return }
+        guard let statusBarItem = statusBarItem else { 
+            print("❌ Failed to create status bar item")
+            return 
+        }
         
-        // Set menu bar icon
+        print("✅ Status bar item created with length 30")
+        
+        // Set menu bar icon - use simple text for guaranteed visibility
         if let button = statusBarItem.button {
-            button.image = NSImage(systemSymbolName: "waveform.circle", accessibilityDescription: "Hermes")
-            button.image?.isTemplate = true
+            // Use simple text that should definitely be visible
+            button.title = "🎤"
+            button.font = NSFont.systemFont(ofSize: 16)
+            print("✅ Menu bar button created with microphone emoji")
+            
             button.target = self
             button.action = #selector(toggleMenuBar)
+            
+            // Make sure the button is visible
+            button.isEnabled = true
+            button.isHidden = false
+            
+            print("✅ Menu bar button configured and should be visible")
+        } else {
+            print("❌ Failed to create menu bar button")
         }
         
         // Create menu bar window controller
         menuBarWindowController = MenuBarWindowController()
+        print("✅ Menu bar window controller created")
+        
+        // Try to make sure our item is visible
+        statusBarItem.isVisible = true
+        print("✅ Status bar item visibility set to true")
+        
+        // Additional debug info
+        if let button = statusBarItem.button {
+            print("🔍 Button frame: \(button.frame)")
+            print("🔍 Button superview: \(String(describing: button.superview))")
+            print("🔍 Button window: \(String(describing: button.window))")
+        }
     }
     
     private func setupGlobalHotkeys() {
@@ -74,29 +117,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func requestPermissions() {
+        // Only check permissions without requesting them during app launch
         Task { @MainActor in
-            // Request microphone permission
-            let audioManager = AudioManager()
-            do {
-                try await audioManager.startRecording()
-                audioManager.stopRecording()
-                print("✅ Microphone permission granted")
-            } catch {
-                print("❌ Microphone permission denied: \(error)")
-                await showPermissionAlert(for: .microphone)
+            // Check microphone permission (without requesting)
+            if #available(macOS 10.14, *) {
+                let microphoneStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+                switch microphoneStatus {
+                case .authorized:
+                    print("✅ Microphone permission already granted")
+                case .denied:
+                    print("⚠️ Microphone permission denied")
+                case .notDetermined:
+                    print("⚠️ Microphone permission not determined")
+                case .restricted:
+                    print("⚠️ Microphone permission restricted")
+                @unknown default:
+                    print("⚠️ Unknown microphone permission status")
+                }
             }
             
-            // Request accessibility permission
-            let textInjector = TextInjector()
-            if !textInjector.requestAccessibilityPermissions() {
-                print("❌ Accessibility permission needed")
-                await showPermissionAlert(for: .accessibility)
+            // Check accessibility permission (without prompting)
+            let hasAccessibility = AXIsProcessTrusted()
+            if hasAccessibility {
+                print("✅ Accessibility permission granted")
+            } else {
+                print("⚠️ Accessibility permissions not granted. Please enable in System Preferences > Security & Privacy > Privacy > Accessibility")
             }
         }
     }
     
     @objc private func toggleMenuBar() {
-        menuBarWindowController?.toggle()
+        print("🖱️ Menu bar icon clicked")
+        menuBarWindowController?.toggle(relativeTo: statusBarItem)
     }
     
     @MainActor
@@ -159,6 +211,35 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             NSWorkspace.shared.open(url)
         }
     }
+    
+    private func setupMainAppWindow() {
+        mainAppWindowController = MainAppWindowController()
+        print("✅ Main app window controller created")
+    }
+    
+    private func setupFloatingDictationMarker() {
+        floatingDictationController = FloatingDictationController()
+        floatingDictationController?.show()
+        print("✅ Floating dictation marker created and shown")
+    }
+    
+    private func setupNotificationObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleOpenMainApp),
+            name: .openMainApp,
+            object: nil
+        )
+    }
+    
+    @objc private func handleOpenMainApp() {
+        showMainApp()
+    }
+    
+    private func showMainApp() {
+        mainAppWindowController?.showWindow(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
 }
 
 // MARK: - Menu Bar Window Controller
@@ -186,21 +267,22 @@ class MenuBarWindowController: NSWindowController {
         window.contentView = hostingView
     }
     
-    func toggle() {
+    func toggle(relativeTo statusBarItem: NSStatusItem?) {
         if isVisible {
             hide()
         } else {
-            show()
+            show(relativeTo: statusBarItem)
         }
     }
     
-    private func show() {
+    private func show(relativeTo statusBarItem: NSStatusItem?) {
         guard let window = window,
-              let statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength).button else { return }
+              let statusBarItem = statusBarItem,
+              let button = statusBarItem.button else { return }
         
         // Position window below status bar item
-        let buttonFrame = statusBarItem.frame
-        let screenFrame = statusBarItem.window?.frame ?? .zero
+        let buttonFrame = button.frame
+        let screenFrame = button.window?.frame ?? .zero
         
         let windowX = screenFrame.origin.x + buttonFrame.origin.x - (window.frame.width / 2) + (buttonFrame.width / 2)
         let windowY = screenFrame.origin.y - window.frame.height - 8
@@ -222,6 +304,30 @@ class MenuBarWindowController: NSWindowController {
 enum PermissionType {
     case microphone
     case accessibility
+}
+
+// MARK: - Main App Window Controller
+
+class MainAppWindowController: NSWindowController {
+    convenience init() {
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 1000, height: 700),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        
+        window.title = "Hermes"
+        window.minSize = NSSize(width: 800, height: 600)
+        window.center()
+        window.setFrameAutosaveName("MainAppWindow")
+        
+        self.init(window: window)
+        
+        // Set up the SwiftUI content
+        let hostingView = NSHostingView(rootView: MainAppView())
+        window.contentView = hostingView
+    }
 }
 
 // MARK: - Global Hotkey Manager (Placeholder)

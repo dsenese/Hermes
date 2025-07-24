@@ -31,6 +31,13 @@ class TextInjector: ObservableObject {
     
     /// Checks and requests accessibility permissions
     func requestAccessibilityPermissions() -> Bool {
+        // First check without prompting
+        let trusted = AXIsProcessTrusted()
+        isAccessibilityEnabled = trusted
+        return trusted
+    }
+    
+    func requestAccessibilityPermissionsWithPrompt() -> Bool {
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true]
         let trusted = AXIsProcessTrustedWithOptions(options as CFDictionary)
         

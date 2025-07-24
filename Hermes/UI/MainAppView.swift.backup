@@ -1,0 +1,1339 @@
+//
+//  MainAppView.swift
+//  Hermes
+//
+//  Created by Claude Code on 7/23/25.
+//
+
+import SwiftUI
+
+/// Main dashboard view with sidebar navigation and activity timeline
+struct MainAppView: View {
+    @StateObject private var dictationEngine = DictationEngine()
+    @State private var selectedSection: SidebarSection = .home
+    @State private var userName: String = "User" // TODO: Get from user preferences
+    @State private var showingOnboarding: Bool = true // TODO: Check if user has completed onboarding
+    
+    var body: some View {
+        ZStack {
+            // Main app content
+            HStack(spacing: 0) {
+                // Sidebar
+                sidebar
+                    .frame(width: 200)
+                    .background(sidebarBackground)
+                
+                // Main content area
+                mainContent
+                    .frame(maxWidth: .infinity)
+                    .background(Color(NSColor.controlBackgroundColor))
+            }
+            .opacity(showingOnboarding ? 0.3 : 1.0)
+            .disabled(showingOnboarding)
+            
+            // Onboarding overlay
+            if showingOnboarding {
+                OnboardingView(showingOnboarding: $showingOnboarding)
+                    .transition(.opacity.combined(with: .move(edge: .trailing)))
+            }
+        }
+        .cornerRadius(12)
+        .frame(minWidth: 800, minHeight: 600)
+        .onAppear {
+            // TODO: Load user data and stats
+            // TODO: Check if user has completed onboarding
+        }
+    }
+    
+    @ViewBuilder
+    private var onboardingContent: some View {
+        VStack(spacing: 0) {
+            // Step progress bar
+            stepProgressBar
+            
+            // Step content
+            switch onboardingStep {
+            case .signIn:
+                signInStep
+            case .permissions:
+                permissionsStep
+            case .setUp:
+                setUpStep
+            case .tryIt:
+                tryItStep
+            }
+        }
+    }
+    
+    // MARK: - Step Progress Bar
+    
+    private var stepProgressBar: some View {
+        HStack(spacing: 0) {
+            ForEach(OnboardingStep.allCases.indices, id: \.self) { index in
+                let step = OnboardingStep.allCases[index]
+                let isActive = step == onboardingStep
+                let isCompleted = OnboardingStep.allCases.firstIndex(of: onboardingStep)! > index
+                
+                HStack(spacing: 8) {
+                    // Step label
+                    Text(step.title)
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(isActive || isCompleted ? .primary : .secondary)
+                    
+                    // Arrow (except for last step)
+                    if index < OnboardingStep.allCases.count - 1 {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, 12)
+                    }
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal, 32)
+        .padding(.vertical, 20)
+        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+        .overlay(
+            Rectangle()
+                .frame(height: 1)
+                .foregroundColor(Color(NSColor.separatorColor))
+                .opacity(0.3),
+            alignment: .bottom
+        )
+    }
+    
+    // MARK: - Onboarding Steps
+    
+    private var signInStep: some View {
+        centeredOnboardingStep {
+            VStack(spacing: 40) {
+                // App icon
+                Image(systemName: "waveform.circle.fill")
+                    .font(.system(size: 80))
+                    .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
+                
+                VStack(spacing: 16) {
+                    Text("Get started with Hermes")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(.primary)
+                    
+                    Text("Dictate 3x faster. Everywhere you type.")
+                        .font(.system(size: 18))
+                        .foregroundColor(.secondary)
+                }
+                
+                VStack(spacing: 16) {
+                    // OAuth buttons
+                    HStack(spacing: 16) {
+                        Button("Continue with Google") {
+                            nextOnboardingStep()
+                        }
+                        .buttonStyle(.bordered)
+                        .frame(maxWidth: .infinity)
+                        
+                        Button("Continue with Microsoft") {
+                            nextOnboardingStep()
+                        }
+                        .buttonStyle(.bordered)
+                        .frame(maxWidth: .infinity)
+                    }
+                    
+                    HStack(spacing: 16) {
+                        Button("Continue with Apple") {
+                            nextOnboardingStep()
+                        }
+                        .buttonStyle(.bordered)
+                        .frame(maxWidth: .infinity)
+                        
+                        Button("Single sign-on (SSO)") {
+                            nextOnboardingStep()
+                        }
+                        .buttonStyle(.bordered)
+                        .frame(maxWidth: .infinity)
+                    }
+                    
+                    Text("OR")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.vertical, 8)
+                    
+                    // Email input
+                    TextField("Enter an email address", text: .constant(""))
+                        .textFieldStyle(.roundedBorder)
+                        .frame(width: 400)
+                    
+                    Text("Use your work or school email to enjoy the upcoming team and collaboration features.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .frame(width: 400)
+                    
+                    Button("Continue with Email") {
+                        nextOnboardingStep()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .tint(.black)
+                    .frame(width: 400)
+                }
+            }
+        }
+    }
+    
+    private var dataPrivacyStep: some View {
+        centeredOnboardingStep {
+            VStack(spacing: 40) {
+                VStack(spacing: 16) {
+                    Text("You control your data")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(.primary)
+                }
+                
+                VStack(spacing: 16) {
+                    VStack(spacing: 12) {
+                        Text("Help improve Hermes")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                        Text("To make Hermes better, this option lets us collect your audio, transcript, and edits to evaluate, train and improve Hermes's features and AI models")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding()
+                    .background(Color(NSColor.controlBackgroundColor))
+                    .cornerRadius(12)
+                    .frame(width: 400)
+                    
+                    VStack(spacing: 12) {
+                        HStack {
+                            Text("Privacy Mode")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                            Spacer()
+                            Image(systemName: "lock.fill")
+                                .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
+                        }
+                        Text("If you enable Privacy Mode, none of your dictation data will be stored or used for model training by us or any third party.")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                    .padding()
+                    .background(Color(hex: HermesConstants.primaryAccentColor).opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(hex: HermesConstants.primaryAccentColor), lineWidth: 2)
+                    )
+                    .cornerRadius(12)
+                    .frame(width: 400)
+                    
+                    Text("You can always change this later in settings.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
+                Button("Continue") {
+                    nextOnboardingStep()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(.black)
+            }
+        }
+    }
+    
+    private var freeTrialStep: some View {
+        Text("Free Trial Step - TODO")
+    }
+    
+    private var welcomeSurveyStep: some View {
+        Text("Welcome Survey Step - TODO")
+    }
+    
+    private var microphonePermissionStep: some View {
+        Text("Microphone Permission Step - TODO")
+    }
+    
+    private var accessibilityPermissionStep: some View {
+        Text("Accessibility Permission Step - TODO")
+    }
+    
+    private var permissionsCompleteStep: some View {
+        Text("Permissions Complete Step - TODO")
+    }
+    
+    private var keyboardShortcutStep: some View {
+        Text("Keyboard Shortcut Step - TODO")
+    }
+    
+    private var microphoneTestStep: some View {
+        Text("Microphone Test Step - TODO")
+    }
+    
+    private var languageSelectionStep: some View {
+        Text("Language Selection Step - TODO")
+    }
+    
+    private var setupCompleteStep: some View {
+        Text("Setup Complete Step - TODO")
+    }
+    
+    private var appShowcaseStep: some View {
+        Text("App Showcase Step - TODO")
+    }
+    
+    private var gmailDemoStep: some View {
+        Text("Gmail Demo Step - TODO")
+    }
+    
+    private var slackDemoStep: some View {
+        Text("Slack Demo Step - TODO")
+    }
+    
+    private var permissionsStep: some View {
+        Text("Permissions Step - TODO")
+    }
+    
+    private var setUpStep: some View {
+        Text("Set Up Step - TODO")
+    }
+    
+    private var tryItStep: some View {
+        Text("Try It Step - TODO")
+    }
+    
+    // MARK: - Helper Views
+    
+    private func centeredOnboardingStep<Content: View>(@ViewBuilder content: @escaping () -> Content) -> some View {
+        VStack {
+            if onboardingStep != .signIn {
+                HStack {
+                    Button(action: previousOnboardingStep) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 12, weight: .semibold))
+                            Text("Back")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 32)
+                .padding(.top, 20)
+            } else {
+                Spacer()
+                    .frame(height: 64)
+            }
+            
+            Spacer()
+            
+            content()
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func featureColumn(icon: String, title: String, subtitle: String) -> some View {
+        VStack(spacing: 12) {
+            Text(icon)
+                .font(.system(size: 40))
+            
+            VStack(spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+    }
+    
+    // MARK: - Onboarding Actions
+    private func nextOnboardingStep() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+                    Button(action: previousOnboardingStep) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 12, weight: .semibold))
+                            Text("Back")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Spacer()
+                }
+                .frame(height: 44)
+                
+                // Main content
+                VStack(alignment: .leading, spacing: 32) {
+                    // Title and subtitle
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Set up Hermes on your computer")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.primary)
+                    }
+                    
+                    // Permission items
+                    VStack(alignment: .leading, spacing: 16) {
+                        // Accessibility completed item
+                        permissionItem(
+                            title: "Hermes can now paste text anywhere",
+                            isCompleted: checkAccessibilityPermission(),
+                            action: { openAccessibilityPreferences() }
+                        )
+                        
+                        // Microphone permission item
+                        permissionItem(
+                            title: "Allow Hermes to use your microphone",
+                            subtitle: "Hermes will only access the mic when you are actively using it",
+                            isCompleted: checkMicrophonePermission(),
+                            showButton: !checkMicrophonePermission(),
+                            buttonTitle: "Allow",
+                            action: { requestMicrophonePermission() }
+                        )
+                    }
+                    
+                    // Continue button
+                    Button("Continue") {
+                        nextOnboardingStep()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .tint(Color(hex: HermesConstants.primaryAccentColor))
+                    .frame(width: 200)
+                }
+                .padding(.leading, 48)
+                .padding(.top, 20)
+                
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            // Right visual area - system permission dialog mockup
+            VStack {
+                if !checkMicrophonePermission() {
+                    permissionDialogMockup
+                }
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    // MARK: - Permission Components
+    
+    private func permissionItem(title: String, subtitle: String? = nil, isCompleted: Bool, showButton: Bool = false, buttonTitle: String = "Allow", action: @escaping () -> Void) -> some View {
+        HStack(spacing: 12) {
+            // Status icon
+            Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: 18))
+                .foregroundColor(isCompleted ? Color(hex: HermesConstants.primaryAccentColor) : .secondary)
+            
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 16))
+                    .foregroundColor(.primary)
+                
+                if let subtitle = subtitle {
+                    Text(subtitle)
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            Spacer()
+            
+            // Action button
+            if showButton {
+                Button(buttonTitle) {
+                    action()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.regular)
+                .tint(.primary)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(Color(NSColor.controlBackgroundColor))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isCompleted ? Color(hex: HermesConstants.primaryAccentColor).opacity(0.3) : Color.clear, lineWidth: 1)
+                )
+        )
+    }
+    
+    private var permissionDialogMockup: some View {
+        VStack(spacing: 12) {
+            // Mock system permission dialog
+            VStack(spacing: 16) {
+                Image(systemName: "hand.raised.fill")
+                    .font(.system(size: 40))
+                    .foregroundColor(.blue)
+                
+                VStack(spacing: 8) {
+                    Text("\"Hermes\" would like to access the microphone.")
+                        .font(.system(size: 16, weight: .semibold))
+                        .multilineTextAlignment(.center)
+                    
+                    Text("Hermes needs access to your microphone to transcribe your speech!")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                
+                HStack(spacing: 12) {
+                    Button("Don't Allow") {}
+                        .buttonStyle(.borderless)
+                        .foregroundColor(.secondary)
+                    
+                    Button("OK") {}
+                        .buttonStyle(.borderedProminent)
+                }
+            }
+            .padding(24)
+            .background(Color(NSColor.controlBackgroundColor))
+            .cornerRadius(12)
+            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+        }
+        .frame(width: 300)
+    }
+    
+    private var setUpStep: some View {
+        HStack(spacing: 0) {
+            // Left content area
+            VStack(alignment: .leading, spacing: 0) {
+                // Back button
+                HStack {
+                    Button(action: previousOnboardingStep) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 12, weight: .semibold))
+                            Text("Back")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Spacer()
+                }
+                .frame(height: 44)
+                
+                // Main content
+                VStack(alignment: .leading, spacing: 32) {
+                    // Title and subtitle
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Your hardware setup is")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.primary)
+                        Text("good to go")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.primary)
+                    }
+                    
+                    // Continue button
+                    Button("Continue") {
+                        nextOnboardingStep()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .tint(Color(hex: HermesConstants.primaryAccentColor))
+                    .frame(width: 200)
+                }
+                .padding(.leading, 48)
+                .padding(.top, 20)
+                
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            // Right visual area - hardware check visualization
+            VStack {
+                // Hardware check icon (same as reference image)
+                VStack(spacing: 20) {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.secondary.opacity(0.15))
+                        .frame(width: 120, height: 120)
+                        .overlay(
+                            VStack(spacing: 8) {
+                                // Three horizontal lines (like a settings/hardware icon)
+                                ForEach(0..<3) { _ in
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(Color.secondary.opacity(0.6))
+                                        .frame(width: 40, height: 6)
+                                }
+                                
+                                // Checkmark overlay
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
+                                    .background(
+                                        Circle()
+                                            .fill(Color(NSColor.controlBackgroundColor))
+                                            .frame(width: 32, height: 32)
+                                    )
+                                    .offset(x: 20, y: -10)
+                            }
+                        )
+                }
+                
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private var tryItStep: some View {
+        HStack(spacing: 0) {
+            // Left content area
+            VStack(alignment: .leading, spacing: 0) {
+                // Back button
+                HStack {
+                    Button(action: previousOnboardingStep) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 12, weight: .semibold))
+                            Text("Back")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Spacer()
+                }
+                .frame(height: 44)
+                
+                // Main content
+                VStack(alignment: .leading, spacing: 32) {
+                    // Title and subtitle
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Hermes works in any app")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(.primary)
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("From emails to chats to documents—Hermes")
+                                .font(.system(size: 18))
+                                .foregroundColor(.secondary)
+                            Text("works in any textbox on your computer.")
+                                .font(.system(size: 18))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    
+                    // Finish button
+                    Button("Finish") {
+                        completeOnboarding()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .tint(Color(hex: HermesConstants.primaryAccentColor))
+                    .frame(width: 200)
+                }
+                .padding(.leading, 48)
+                .padding(.top, 20)
+                
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            // Right visual area - app icons
+            VStack {
+                // App icons row (matching reference image)
+                HStack(spacing: 16) {
+                    // Finder
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.blue.opacity(0.1))
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Image(systemName: "folder.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.blue)
+                        )
+                    
+                    // Slack (use a communication icon)
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.purple.opacity(0.1))
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Image(systemName: "message.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.purple)
+                        )
+                    
+                    // Mail
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.red.opacity(0.1))
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Image(systemName: "envelope.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.red)
+                        )
+                    
+                    // ChatGPT (use a chat bubble)
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.green.opacity(0.1))
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Image(systemName: "bubble.left.and.bubble.right.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.green)
+                        )
+                    
+                    // Notion (use a document icon)
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.gray.opacity(0.1))
+                        .frame(width: 60, height: 60)
+                        .overlay(
+                            Image(systemName: "doc.fill")
+                                .font(.system(size: 30))
+                                .foregroundColor(.gray)
+                        )
+                }
+                .padding(20)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.secondary.opacity(0.05))
+                )
+                
+                Spacer()
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    private func permissionCard(icon: String, title: String, description: String, isGranted: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 20) {
+                Image(systemName: icon)
+                    .font(.system(size: 60))
+                    .foregroundColor(isGranted ? Color(hex: HermesConstants.primaryAccentColor) : .secondary)
+                
+                VStack(spacing: 8) {
+                    Text(title)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                    
+                    Text(description)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                
+                HStack(spacing: 8) {
+                    Image(systemName: isGranted ? "checkmark.circle.fill" : "exclamationmark.circle")
+                        .foregroundColor(isGranted ? Color(hex: HermesConstants.primaryAccentColor) : .orange)
+                    
+                    Text(isGranted ? "Granted" : "Required")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(isGranted ? Color(hex: HermesConstants.primaryAccentColor) : .orange)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(32)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(NSColor.controlBackgroundColor))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(isGranted ? Color(hex: HermesConstants.primaryAccentColor).opacity(0.3) : Color.clear, lineWidth: 2)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+    
+    
+    // MARK: - Onboarding Actions
+    private func nextOnboardingStep() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            switch onboardingStep {
+            case .signIn:
+                onboardingStep = .permissions
+            case .permissions:
+                onboardingStep = .setUp
+            case .setUp:
+                onboardingStep = .tryIt
+            case .tryIt:
+                completeOnboarding()
+            }
+        }
+    }
+    
+    private func previousOnboardingStep() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            switch onboardingStep {
+            case .signIn:
+                break // Can't go back from signIn
+            case .permissions:
+                onboardingStep = .signIn
+            case .setUp:
+                onboardingStep = .permissions
+            case .tryIt:
+                onboardingStep = .setUp
+            }
+        }
+    }
+    
+    private func completeOnboarding() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            showingOnboarding = false
+        }
+        // TODO: Save onboarding completion state
+    }
+    
+    private func checkMicrophonePermission() -> Bool {
+        // TODO: Implement actual microphone permission check
+        return true
+    }
+    
+    private func requestMicrophonePermission() {
+        // TODO: Implement microphone permission request
+    }
+    
+    private func checkAccessibilityPermission() -> Bool {
+        return AXIsProcessTrusted()
+    }
+    
+    private func openAccessibilityPreferences() {
+        let prefPane = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+        if let url = URL(string: prefPane) {
+            NSWorkspace.shared.open(url)
+        }
+    }
+    
+    // MARK: - Sidebar
+    
+    private var sidebar: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header with logo and trial info
+            sidebarHeader
+                .padding(.top, 24)
+                .padding(.horizontal, 16)
+            
+            Spacer(minLength: 24)
+            
+            // Navigation items
+            navigationItems
+                .padding(.horizontal, 8)
+            
+            Spacer()
+            
+            // Upgrade CTA
+            upgradeCTA
+                .padding(.horizontal, 16)
+                .padding(.bottom, 24)
+        }
+    }
+    
+    private var sidebarHeader: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Logo
+            Text("Hermes")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+            
+            // Pro trial badge
+            HStack(spacing: 8) {
+                Text("Pro Trial")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
+                
+                Spacer()
+                
+                Text("12/14")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color(hex: HermesConstants.primaryAccentColor).opacity(0.1))
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color(hex: HermesConstants.primaryAccentColor).opacity(0.3), lineWidth: 1)
+            )
+            .cornerRadius(16)
+            
+            // Progress bar
+            ProgressView(value: 12, total: 14)
+                .progressViewStyle(.linear)
+                .tint(Color(hex: HermesConstants.primaryAccentColor))
+                .scaleEffect(y: 0.5)
+        }
+    }
+    
+    private var navigationItems: some View {
+        VStack(spacing: 4) {
+            ForEach(SidebarSection.allCases, id: \.self) { section in
+                navigationItem(for: section)
+            }
+        }
+    }
+    
+    private func navigationItem(for section: SidebarSection) -> some View {
+        Button(action: {
+            selectedSection = section
+        }) {
+            HStack(spacing: 12) {
+                Text(section.icon)
+                    .font(.system(size: 16))
+                    .frame(width: 20)
+                    .foregroundColor(selectedSection == section ? Color(hex: HermesConstants.primaryAccentColor) : .secondary)
+                
+                Text(section.title)
+                    .font(.system(size: 14, weight: selectedSection == section ? .semibold : .regular))
+                    .foregroundColor(selectedSection == section ? .primary : .secondary)
+                
+                Spacer()
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                selectedSection == section
+                    ? Color(NSColor.selectedControlColor).opacity(0.3)
+                    : Color.clear
+            )
+            .cornerRadius(8)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    private var upgradeCTA: some View {
+        Button(action: {
+            // TODO: Show upgrade flow
+        }) {
+            HStack {
+                Text("Upgrade to Pro")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.black)
+                
+                Spacer()
+                
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.black)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(hex: HermesConstants.primaryAccentColor))
+            .cornerRadius(8)
+        }
+        .buttonStyle(.plain)
+    }
+    
+    // MARK: - Main Content
+    
+    private var mainContent: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header with greeting and stats
+            mainHeader
+                .padding(.top, 32)
+                .padding(.horizontal, 32)
+            
+            Spacer(minLength: 32)
+            
+            // Content based on selected section
+            selectedContentView
+                .padding(.horizontal, 32)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            
+            Spacer(minLength: 32)
+        }
+    }
+    
+    private var mainHeader: some View {
+        HStack(alignment: .top) {
+            // Greeting
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Welcome back, \(userName)")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundColor(.primary)
+                
+                Text("Ready to dictate your thoughts")
+                    .font(.system(size: 16))
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            // Stats badges
+            statsSection
+        }
+    }
+    
+    private var statsSection: some View {
+        HStack(spacing: 12) {
+            statBadge(icon: "🔥", label: "3 weeks", tooltip: "Streak: 3 weeks of daily usage")
+            statBadge(icon: "🚀", label: "26.0K words", tooltip: "Total words dictated this month")
+            statBadge(icon: "🏆", label: "109 WPM", tooltip: "Average words per minute")
+        }
+    }
+    
+    private func statBadge(icon: String, label: String, tooltip: String) -> some View {
+        HStack(spacing: 6) {
+            Text(icon)
+                .font(.system(size: 14))
+            
+            Text(label)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(Color.secondary.opacity(0.8))
+        .cornerRadius(16)
+        .help(tooltip)
+    }
+    
+    @ViewBuilder
+    private var selectedContentView: some View {
+        switch selectedSection {
+        case .home:
+            homeContent
+        case .dictionary:
+            dictionaryContent
+        case .notes:
+            notesContent
+        case .team:
+            teamContent
+        case .refer:
+            referContent
+        case .help:
+            helpContent
+        }
+    }
+    
+    // MARK: - Content Sections
+    
+    private var homeContent: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            // Top introduction card
+            introductionCard
+            
+            // Recent activity timeline
+            recentActivitySection
+        }
+    }
+    
+    private var introductionCard: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Voice dictation in any app")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(.primary)
+                
+                Text("Hold down ⌘⌘ and speak into any textbox for instant transcription")
+                    .font(.system(size: 16))
+                    .foregroundColor(.secondary)
+            }
+            
+            Button(action: {
+                // TODO: Show use cases
+            }) {
+                HStack {
+                    Text("Explore use cases")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.black)
+                    
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.black)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(Color(hex: HermesConstants.primaryAccentColor))
+                .cornerRadius(8)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(24)
+        .background(Color(NSColor.controlBackgroundColor))
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+    }
+    
+    private var recentActivitySection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Recent activity")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(.primary)
+            
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(mockActivityItems, id: \.id) { item in
+                        activityCard(for: item)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func activityCard(for item: ActivityItem) -> some View {
+        HStack(alignment: .top, spacing: 16) {
+            // Time
+            Text(item.time)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.secondary)
+                .frame(width: 80, alignment: .leading)
+            
+            // Content
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.text)
+                    .font(.system(size: 14))
+                    .foregroundColor(.primary)
+                
+                Text(item.app)
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            // Word count
+            Text("\(item.wordCount) words")
+                .font(.system(size: 12))
+                .foregroundColor(.secondary)
+        }
+        .padding(16)
+        .background(Color(NSColor.controlBackgroundColor))
+        .cornerRadius(8)
+        .shadow(color: .black.opacity(0.03), radius: 4, x: 0, y: 1)
+    }
+    
+    // MARK: - Other Content Placeholders
+    
+    private var dictionaryContent: some View {
+        Text("Dictionary - Coming Soon")
+            .font(.title2)
+            .foregroundColor(.secondary)
+    }
+    
+    private var notesContent: some View {
+        Text("Notes - Coming Soon")
+            .font(.title2)
+            .foregroundColor(.secondary)
+    }
+    
+    private var teamContent: some View {
+        Text("Team Management - Coming Soon")
+            .font(.title2)
+            .foregroundColor(.secondary)
+    }
+    
+    private var referContent: some View {
+        Text("Refer Friends - Coming Soon")
+            .font(.title2)
+            .foregroundColor(.secondary)
+    }
+    
+    private var helpContent: some View {
+        Text("Help & Support - Coming Soon")
+            .font(.title2)
+            .foregroundColor(.secondary)
+    }
+    
+    // MARK: - Computed Properties
+    
+    private var sidebarBackground: some View {
+        ZStack {
+            // Adaptive background that works in both light and dark mode
+            Color(NSColor.controlBackgroundColor)
+                .opacity(0.7)
+            
+            // Subtle green tint instead of purple
+            Color(hex: HermesConstants.primaryAccentColor)
+                .opacity(0.05)
+        }
+        .background(.ultraThinMaterial)
+    }
+}
+
+// MARK: - Supporting Types
+
+enum OnboardingMainStep: String, CaseIterable {
+    case signIn = "SIGN IN"
+    case permissions = "PERMISSIONS"
+    case setUp = "SET UP"
+    case tryIt = "TRY IT"
+}
+
+enum OnboardingStep: CaseIterable {
+    case signIn
+    case permissions  
+    case setUp
+    case tryIt
+    
+    var title: String {
+        switch self {
+        case .signIn: return "SIGN IN"
+        case .permissions: return "PERMISSIONS"
+        case .setUp: return "SET UP"
+        case .tryIt: return "TRY IT"
+        }
+    }
+}
+
+struct HotkeyOption {
+    let keys: String
+    let description: String
+    
+    static let options = [
+        HotkeyOption(keys: "⌘⌘", description: "Command twice (recommended)"),
+        HotkeyOption(keys: "⌘⇧D", description: "Command + Shift + D"),
+        HotkeyOption(keys: "⌃⌥D", description: "Control + Option + D")
+    ]
+}
+
+struct OnboardingStepView<Content: View>: View {
+    let step: Int
+    let totalSteps: Int
+    let title: String
+    let subtitle: String
+    let content: () -> Content
+    let primaryAction: (String, () -> Void)
+    let secondaryAction: (String, () -> Void)?
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            VStack(spacing: 16) {
+                // Progress indicator
+                HStack(spacing: 8) {
+                    ForEach(1...totalSteps, id: \.self) { stepNumber in
+                        Circle()
+                            .fill(stepNumber <= step ? Color(hex: HermesConstants.primaryAccentColor) : Color.secondary.opacity(0.3))
+                            .frame(width: 8, height: 8)
+                    }
+                }
+                .padding(.top, 24)
+                
+                // Title and subtitle
+                VStack(spacing: 8) {
+                    Text(title)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .multilineTextAlignment(.center)
+                    
+                    Text(subtitle)
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            .padding(.horizontal, 32)
+            
+            // Content
+            ScrollView {
+                content()
+                    .padding(32)
+            }
+            .frame(maxHeight: 400)
+            
+            // Actions
+            VStack(spacing: 12) {
+                Divider()
+                
+                HStack(spacing: 16) {
+                    if let secondaryAction = secondaryAction {
+                        Button(secondaryAction.0) {
+                            secondaryAction.1()
+                        }
+                        .buttonStyle(.borderless)
+                        .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(primaryAction.0) {
+                        primaryAction.1()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+                    .tint(Color(hex: HermesConstants.primaryAccentColor))
+                }
+                .padding(.horizontal, 32)
+                .padding(.bottom, 24)
+            }
+        }
+        .frame(minHeight: 500)
+    }
+}
+
+enum SidebarSection: String, CaseIterable {
+    case home = "home"
+    case dictionary = "dictionary"
+    case notes = "notes"
+    case team = "team"
+    case refer = "refer"
+    case help = "help"
+    
+    var icon: String {
+        switch self {
+        case .home: return "🏠"
+        case .dictionary: return "📖"
+        case .notes: return "📝"
+        case .team: return "👥"
+        case .refer: return "🎁"
+        case .help: return "❓"
+        }
+    }
+    
+    var title: String {
+        switch self {
+        case .home: return "Home"
+        case .dictionary: return "Dictionary"
+        case .notes: return "Notes"
+        case .team: return "Add Team"
+        case .refer: return "Refer Friend"
+        case .help: return "Help"
+        }
+    }
+}
+
+struct ActivityItem {
+    let id = UUID()
+    let time: String
+    let text: String
+    let app: String
+    let wordCount: Int
+}
+
+// MARK: - Mock Data
+
+private let mockActivityItems = [
+    ActivityItem(time: "01:00 PM", text: "Draft email to the team about quarterly planning and resource allocation", app: "Mail", wordCount: 45),
+    ActivityItem(time: "12:45 PM", text: "Meeting notes from the design review session with stakeholders", app: "Notes", wordCount: 78),
+    ActivityItem(time: "12:30 PM", text: "Code comments for the new authentication module implementation", app: "Xcode", wordCount: 32),
+    ActivityItem(time: "11:15 AM", text: "Documentation update for the API endpoints and integration guide", app: "Notion", wordCount: 156),
+    ActivityItem(time: "10:30 AM", text: "Quick message to clarify project timeline and deliverables", app: "Slack", wordCount: 23)
+]
+
+
+// MARK: - Preview
+
+#Preview {
+    MainAppView()
+        .frame(width: 1000, height: 700)
+}

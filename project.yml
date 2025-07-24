@@ -18,6 +18,8 @@ targets:
       - path: Hermes
         excludes:
           - "*.entitlements"
+        includes:
+          - "**/*.swift"
       - path: CLAUDE.md
         optional: true
         buildPhase: none
@@ -25,6 +27,9 @@ targets:
         optional: true
         buildPhase: none
       - path: "Hermes Design System Document.markdown"
+        optional: true
+        buildPhase: none
+      - path: "Hermes UI Feedback Instructions for Main App View and Floating Dictation Marker (Updated with New States).markdown"
         optional: true
         buildPhase: none
       - path: XCODEGEN_WORKFLOW.md
@@ -50,6 +55,8 @@ targets:
         GENERATE_INFOPLIST_FILE: true
         INFOPLIST_KEY_CFBundleDisplayName: Hermes
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "Hermes needs access to your microphone for real-time dictation and transcription."
+        INFOPLIST_KEY_LSUIElement: true
     dependencies:
       - package: WhisperKit
       - package: Supabase
@@ -110,6 +117,7 @@ fileGroups:
       - CLAUDE.md
       - "Hermes App Specifications (Optimized for Claude Code Parsing).markdown"
       - "Hermes Design System Document.markdown"
+      - "Hermes UI Feedback Instructions for Main App View and Floating Dictation Marker (Updated with New States).markdown"
       - XCODEGEN_WORKFLOW.md
   - path: ProjectConfig
     children:
