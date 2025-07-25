@@ -24,8 +24,8 @@ class TranscriptionService: ObservableObject {
     private let transcriptionSubject = PassthroughSubject<HermesTranscriptionResult, Never>()
     
     // Model configuration
-    private let primaryModel = "openai_whisper-large-v3-turbo"
-    private let fallbackModel = "openai_whisper-distil-large-v3"
+    private let primaryModel = "large-v3"
+    private let fallbackModel = "distil-large-v3"
     private var isUsingFallback = false
     
     // Audio processing
@@ -70,8 +70,19 @@ class TranscriptionService: ObservableObject {
                 print("✅ WhisperKit initialized with fallback model: \(fallbackModel)")
                 
             } catch {
-                print("❌ Both models failed: \(error)")
-                throw TranscriptionError.modelInitializationFailed(error)
+                print("⚠️ Fallback model failed, trying base model: \(error)")
+                
+                // Try base model as final fallback
+                do {
+                    whisperKit = try await initializeWhisperKit(with: "base")
+                    currentModel = "base"
+                    isUsingFallback = true
+                    print("✅ WhisperKit initialized with base model")
+                    
+                } catch {
+                    print("❌ All models failed: \(error)")
+                    throw TranscriptionError.modelInitializationFailed(error)
+                }
             }
         }
         
@@ -131,9 +142,9 @@ class TranscriptionService: ObservableObject {
         // Get available models from WhisperKit
         // These are the models we want to support in Hermes
         let preferredModels = [
-            primaryModel,      // "openai_whisper-large-v3-turbo"
-            fallbackModel,     // "openai_whisper-distil-large-v3"
-            "openai_whisper-base"  // Lightweight option
+            primaryModel,      // "large-v3"
+            fallbackModel,     // "distil-large-v3"
+            "base"             // Lightweight option
         ]
         
         availableModels = preferredModels
