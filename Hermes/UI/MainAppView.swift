@@ -620,7 +620,7 @@ enum SidebarSection: String, CaseIterable {
         switch self {
         case .home: return "house.fill"
         case .dictionary: return "book.fill"
-        case .notes: return "note.text.fill"
+        case .notes: return "note.text"
         }
     }
 }

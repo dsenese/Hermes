@@ -42,6 +42,7 @@ class DictationEngine: ObservableObject {
         self.textInjector = textInjector ?? TextInjector()
         
         setupSubscriptions()
+        setupGlobalHotkey()
     }
     
     // MARK: - Public Methods
@@ -56,6 +57,9 @@ class DictationEngine: ObservableObject {
             partialTranscription = ""
             errorMessage = nil
             startTime = Date()
+            
+            // Reset transcription service state
+            transcriptionService.resetState()
             
             // Start audio capture
             try await audioManager.startRecording()
@@ -74,29 +78,38 @@ class DictationEngine: ObservableObject {
         }
     }
     
-    /// Stops the dictation session and injects final text
+    /// Stops the dictation session and processes the complete audio
     func stopDictation() async {
         guard isActive else { return }
         
         isActive = false
-        isProcessing = false
+        isProcessing = true // Keep processing true while transcribing
         
         // Stop audio capture
         audioManager.stopRecording()
         
-        // Cancel ongoing transcription
+        print("⏹️ Audio recording stopped - starting transcription...")
+        
+        // Transcribe the complete recorded session
+        await transcriptionService.transcribeCompleteSession()
+        
+        // Cancel ongoing transcription task
         transcriptionTask?.cancel()
+        
+        // Wait a moment for transcription result to arrive
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
         
         // Inject final transcription if we have any
         if !currentTranscription.isEmpty {
             await injectFinalText()
         }
         
+        isProcessing = false
+        
         // Log performance metrics
         if let startTime = startTime {
             let sessionDuration = Date().timeIntervalSince(startTime)
-            let avgLatency = latencyMeasurements.reduce(0, +) / Double(latencyMeasurements.count)
-            print("📊 Session completed - Duration: \(String(format: "%.2f", sessionDuration))s, Avg Latency: \(String(format: "%.3f", avgLatency))s")
+            print("📊 Session completed - Duration: \(String(format: "%.2f", sessionDuration))s")
         }
         
         // Reset state
@@ -104,7 +117,7 @@ class DictationEngine: ObservableObject {
         partialTranscription = ""
         latencyMeasurements.removeAll()
         
-        print("⏹️ Dictation session stopped")
+        print("✅ Dictation session completed")
     }
     
     /// Toggles dictation on/off
@@ -142,19 +155,8 @@ class DictationEngine: ObservableObject {
     private func processAudioData(_ audioData: Data) async {
         guard isActive else { return }
         
-        let processingStartTime = Date()
-        
-        // Send audio data to transcription service
+        // Simply accumulate audio data - no transcription during recording
         await transcriptionService.processAudioData(audioData)
-        
-        // Measure latency
-        let latency = Date().timeIntervalSince(processingStartTime)
-        latencyMeasurements.append(latency)
-        
-        // Log if latency exceeds target
-        if latency > HermesConstants.maxLatency {
-            print("⚠️ High latency detected: \(String(format: "%.3f", latency))s (target: \(HermesConstants.maxLatency)s)")
-        }
     }
     
     private func handleTranscriptionResult(_ result: HermesTranscriptionResult) async {
@@ -195,6 +197,38 @@ class DictationEngine: ObservableObject {
     
     deinit {
         transcriptionTask?.cancel()
+        Task { @MainActor in
+            GlobalHotkeyManager.shared.unregisterHotkey()
+        }
+    }
+    
+    // MARK: - Global Hotkey Integration
+    
+    private func setupGlobalHotkey() {
+        let hotkeyManager = GlobalHotkeyManager.shared
+        let currentHotkey = UserSettings.shared.keyboardShortcuts.globalDictationHotkey
+        
+        // Register the global hotkey for hold-to-talk dictation control
+        hotkeyManager.registerHotkey(currentHotkey, 
+            onPressed: {
+                Task { @MainActor in
+                    await self.startDictation()
+                }
+            },
+            onReleased: {
+                Task { @MainActor in
+                    await self.stopDictation()
+                }
+            }
+        )
+        
+        print("🔥 Global hotkey registered for hold-to-talk: \(currentHotkey.displayString)")
+    }
+    
+    /// Update the global hotkey when settings change
+    func updateGlobalHotkey(_ hotkey: HotkeyConfiguration) {
+        GlobalHotkeyManager.shared.updateHotkey(hotkey)
+        print("🔄 Updated global hotkey to: \(hotkey.displayString)")
     }
 }
 

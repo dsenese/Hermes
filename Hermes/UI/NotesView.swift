@@ -167,8 +167,13 @@ struct NotesView: View {
                         .font(.system(size: 20))
                         .foregroundColor(isRecording ? .red : Color(hex: HermesConstants.primaryAccentColor))
                     
-                    Text(isRecording ? "Stop Recording" : "Start Recording")
-                        .font(.system(size: 14, weight: .medium))
+                    if dictationEngine.isProcessing && !isRecording {
+                        Text("Processing...")
+                            .font(.system(size: 14, weight: .medium))
+                    } else {
+                        Text(isRecording ? "Stop Recording" : "Start Recording")
+                            .font(.system(size: 14, weight: .medium))
+                    }
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
@@ -182,6 +187,7 @@ struct NotesView: View {
                 )
             }
             .buttonStyle(.plain)
+            .disabled(dictationEngine.isProcessing && !isRecording)
             
             // Audio level indicator (if recording)
             if isRecording {
@@ -192,16 +198,28 @@ struct NotesView: View {
     
     private var audioLevelIndicator: some View {
         VStack(spacing: 8) {
-            Text("Audio Level")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(.secondary)
+            HStack {
+                Text("Audio Level")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.secondary)
+                
+                Spacer()
+                
+                // Debug: Show actual audio level value
+                Text(String(format: "%.2f", dictationEngine.audioManager.audioLevel))
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(.blue)
+            }
             
             HStack(spacing: 4) {
                 ForEach(0..<8) { index in
+                    let threshold = Float(index) * 0.1
+                    let isActive = dictationEngine.audioManager.audioLevel > threshold
                     RoundedRectangle(cornerRadius: 2)
                         .fill(Color(hex: HermesConstants.primaryAccentColor))
                         .frame(width: 6, height: CGFloat(8 + index * 3))
-                        .opacity(0.3) // TODO: Connect to actual audio levels
+                        .opacity(isActive ? 1.0 : 0.3)
+                        .animation(.easeInOut(duration: 0.1), value: isActive)
                 }
             }
         }

@@ -3,13 +3,14 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		0F7259542373A616BF878048 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6EA0FBCADACC4307BA66C7DA /* WhisperKit */; };
 		106F5BC24FB5A649060FFC8B /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 6B90E6DA4F61315D16AF1D04 /* Supabase */; };
 		23BE3ABA162FA5DB216D4445 /* DictationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = B703735220F562C2762BD887 /* DictationEngine.swift */; };
+		261A26FE06FABBA06CB4ECA7 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1ADE53F3F8ABB8DFE4F7450 /* UserSettings.swift */; };
 		366261331CE88E12B4399247 /* AudioManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8285A6903606EFDBCB8773B3 /* AudioManager.swift */; };
 		36D0E1248D79C90B8FCBC68F /* HermesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A5E50A8D17E3A5199AD64C /* HermesTests.swift */; };
 		3B7830ADF3785E11708F5839 /* SetUpStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBA2D5ED2FDEC6559A7BD253 /* SetUpStepView.swift */; };
@@ -24,6 +25,8 @@
 		8B49C2A2EBD8EA6EE2E60962 /* FloatingDictationMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84595F45B08FDC26D2788415 /* FloatingDictationMarker.swift */; };
 		8C334068341092FDC2700506 /* TryItStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5EEDE5AF9F7FEB4670AA4BF /* TryItStepView.swift */; };
 		8CFAB41FC688E1A2E4DDF8CC /* TextInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935958C324CFE87913F3E242 /* TextInjector.swift */; };
+		984BBE8AC23454CA01173212 /* HotkeyRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B0D2D105C0F6F7F00EC18A4 /* HotkeyRecorder.swift */; };
+		A6C827D6A6A9B0CEC3188087 /* Hermes.icon in Resources */ = {isa = PBXBuildFile; fileRef = 612F27EE4109CCD49832AFD6 /* Hermes.icon */; };
 		AB030B4794747735E31CDC52 /* ButtonStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637BC7196C00F162312D7272 /* ButtonStyles.swift */; };
 		AC366055E869E008DAF65614 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61F18603A8DB9396262EA98C /* Extensions.swift */; };
 		AF28A6C136DA735D428C1E1F /* MainAppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD02ED0FA137EEF6258E96DC /* MainAppView.swift */; };
@@ -34,6 +37,8 @@
 		BB9766EF023A4ED669C65B60 /* HermesTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000B1977FBAC8BC552511711 /* HermesTextField.swift */; };
 		D97519FAE06839C4AC34CBA8 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60F50DAD8F491D12398B26E0 /* NotesView.swift */; };
 		DFC833FFF0EB39A95018A695 /* HermesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7130403DBD0EBF1BDECC6CD9 /* HermesApp.swift */; };
+		F5DB655EAEF62AF4D8D5ED28 /* GlobalHotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C7206262113C0835CBE34F9 /* GlobalHotkeyManager.swift */; };
+		F7981CC047EBE11A062C2DE2 /* DictationHistoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F59DF043C84EB0A64400494A /* DictationHistoryManager.swift */; };
 		FE60F1F8046EC88EC3A8E87C /* HermesDropdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB41B60DCA14A22F24760DB6 /* HermesDropdown.swift */; };
 /* End PBXBuildFile section */
 
@@ -56,36 +61,44 @@
 
 /* Begin PBXFileReference section */
 		000B1977FBAC8BC552511711 /* HermesTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesTextField.swift; sourceTree = "<group>"; };
-		01A80A363CC72912F1FCCC98 /* MainAppView.swift.backup */ = {isa = PBXFileReference; path = MainAppView.swift.backup; sourceTree = "<group>"; };
+		01A80A363CC72912F1FCCC98 /* MainAppView.swift.backup */ = {isa = PBXFileReference; lastKnownFileType = text; path = MainAppView.swift.backup; sourceTree = "<group>"; };
 		0ACE1F82742DEB21B90093C1 /* HermesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HermesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16E4296A43753AB9028AF0E4 /* Hermes.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Hermes.entitlements; sourceTree = "<group>"; };
 		1CB4860E77B3C2149C3F7684 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		23FE201D19FBB8B52EC51054 /* HermesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesUITests.swift; sourceTree = "<group>"; };
 		3301A166BEE1858A36369C97 /* OnboardingStepContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStepContainer.swift; sourceTree = "<group>"; };
+		33C2F5225EA4329828104500 /* Hermes Background.svg */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Hermes Background.svg"; sourceTree = "<group>"; };
 		39D7625A62C712745BB781CD /* SignInStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInStepView.swift; sourceTree = "<group>"; };
 		4693F5BFE2BE28D26D1024BA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		4B0D2D105C0F6F7F00EC18A4 /* HotkeyRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyRecorder.swift; sourceTree = "<group>"; };
 		4F773009CA054ECEAEFE118D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		59825AD5632CEE9A50E51641 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
 		60F50DAD8F491D12398B26E0 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
+		612F27EE4109CCD49832AFD6 /* Hermes.icon */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Hermes.icon; path = Hermes/Hermes.icon; sourceTree = SOURCE_ROOT; };
 		61F18603A8DB9396262EA98C /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		637BC7196C00F162312D7272 /* ButtonStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonStyles.swift; sourceTree = "<group>"; };
 		697B3D31DF356A0319C334B9 /* XCODEGEN_WORKFLOW.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = XCODEGEN_WORKFLOW.md; sourceTree = "<group>"; };
 		69C30A91ECCD56648BCDDCE4 /* OnboardingProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingProgressBar.swift; sourceTree = "<group>"; };
 		6CDAD721460ADCBB56CBF826 /* Hermes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hermes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7130403DBD0EBF1BDECC6CD9 /* HermesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesApp.swift; sourceTree = "<group>"; };
+		75129CDE43DAB68FA8CD484E /* icon.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = icon.json; sourceTree = "<group>"; };
 		7BCD2E15F5C0181EF1ABF23B /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
 		8285A6903606EFDBCB8773B3 /* AudioManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioManager.swift; sourceTree = "<group>"; };
 		83A5E50A8D17E3A5199AD64C /* HermesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesTests.swift; sourceTree = "<group>"; };
 		84595F45B08FDC26D2788415 /* FloatingDictationMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingDictationMarker.swift; sourceTree = "<group>"; };
 		879E13AC8B194B046DB43536 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		8BFA4B9D95E329B3BFC74336 /* Hermes UI Feedback Instructions for Main App View and Floating Dictation Marker (Updated with New States).markdown */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Hermes UI Feedback Instructions for Main App View and Floating Dictation Marker (Updated with New States).markdown"; sourceTree = "<group>"; };
+		8C7206262113C0835CBE34F9 /* GlobalHotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotkeyManager.swift; sourceTree = "<group>"; };
 		935958C324CFE87913F3E242 /* TextInjector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInjector.swift; sourceTree = "<group>"; };
 		99EB988A7D30BA8538B0B992 /* update-project.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "update-project.sh"; sourceTree = "<group>"; };
 		9DE1C2CABD126704640A2B1C /* PermissionsStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsStepView.swift; sourceTree = "<group>"; };
+		A1ADE53F3F8ABB8DFE4F7450 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
+		A4AE3E2AA72F5E704E81395E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		A5EEDE5AF9F7FEB4670AA4BF /* TryItStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryItStepView.swift; sourceTree = "<group>"; };
 		B5FD4669BE018E63279E21A4 /* Hermes Design System Document.markdown */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Hermes Design System Document.markdown"; sourceTree = "<group>"; };
 		B703735220F562C2762BD887 /* DictationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationEngine.swift; sourceTree = "<group>"; };
 		BD02ED0FA137EEF6258E96DC /* MainAppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainAppView.swift; sourceTree = "<group>"; };
+		C3398B6BA8DF4B01C25C0D99 /* Hermes Logo Icon.svg */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Hermes Logo Icon.svg"; sourceTree = "<group>"; };
 		CCEF1232B3DDFC31AB2E34FA /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		CE1ECFEDCDEF8D9225801C26 /* HermesUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		D96B96D95D73EC565736C46E /* project.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = project.yml; sourceTree = "<group>"; };
@@ -93,6 +106,7 @@
 		EB41B60DCA14A22F24760DB6 /* HermesDropdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HermesDropdown.swift; sourceTree = "<group>"; };
 		EBA2D5ED2FDEC6559A7BD253 /* SetUpStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetUpStepView.swift; sourceTree = "<group>"; };
 		F012672482D38DE55D37BD08 /* HermesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HermesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F59DF043C84EB0A64400494A /* DictationHistoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictationHistoryManager.swift; sourceTree = "<group>"; };
 		F65B08246782F58F64B2044B /* Hermes App Specifications (Optimized for Claude Code Parsing).markdown */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Hermes App Specifications (Optimized for Claude Code Parsing).markdown"; sourceTree = "<group>"; };
 		F8FFD21A5C3F89F7B24ACF0A /* pre-build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "pre-build.sh"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -125,6 +139,15 @@
 				0ACE1F82742DEB21B90093C1 /* HermesUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		1BFB34B2DE5DE12A348C0516 /* Hermes.icon */ = {
+			isa = PBXGroup;
+			children = (
+				75129CDE43DAB68FA8CD484E /* icon.json */,
+				7D9303D3236136B459BA1099 /* Assets */,
+			);
+			path = Hermes.icon;
 			sourceTree = "<group>";
 		};
 		2E704709703280FA413480F8 /* Onboarding */ = {
@@ -161,8 +184,11 @@
 				8285A6903606EFDBCB8773B3 /* AudioManager.swift */,
 				879E13AC8B194B046DB43536 /* Constants.swift */,
 				B703735220F562C2762BD887 /* DictationEngine.swift */,
+				F59DF043C84EB0A64400494A /* DictationHistoryManager.swift */,
+				8C7206262113C0835CBE34F9 /* GlobalHotkeyManager.swift */,
 				935958C324CFE87913F3E242 /* TextInjector.swift */,
 				7BCD2E15F5C0181EF1ABF23B /* TranscriptionService.swift */,
+				A1ADE53F3F8ABB8DFE4F7450 /* UserSettings.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -172,6 +198,15 @@
 			children = (
 			);
 			path = Team;
+			sourceTree = "<group>";
+		};
+		7D9303D3236136B459BA1099 /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				33C2F5225EA4329828104500 /* Hermes Background.svg */,
+				C3398B6BA8DF4B01C25C0D99 /* Hermes Logo Icon.svg */,
+			);
+			path = Assets;
 			sourceTree = "<group>";
 		};
 		88F1DDC177D65A76DA7B8E73 = {
@@ -215,9 +250,12 @@
 				4693F5BFE2BE28D26D1024BA /* Assets.xcassets */,
 				4F773009CA054ECEAEFE118D /* ContentView.swift */,
 				16E4296A43753AB9028AF0E4 /* Hermes.entitlements */,
+				612F27EE4109CCD49832AFD6 /* Hermes.icon */,
 				7130403DBD0EBF1BDECC6CD9 /* HermesApp.swift */,
+				A4AE3E2AA72F5E704E81395E /* Info.plist */,
 				4E1161F0C64335F383A2FA67 /* Core */,
 				16C436A90700800BDEB0F498 /* Features */,
+				1BFB34B2DE5DE12A348C0516 /* Hermes.icon */,
 				64544CF4E7DEB53F9B740199 /* Team */,
 				937C59FA2BD97575600F3283 /* UI */,
 				4CAD21644D8F5BDEF329B282 /* Utilities */,
@@ -251,6 +289,7 @@
 				637BC7196C00F162312D7272 /* ButtonStyles.swift */,
 				EB41B60DCA14A22F24760DB6 /* HermesDropdown.swift */,
 				000B1977FBAC8BC552511711 /* HermesTextField.swift */,
+				4B0D2D105C0F6F7F00EC18A4 /* HotkeyRecorder.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -289,6 +328,7 @@
 			buildConfigurationList = 6F4BC16775987152EB3C2F60 /* Build configuration list for PBXNativeTarget "Hermes" */;
 			buildPhases = (
 				B07BACF1FAD509254195EE6D /* Sources */,
+				D9DAAFDD825F094030F7E745 /* Resources */,
 				6B4A6D0A4262736D1D39B023 /* Frameworks */,
 			);
 			buildRules = (
@@ -354,7 +394,6 @@
 				E2A31871970995591CA2AB24 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 				83475FD8BEF6D84FD55AE86A /* XCRemoteSwiftPackageReference "WhisperKit" */,
 			);
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -364,6 +403,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D9DAAFDD825F094030F7E745 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6C827D6A6A9B0CEC3188087 /* Hermes.icon in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AD9E480DFC65F8EB6AB71E8B /* Sources */ = {
@@ -384,12 +434,15 @@
 				431349B62FEFA9EB288E5624 /* Constants.swift in Sources */,
 				72F3913958D936C246800CAE /* ContentView.swift in Sources */,
 				23BE3ABA162FA5DB216D4445 /* DictationEngine.swift in Sources */,
+				F7981CC047EBE11A062C2DE2 /* DictationHistoryManager.swift in Sources */,
 				72AC9FDE2E3A40BD62210C49 /* DictationPopupView.swift in Sources */,
 				AC366055E869E008DAF65614 /* Extensions.swift in Sources */,
 				8B49C2A2EBD8EA6EE2E60962 /* FloatingDictationMarker.swift in Sources */,
+				F5DB655EAEF62AF4D8D5ED28 /* GlobalHotkeyManager.swift in Sources */,
 				DFC833FFF0EB39A95018A695 /* HermesApp.swift in Sources */,
 				FE60F1F8046EC88EC3A8E87C /* HermesDropdown.swift in Sources */,
 				BB9766EF023A4ED669C65B60 /* HermesTextField.swift in Sources */,
+				984BBE8AC23454CA01173212 /* HotkeyRecorder.swift in Sources */,
 				AF28A6C136DA735D428C1E1F /* MainAppView.swift in Sources */,
 				B02552D5460E689031DA604F /* MenuBarView.swift in Sources */,
 				D97519FAE06839C4AC34CBA8 /* NotesView.swift in Sources */,
@@ -402,6 +455,7 @@
 				8CFAB41FC688E1A2E4DDF8CC /* TextInjector.swift in Sources */,
 				B6205FAECFAA968E7B659DF7 /* TranscriptionService.swift in Sources */,
 				8C334068341092FDC2700506 /* TryItStepView.swift in Sources */,
+				261A26FE06FABBA06CB4ECA7 /* UserSettings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -520,17 +574,14 @@
 		6E0048C153AD84EDADA2C282 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Hermes;
+				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = Hermes/Hermes.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Hermes;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Hermes needs access to your microphone for real-time dictation and transcription.";
+				INFOPLIST_FILE = Hermes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -561,17 +612,14 @@
 		B3AB0AA62B35EE758BF4CF4D /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Hermes;
+				CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION = YES;
 				CODE_SIGN_ENTITLEMENTS = Hermes/Hermes.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Hermes;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Hermes needs access to your microphone for real-time dictation and transcription.";
+				INFOPLIST_FILE = Hermes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

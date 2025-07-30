@@ -14,7 +14,15 @@ struct HermesApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     var body: some Scene {
-        // Empty scene - we're using menu bar only
+        // Main app window
+        WindowGroup {
+            MainAppView()
+                .frame(minWidth: 800, minHeight: 600)
+        }
+        .windowStyle(.automatic)
+        .windowToolbarStyle(.automatic)
+        
+        // Settings window (if needed)
         Settings {
             EmptyView()
         }
@@ -27,16 +35,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusBarItem: NSStatusItem?
     private var menuBarWindowController: MenuBarWindowController?
     private var dictationPopupController: DictationPopupWindowController?
-    private var globalHotkeyManager: GlobalHotkeyManager?
-    private var mainAppWindowController: MainAppWindowController?
     private var floatingDictationController: FloatingDictationController?
+    private var sharedDictationEngine: DictationEngine?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         print("🚀 Starting Hermes application launch...")
         
-        // Hide dock icon for menu bar only app
-        NSApp.setActivationPolicy(.accessory)
-        print("✅ App activation policy set to accessory")
+        // Set as regular app with dock icon
+        NSApp.setActivationPolicy(.regular)
+        print("✅ App activation policy set to regular (with dock icon)")
         
         // Setup menu bar
         setupMenuBar()
@@ -44,8 +51,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Setup global hotkeys
         setupGlobalHotkeys()
         
-        // Setup main app window (initially hidden)
-        setupMainAppWindow()
+        // Main app window is now managed by SwiftUI WindowGroup
         
         // Setup floating dictation marker
         setupFloatingDictationMarker()
@@ -56,7 +62,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setupNotificationObservers()
         
         print("🚀 Hermes launched successfully")
-        print("👀 Look for the waveform icon in your menu bar (top right of screen)")
+        print("📱 Main app window is open")
+        print("👀 Look for the waveform icon in your menu bar (top right of screen) for quick access")
     }
     
     private func setupMenuBar() {
@@ -106,13 +113,23 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func setupGlobalHotkeys() {
-        globalHotkeyManager = GlobalHotkeyManager()
-        
-        // Register default hotkey (⌘⌘)
-        globalHotkeyManager?.registerHotkey(HermesConstants.defaultHotkey) { [weak self] in
-            Task { @MainActor in
-                await self?.toggleDictation()
-            }
+        Task { @MainActor in
+            let hotkeyManager = GlobalHotkeyManager.shared
+            let currentHotkey = UserSettings.shared.keyboardShortcuts.globalDictationHotkey
+            
+            // Register the configured hotkey for hold-to-talk behavior
+            hotkeyManager.registerHotkey(currentHotkey, 
+                onPressed: { [weak self] in
+                    Task { @MainActor in
+                        await self?.startDictation()
+                    }
+                },
+                onReleased: { [weak self] in
+                    Task { @MainActor in
+                        await self?.stopDictation()
+                    }
+                }
+            )
         }
     }
     
@@ -152,15 +169,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @MainActor
-    private func toggleDictation() async {
-        // Get the shared dictation engine instance
-        // For now, create a new one - in production, this would be a shared singleton
-        let dictationEngine = DictationEngine()
-        await dictationEngine.toggleDictation()
+    private func startDictation() async {
+        // Use shared dictation engine instance to avoid audio conflicts
+        if sharedDictationEngine == nil {
+            sharedDictationEngine = DictationEngine()
+        }
         
-        if dictationEngine.isActive {
+        guard let dictationEngine = sharedDictationEngine else { return }
+        
+        // Only start if not already active
+        if !dictationEngine.isActive {
+            await dictationEngine.startDictation()
             showDictationPopup(with: dictationEngine)
-        } else {
+        }
+    }
+    
+    @MainActor
+    private func stopDictation() async {
+        guard let dictationEngine = sharedDictationEngine else { return }
+        
+        // Only stop if currently active
+        if dictationEngine.isActive {
+            await dictationEngine.stopDictation()
             hideDictationPopup()
         }
     }
@@ -212,11 +242,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    private func setupMainAppWindow() {
-        mainAppWindowController = MainAppWindowController()
-        print("✅ Main app window controller created")
-    }
-    
     private func setupFloatingDictationMarker() {
         floatingDictationController = FloatingDictationController()
         floatingDictationController?.show()
@@ -233,19 +258,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @objc private func handleOpenMainApp() {
-        showMainApp()
-    }
-    
-    private func showMainApp() {
-        mainAppWindowController?.showWindow(nil)
+        // Activate the app to bring main window to front
         NSApp.activate(ignoringOtherApps: true)
     }
 }
 
 // MARK: - Menu Bar Window Controller
 
-class MenuBarWindowController: NSWindowController {
+class MenuBarWindowController: NSWindowController, NSWindowDelegate {
     private var isVisible = false
+    private var eventMonitor: Any?
     
     convenience init() {
         let window = NSWindow(
@@ -258,9 +280,11 @@ class MenuBarWindowController: NSWindowController {
         window.level = .popUpMenu
         window.backgroundColor = .clear
         window.hasShadow = true
-        window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         
         self.init(window: window)
+        
+        window.delegate = self
         
         // Set up the SwiftUI content
         let hostingView = NSHostingView(rootView: MenuBarView())
@@ -291,11 +315,38 @@ class MenuBarWindowController: NSWindowController {
         window.makeKeyAndOrderFront(nil)
         
         isVisible = true
+        
+        // Setup click outside monitor to auto-hide
+        setupEventMonitor()
     }
     
     private func hide() {
         window?.orderOut(nil)
         isVisible = false
+        removeEventMonitor()
+    }
+    
+    private func setupEventMonitor() {
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            guard let self = self, let window = self.window else { return }
+            
+            // Check if click is outside our window
+            let clickLocation = NSEvent.mouseLocation
+            if !window.frame.contains(clickLocation) {
+                self.hide()
+            }
+        }
+    }
+    
+    private func removeEventMonitor() {
+        if let eventMonitor = eventMonitor {
+            NSEvent.removeMonitor(eventMonitor)
+            self.eventMonitor = nil
+        }
+    }
+    
+    deinit {
+        removeEventMonitor()
     }
 }
 
@@ -306,36 +357,4 @@ enum PermissionType {
     case accessibility
 }
 
-// MARK: - Main App Window Controller
 
-class MainAppWindowController: NSWindowController {
-    convenience init() {
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 1000, height: 700),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable],
-            backing: .buffered,
-            defer: false
-        )
-        
-        window.title = "Hermes"
-        window.minSize = NSSize(width: 800, height: 600)
-        window.center()
-        window.setFrameAutosaveName("MainAppWindow")
-        
-        self.init(window: window)
-        
-        // Set up the SwiftUI content
-        let hostingView = NSHostingView(rootView: MainAppView())
-        window.contentView = hostingView
-    }
-}
-
-// MARK: - Global Hotkey Manager (Placeholder)
-
-class GlobalHotkeyManager {
-    func registerHotkey(_ hotkey: String, callback: @escaping () -> Void) {
-        // TODO: Implement global hotkey registration
-        // This would use Carbon or other system APIs to register global shortcuts
-        print("🔥 Registered hotkey: \(hotkey)")
-    }
-}

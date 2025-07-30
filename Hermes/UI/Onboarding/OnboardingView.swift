@@ -97,11 +97,11 @@ class OnboardingCoordinator: ObservableObject {
     }
 }
 
-enum OnboardingStep: CaseIterable {
-    case signIn
-    case permissions
-    case setUp
-    case tryIt
+enum OnboardingStep: String, Codable, CaseIterable {
+    case signIn = "sign_in"
+    case permissions = "permissions"
+    case setUp = "setup"
+    case tryIt = "try_it"
     
     var title: String {
         switch self {

@@ -23,14 +23,16 @@ class TranscriptionService: ObservableObject {
     private var whisperKit: WhisperKit?
     private let transcriptionSubject = PassthroughSubject<HermesTranscriptionResult, Never>()
     
-    // Model configuration
-    private let primaryModel = "large-v3"
+    // Model configuration - try base model first for reliability
+    private let primaryModel = "base"
     private let fallbackModel = "distil-large-v3"
     private var isUsingFallback = false
     
     // Audio processing
     private var audioBuffer: [Float] = []
     private let maxBufferDuration: TimeInterval = 30.0 // Max 30 seconds of audio
+    private var lastTranscribedIndex: Int = 0 // Track what we've already transcribed
+    private var isTranscribing = false // Prevent concurrent transcriptions
     
     // MARK: - Publishers
     var transcriptionPublisher: AnyPublisher<HermesTranscriptionResult, Never> {
@@ -89,10 +91,10 @@ class TranscriptionService: ObservableObject {
         isInitialized = true
     }
     
-    /// Processes audio data for transcription
+    /// Accumulates audio data during recording (does not transcribe immediately)
     func processAudioData(_ audioData: Data) async {
-        guard isInitialized, whisperKit != nil else {
-            print("⚠️ WhisperKit not initialized, skipping audio data")
+        guard isInitialized else {
+            print("⚠️ TranscriptionService not initialized, skipping audio data")
             return
         }
         
@@ -101,37 +103,66 @@ class TranscriptionService: ObservableObject {
             bytes.bindMemory(to: Float.self).map { $0 }
         }
         
-        // Add to buffer
+        // Debug: Check the actual audio levels we're receiving
+        let maxLevel = floatArray.map { abs($0) }.max() ?? 0.0
+        let avgLevel = floatArray.map { abs($0) }.reduce(0, +) / Float(floatArray.count)
+        
+        // Add to buffer without transcribing
         audioBuffer.append(contentsOf: floatArray)
         
         // Limit buffer size to prevent memory issues
         let maxSamples = Int(maxBufferDuration * HermesConstants.sampleRate)
         if audioBuffer.count > maxSamples {
-            audioBuffer.removeFirst(audioBuffer.count - maxSamples)
+            let overflow = audioBuffer.count - maxSamples
+            audioBuffer.removeFirst(overflow)
         }
         
-        // Process if we have enough audio (minimum 1 second for initial transcription)
-        let minSamples = Int(1.0 * HermesConstants.sampleRate)
-        if audioBuffer.count >= minSamples {
-            await transcribeAudio(floatArray: audioBuffer)
-        }
-        
-        // For real-time feedback, also process smaller chunks as partial results
-        // This provides faster user feedback while building up the full transcription
-        let partialSamples = Int(0.5 * HermesConstants.sampleRate) // 500ms chunks
-        if audioBuffer.count >= partialSamples && audioBuffer.count % partialSamples == 0 {
-            // Process last 2 seconds for partial results to maintain context
-            let contextSamples = min(Int(2.0 * HermesConstants.sampleRate), audioBuffer.count)
-            let contextAudio = Array(audioBuffer.suffix(contextSamples))
-            await transcribeAudioPartial(floatArray: contextAudio)
-        }
+        let duration = Double(audioBuffer.count) / HermesConstants.sampleRate
+        print("🎤 Accumulating audio: \(floatArray.count) new samples, total: \(audioBuffer.count) samples (\(String(format: "%.1f", duration))s)")
+        print("🎤 Chunk levels: max=\(String(format: "%.6f", maxLevel)), avg=\(String(format: "%.6f", avgLevel))")
     }
     
-    /// Forces transcription of current buffer
-    func flushBuffer() async {
-        guard !audioBuffer.isEmpty else { return }
+    /// Transcribes the entire accumulated audio buffer (called when recording stops)
+    func transcribeCompleteSession() async {
+        guard !audioBuffer.isEmpty else { 
+            print("⚠️ No audio data to transcribe")
+            return 
+        }
+        
+        guard !isTranscribing else {
+            print("⚠️ Already transcribing, ignoring request")
+            return
+        }
+        
+        let totalDuration = Double(audioBuffer.count) / HermesConstants.sampleRate
+        print("🎯 Starting transcription of complete session: \(audioBuffer.count) samples (\(String(format: "%.2f", totalDuration))s)")
+        
+        // Only transcribe if we have enough meaningful audio (at least 0.5 seconds)
+        guard totalDuration >= 0.5 else {
+            print("⚠️ Audio too short to transcribe: \(String(format: "%.2f", totalDuration))s")
+            audioBuffer.removeAll()
+            return
+        }
+        
+        isTranscribing = true
         await transcribeAudio(floatArray: audioBuffer)
         audioBuffer.removeAll()
+        lastTranscribedIndex = 0
+        isTranscribing = false
+    }
+    
+    /// Resets the transcription service state
+    func resetState() {
+        audioBuffer.removeAll()
+        lastTranscribedIndex = 0
+        isTranscribing = false
+        print("🔄 Transcription service state reset")
+    }
+    
+    /// Returns current buffer information for debugging
+    func getBufferInfo() -> (samples: Int, duration: Double) {
+        let duration = Double(audioBuffer.count) / HermesConstants.sampleRate
+        return (audioBuffer.count, duration)
     }
     
     // MARK: - Private Methods
@@ -194,17 +225,43 @@ class TranscriptionService: ObservableObject {
             // Normalize float array to [-1.0, 1.0] range if needed
             let normalizedAudio = normalizeAudioArray(floatArray)
             
-            // Transcribe using WhisperKit's Float array method
+            // Check audio levels to ensure we have meaningful audio
+            let maxAmplitude = normalizedAudio.map { abs($0) }.max() ?? 0.0
+            let avgAmplitude = normalizedAudio.map { abs($0) }.reduce(0, +) / Float(normalizedAudio.count)
+            
+            print("🎤 Transcribing audio: \(normalizedAudio.count) samples, duration: \(String(format: "%.2f", Double(normalizedAudio.count) / HermesConstants.sampleRate))s")
+            print("🎤 Audio levels: max=\(String(format: "%.4f", maxAmplitude)), avg=\(String(format: "%.4f", avgAmplitude))")
+            
+            // Skip transcription if audio is too quiet (likely silence)
+            // Lower threshold for natural microphone input levels
+            guard avgAmplitude > 0.00001 else {
+                print("🔇 Audio too quiet (avg: \(String(format: "%.6f", avgAmplitude))), skipping transcription")
+                return
+            }
+            
+            // Transcribe using WhisperKit with optimized settings
             let results = try await whisperKit.transcribe(audioArray: normalizedAudio)
             
             let latency = Date().timeIntervalSince(startTime)
             
             // Extract transcription text from first result
-            let transcriptionText = results.first?.text ?? ""
+            let transcriptionText = results.first?.text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) ?? ""
             
-            // Skip empty results
-            guard !transcriptionText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-                print("🔄 Empty transcription result, skipping")
+            print("🔍 WhisperKit returned: '\(transcriptionText)' (latency: \(String(format: "%.2f", latency * 1000))ms)")
+            print("🔍 Result length: \(transcriptionText.count), characters: \(Array(transcriptionText))")
+            
+            // Check if result is just dots or other meaningless patterns
+            let onlyDots = transcriptionText.allSatisfy { $0 == "." }
+            let onlyWhitespace = transcriptionText.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty
+            
+            // Skip empty results or common false positives
+            guard !transcriptionText.isEmpty,
+                  !onlyDots,
+                  !onlyWhitespace,
+                  transcriptionText.lowercased() != "thank you",
+                  transcriptionText.lowercased() != "thanks",
+                  transcriptionText.count > 2 else {
+                print("🔄 Skipping invalid result: '\(transcriptionText)' (dots: \(onlyDots), empty: \(onlyWhitespace), length: \(transcriptionText.count))")
                 return
             }
             
@@ -221,10 +278,11 @@ class TranscriptionService: ObservableObject {
             // Emit result
             transcriptionSubject.send(result)
             
-            print("✅ Transcription completed: '\(transcriptionText)' (latency: \(String(format: "%.2f", latency * 1000))ms)")
+            print("✅ Transcription completed: '\(transcriptionText)'")
             
         } catch {
             print("❌ Transcription failed: \(error)")
+            print("❌ Error details: \(String(describing: error))")
             
             let latency = Date().timeIntervalSince(startTime)
             

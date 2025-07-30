@@ -77,11 +77,13 @@ enum SetUpSubStep {
 
 private struct KeyboardShortcutView: View {
     let onContinue: () -> Void
-    @State private var currentShortcut = "fn"
-    @State private var keyTestPassed = false
-    @State private var showingTestDialog = false
+    @StateObject private var userSettings = UserSettings.shared
+    @StateObject private var hotkeyManager = GlobalHotkeyManager.shared
     @State private var showingCustomization = false
+    @State private var showingTestDialog = false
     @State private var keyPressed = false
+    @State private var keyTestPassed = false
+    @State private var currentShortcut = "fn"
     @State private var isListeningForKey = false
     @EnvironmentObject private var coordinator: OnboardingCoordinator
     
@@ -101,26 +103,9 @@ private struct KeyboardShortcutView: View {
                     }
                     
                     // Subtitle
-                    HStack(spacing: 4) {
-                        Text("We recommend the")
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                        
-                        Text("fn")
-                            .font(.system(size: 16, weight: .medium, design: .monospaced))
-                            .foregroundColor(.secondary)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(
-                                RoundedRectangle(cornerRadius: 4)
-                                    .fill(Color(NSColor.quaternaryLabelColor).opacity(0.3))
-                            )
-                        
-                        Text("key at the bottom left\nof the keyboard")
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                    }
-                    .multilineTextAlignment(.center)
+                    Text("We recommend Option + Space")
+                        .font(.body)
+                        .foregroundColor(.secondary)
                 }
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
@@ -133,22 +118,18 @@ private struct KeyboardShortcutView: View {
                 keyTestDialog
                     .transition(.opacity.combined(with: .scale(scale: 0.95)))
             } else {
-                // Initial prompt
+                // Initial prompt with separate key visualization
                 VStack(spacing: 32) {
                     HStack(spacing: 4) {
                         Text("Press")
                             .font(.system(size: 18))
                             .foregroundColor(.secondary)
                         
-                        Text(currentShortcut)
-                            .font(.system(size: 18, weight: .medium, design: .monospaced))
-                            .foregroundColor(.primary)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color(NSColor.quaternaryLabelColor).opacity(0.2))
-                            )
+                        // Display keys separately - observe real hotkey presses
+                        keyVisualizationRow(isPressed: hotkeyManager.hotkeyPressed)
+                            .onChange(of: hotkeyManager.hotkeyPressed) { _, newValue in
+                                print("🟢 UI detected hotkeyPressed change: \(newValue)")
+                            }
                         
                         Text("to begin")
                             .font(.system(size: 18))
@@ -164,40 +145,47 @@ private struct KeyboardShortcutView: View {
             }
         }
         .onAppear {
-            // Simulate key press detection
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                // In a real app, this would be triggered by actual key press
-                simulateKeyPress()
+            // Set current shortcut from settings
+            currentShortcut = userSettings.keyboardShortcuts.globalDictationHotkey.displayString
+            
+            // Register the hotkey for testing - it will show green when user holds it down
+            let hotkeyConfig = userSettings.keyboardShortcuts.globalDictationHotkey
+            print("🔧 Registering hotkey for onboarding test: \(hotkeyConfig.displayString)")
+            hotkeyManager.registerHotkey(hotkeyConfig, 
+                onPressed: {
+                    // Hotkey pressed - the UI will update automatically via @Published
+                    print("🟢 Hotkey PRESSED during onboarding test!")
+                },
+                onReleased: {
+                    // Hotkey released - the UI will update automatically via @Published
+                    print("🟢 Hotkey RELEASED during onboarding test!")
+                }
+            )
+            
+            // Show the test dialog after a short delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    showingTestDialog = true
+                }
             }
         }
     }
     
+    
     private var keyTestDialog: some View {
         VStack(spacing: 32) {
-            Text("Does the button turn purple while pressing it?")
+            Text("Does the button turn green while pressing it?")
                 .font(.system(size: 20, weight: .medium))
                 .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
             
-            // Keyboard key visualization
-            VStack(spacing: 4) {
-                ZStack {
-                    // Key background
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(keyPressed ? Color(hex: HermesConstants.primaryAccentColor) : Color(NSColor.controlBackgroundColor))
-                        .frame(width: 50, height: 50)
-                        .shadow(color: .black.opacity(0.2), radius: 2, x: 0, y: 2)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(NSColor.separatorColor), lineWidth: 1)
-                        )
-                        .scaleEffect(keyPressed ? 0.95 : 1.0)
-                    
-                    Text(currentShortcut)
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(keyPressed ? .white : .primary)
-                }
-                .animation(.easeInOut(duration: 0.1), value: keyPressed)
+            // Keyboard key visualization with separate keys
+            VStack(spacing: 20) {
+                // Display keys as separate visual elements - observe real hotkey presses
+                keyVisualizationRow(isPressed: hotkeyManager.hotkeyPressed)
+                    .onChange(of: hotkeyManager.hotkeyPressed) { _, newValue in
+                        print("🟢 Test dialog UI detected hotkeyPressed change: \(newValue)")
+                    }
                 
                 Image(systemName: "globe")
                     .font(.system(size: 16))
@@ -215,7 +203,12 @@ private struct KeyboardShortcutView: View {
                 
                 Button("Yes") {
                     keyTestPassed = true
-                    coordinator.selectedKeyboardShortcut = currentShortcut
+                    // Save the current shortcut to settings and register globally
+                    userSettings.saveToLocalStorage()
+                    
+                    // Register the hotkey globally for immediate use
+                    GlobalHotkeyManager.shared.updateHotkey(userSettings.keyboardShortcuts.globalDictationHotkey)
+                    
                     onContinue()
                 }
                 .primaryButtonStyle()
@@ -242,9 +235,9 @@ private struct KeyboardShortcutView: View {
                         .foregroundColor(.primary)
                     
                     VStack(spacing: 12) {
-                        shortcutOption("fn", description: "Function key (recommended)")
+                        shortcutOption("⌥ Space", description: "Option + Space (recommended)")
+                        shortcutOption("fn", description: "Function key")
                         shortcutOption("⌘⌘", description: "Double Command")
-                        shortcutOption("⌥ Space", description: "Option + Space")
                         shortcutOption("⌃ Space", description: "Control + Space")
                     }
                 }
@@ -252,35 +245,30 @@ private struct KeyboardShortcutView: View {
                 Divider()
                     .padding(.horizontal, -24)
                 
-                // Custom option - more prominent with extra space
+                // Custom option - HotkeyRecorder for advanced users
                 VStack(spacing: 16) {
-                    Button(action: {
-                        isListeningForKey = true
-                    }) {
-                        HStack {
-                            Image(systemName: "keyboard")
-                                .font(.system(size: 18))
-                            Text(isListeningForKey ? "Press any key combination..." : "Set custom shortcut")
-                                .font(.system(size: 16, weight: .medium))
-                        }
-                        .foregroundColor(isListeningForKey ? Color(hex: HermesConstants.primaryAccentColor) : .primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color(NSColor.controlBackgroundColor))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(isListeningForKey ? Color(hex: HermesConstants.primaryAccentColor) : Color(NSColor.separatorColor), lineWidth: 1)
-                                )
-                        )
-                    }
-                    .buttonStyle(.plain)
+                    Text("Custom shortcut")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.primary)
                     
-                    if isListeningForKey {
-                        Text("Press Escape to cancel")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                    HotkeyRecorder(
+                        title: "Record custom shortcut",
+                        description: "Press any key combination",
+                        hotkey: $userSettings.keyboardShortcuts.globalDictationHotkey
+                    )
+                    .onChange(of: userSettings.keyboardShortcuts.globalDictationHotkey) { _, newHotkey in
+                        currentShortcut = newHotkey.displayString
+                        print("🔧 Custom hotkey changed to: \(newHotkey.displayString)")
+                        
+                        // Register the new hotkey for onboarding test
+                        hotkeyManager.registerHotkey(newHotkey, 
+                            onPressed: {
+                                print("🟢 Custom hotkey PRESSED during onboarding test!")
+                            },
+                            onReleased: {
+                                print("🟢 Custom hotkey RELEASED during onboarding test!")
+                            }
+                        )
                     }
                 }
             }
@@ -295,8 +283,11 @@ private struct KeyboardShortcutView: View {
                 .secondaryButtonStyle()
                 
                 Button("Save") {
-                    keyTestPassed = true
-                    coordinator.selectedKeyboardShortcut = currentShortcut
+                    userSettings.saveToLocalStorage()
+                    
+                    // Update the global hotkey registration
+                    GlobalHotkeyManager.shared.updateHotkey(userSettings.keyboardShortcuts.globalDictationHotkey)
+                    
                     withAnimation(.easeInOut(duration: 0.3)) {
                         showingCustomization = false
                         showingTestDialog = true
@@ -318,6 +309,47 @@ private struct KeyboardShortcutView: View {
         Button(action: {
             currentShortcut = shortcut
             isListeningForKey = false
+            
+            // Update the user settings based on the selected shortcut
+            let newHotkey: HotkeyConfiguration
+            switch shortcut {
+            case "fn":
+                newHotkey = HotkeyConfiguration(
+                    key: .fn, modifiers: [], description: "Start/Stop Dictation"
+                )
+            case "⌘⌘":
+                newHotkey = HotkeyConfiguration(
+                    key: .command, modifiers: [], description: "Start/Stop Dictation"
+                )
+            case "⌥ Space":
+                newHotkey = HotkeyConfiguration(
+                    key: .space, modifiers: [.option], description: "Start/Stop Dictation"
+                )
+            case "⌃ Space":
+                newHotkey = HotkeyConfiguration(
+                    key: .space, modifiers: [.control], description: "Start/Stop Dictation"
+                )
+            default:
+                return
+            }
+            
+            // Update settings and immediately register the new hotkey globally
+            userSettings.keyboardShortcuts.globalDictationHotkey = newHotkey
+            userSettings.saveToLocalStorage()
+            
+            // Register the new hotkey globally and for onboarding test
+            print("🔧 Updating hotkey to: \(newHotkey.displayString)")
+            hotkeyManager.registerHotkey(newHotkey, 
+                onPressed: {
+                    print("🟢 New hotkey PRESSED during onboarding test!")
+                },
+                onReleased: {
+                    print("🟢 New hotkey RELEASED during onboarding test!")
+                }
+            )
+            
+            // Also update the global system hotkey
+            GlobalHotkeyManager.shared.updateHotkey(newHotkey)
         }) {
             HStack {
                 // Radio button
@@ -346,26 +378,115 @@ private struct KeyboardShortcutView: View {
         .buttonStyle(.plain)
     }
     
-    private func simulateKeyPress() {
-        // Show the test dialog
-        withAnimation(.easeInOut(duration: 0.3)) {
-            showingTestDialog = true
-        }
-        
-        // Simulate key press animation
-        keyPressed = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            keyPressed = false
-        }
-        
-        // Simulate another press after a delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            keyPressed = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                keyPressed = false
+    private func keyVisualizationRow(isPressed: Bool) -> some View {
+        HStack(spacing: 6) {
+            let hotkey = userSettings.keyboardShortcuts.globalDictationHotkey
+            
+            // Display modifier keys first
+            ForEach(Array(hotkey.modifiers.sorted(by: { $0.sortOrder < $1.sortOrder })), id: \.self) { modifier in
+                individualKeyView(modifier: modifier, isPressed: isPressed)
             }
+            
+            // Display main key with icon and/or text
+            individualKeyView(key: hotkey.key, isPressed: isPressed)
         }
     }
+    
+    // For modifier keys (icon + text)
+    private func individualKeyView(modifier: KeyboardModifier, isPressed: Bool) -> some View {
+        ZStack {
+            keyBackground(isPressed: isPressed)
+            
+            VStack(spacing: 0) {
+                Text(modifier.symbol)
+                    .font(.system(size: 8, weight: .medium))
+                    .foregroundColor(isPressed ? .white : .primary)
+                
+                Text(modifier.displayText)
+                    .font(.system(size: 6, weight: .medium, design: .monospaced))
+                    .foregroundColor(isPressed ? .white : .primary)
+            }
+            .padding(.horizontal, 2)
+            .padding(.vertical, 2)
+        }
+        .animation(.easeInOut(duration: 0.1), value: isPressed)
+    }
+    
+    // For main keys (icon and/or text)
+    private func individualKeyView(key: KeyboardKey, isPressed: Bool) -> some View {
+        ZStack {
+            keyBackground(isPressed: isPressed)
+            
+            if let icon = key.displayIcon, let text = key.displayText {
+                // Show both icon and text
+                VStack(spacing: 0) {
+                    Image(systemName: icon)
+                        .font(.system(size: 8, weight: .medium))
+                        .foregroundColor(isPressed ? .white : .primary)
+                    
+                    Text(text)
+                        .font(.system(size: 6, weight: .medium, design: .monospaced))
+                        .foregroundColor(isPressed ? .white : .primary)
+                }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
+            } else {
+                // Show just the symbol
+                Text(key.symbol)
+                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                    .foregroundColor(isPressed ? .white : .primary)
+                    .padding(.horizontal, 3)
+                    .padding(.vertical, 3)
+            }
+        }
+        .animation(.easeInOut(duration: 0.1), value: isPressed)
+    }
+    
+    // Shared key background styling with realistic key shadows
+    private func keyBackground(isPressed: Bool) -> some View {
+        let backgroundColor = isPressed ? Color(hex: HermesConstants.primaryAccentColor) : Color(NSColor.controlBackgroundColor)
+        print("🎨 Key background rendered as \(isPressed ? "PRESSED (green)" : "normal")")
+        
+        return RoundedRectangle(cornerRadius: 4)
+            .fill(backgroundColor)
+            .frame(width: 36, height: 36)
+            .onAppear {
+                if isPressed {
+                    print("🎨 Key background rendered as PRESSED (green)")
+                } else {
+                    print("🎨 Key background rendered as NOT PRESSED (normal)")
+                }
+            }
+            .overlay(
+                // Top/left highlight for 3D effect
+                RoundedRectangle(cornerRadius: 4)
+                    .stroke(
+                        LinearGradient(
+                            colors: [.white.opacity(0.3), .clear],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(
+                // Strong bottom-right shadow for 3D key effect
+                color: .black.opacity(0.4),
+                radius: 0,
+                x: 2,
+                y: 2
+            )
+            .shadow(
+                // Additional softer shadow
+                color: .black.opacity(0.2),
+                radius: 1,
+                x: 1,
+                y: 1
+            )
+            .scaleEffect(isPressed ? 0.95 : 1.0)
+    }
+    
+    
     
 }
 
@@ -406,7 +527,7 @@ private struct MicrophoneTestView: View {
                     placeholder: "Select microphone"
                 )
                 .frame(width: 300)
-                .onChange(of: selectedMicrophone) { _ in
+                .onChange(of: selectedMicrophone) {
                     hasRecorded = false // Reset test when changing mic
                 }
                 

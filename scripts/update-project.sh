@@ -27,31 +27,32 @@ if ! command -v xcodegen &> /dev/null; then
     exit 1
 fi
 
-# Check if Xcode is running and handle it automatically
+# Check if Xcode or Xcode Beta is running and handle it automatically
 XCODE_WAS_RUNNING=false
-if pgrep -x "Xcode" > /dev/null; then
+if pgrep -x "Xcode" > /dev/null || pgrep -x "Xcode-26.0.0-Beta.4" > /dev/null; then
     XCODE_WAS_RUNNING=true
     echo -e "${BLUE}⚠️  Xcode is currently running. Automatically closing it for clean project regeneration...${NC}"
     
     # Attempt to save any unsaved work first (this is a nice-to-have)
-    osascript -e 'tell application "Xcode" to activate' 2>/dev/null || true
+    osascript -e 'tell application "Xcode-26.0.0-Beta.4" to activate' 2>/dev/null || osascript -e 'tell application "Xcode" to activate' 2>/dev/null || true
     osascript -e 'tell application "System Events" to keystroke "s" using {command down}' 2>/dev/null || true
     sleep 1
     
     # Close Xcode gracefully first, then force if needed
     echo -e "${YELLOW}🔄 Closing Xcode...${NC}"
-    osascript -e 'tell application "Xcode" to quit' 2>/dev/null || killall Xcode 2>/dev/null || true
+    osascript -e 'tell application "Xcode-26.0.0-Beta.4" to quit' 2>/dev/null || osascript -e 'tell application "Xcode" to quit' 2>/dev/null || killall Xcode 2>/dev/null || killall Xcode-26.0.0-Beta.4 2>/dev/null || true
     
     # Wait for Xcode to fully close
     timeout=10
-    while pgrep -x "Xcode" > /dev/null && [ $timeout -gt 0 ]; do
+    while (pgrep -x "Xcode" > /dev/null || pgrep -x "Xcode-26.0.0-Beta.4" > /dev/null) && [ $timeout -gt 0 ]; do
         sleep 1
         ((timeout--))
     done
     
-    if pgrep -x "Xcode" > /dev/null; then
+    if pgrep -x "Xcode" > /dev/null || pgrep -x "Xcode-26.0.0-Beta.4" > /dev/null; then
         echo -e "${YELLOW}⚠️  Force closing Xcode...${NC}"
         killall -9 Xcode 2>/dev/null || true
+        killall -9 Xcode-26.0.0-Beta.4 2>/dev/null || true
         sleep 2
     fi
     
@@ -93,9 +94,9 @@ if [ $? -eq 0 ]; then
     
     # Automatically reopen Xcode if it was running before, or if --open flag is used
     if [ "$XCODE_WAS_RUNNING" = true ] || [ "$1" = "--open" ]; then
-        echo -e "${YELLOW}🚀 Reopening project in Xcode...${NC}"
+        echo -e "${YELLOW}🚀 Reopening project in Xcode Beta...${NC}"
         sleep 1  # Additional delay before opening
-        open Hermes.xcodeproj
+        open -a "/Applications/Xcode-26.0.0-Beta.4.app" Hermes.xcodeproj
         
         if [ "$XCODE_WAS_RUNNING" = true ]; then
             echo -e "${GREEN}✨ Xcode has been reopened with the updated project${NC}"
