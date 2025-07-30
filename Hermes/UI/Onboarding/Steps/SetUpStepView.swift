@@ -78,7 +78,7 @@ enum SetUpSubStep {
 private struct KeyboardShortcutView: View {
     let onContinue: () -> Void
     @StateObject private var userSettings = UserSettings.shared
-    @StateObject private var hotkeyManager = GlobalHotkeyManager.shared
+    @StateObject private var servicesManager = ServicesManager.shared
     @State private var showingCustomization = false
     @State private var showingTestDialog = false
     @State private var keyPressed = false
@@ -125,11 +125,8 @@ private struct KeyboardShortcutView: View {
                             .font(.system(size: 18))
                             .foregroundColor(.secondary)
                         
-                        // Display keys separately - observe real hotkey presses
-                        keyVisualizationRow(isPressed: hotkeyManager.hotkeyPressed)
-                            .onChange(of: hotkeyManager.hotkeyPressed) { _, newValue in
-                                print("🟢 UI detected hotkeyPressed change: \(newValue)")
-                            }
+                        // Display keys separately - Services shortcuts are user-assigned
+                        keyVisualizationRow(isPressed: keyPressed)
                         
                         Text("to begin")
                             .font(.system(size: 18))
@@ -148,19 +145,10 @@ private struct KeyboardShortcutView: View {
             // Set current shortcut from settings
             currentShortcut = userSettings.keyboardShortcuts.globalDictationHotkey.displayString
             
-            // Register the hotkey for testing - it will show green when user holds it down
+            // Don't register hotkey callbacks here - let AppDelegate handle the callbacks
+            // Services-based shortcuts are managed by the user in System Settings
             let hotkeyConfig = userSettings.keyboardShortcuts.globalDictationHotkey
-            print("🔧 Registering hotkey for onboarding test: \(hotkeyConfig.displayString)")
-            hotkeyManager.registerHotkey(hotkeyConfig, 
-                onPressed: {
-                    // Hotkey pressed - the UI will update automatically via @Published
-                    print("🟢 Hotkey PRESSED during onboarding test!")
-                },
-                onReleased: {
-                    // Hotkey released - the UI will update automatically via @Published
-                    print("🟢 Hotkey RELEASED during onboarding test!")
-                }
-            )
+            print("🔧 Onboarding observing hotkey: \(hotkeyConfig.displayString) (AppDelegate handles callbacks)")
             
             // Show the test dialog after a short delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
@@ -181,11 +169,8 @@ private struct KeyboardShortcutView: View {
             
             // Keyboard key visualization with separate keys
             VStack(spacing: 20) {
-                // Display keys as separate visual elements - observe real hotkey presses
-                keyVisualizationRow(isPressed: hotkeyManager.hotkeyPressed)
-                    .onChange(of: hotkeyManager.hotkeyPressed) { _, newValue in
-                        print("🟢 Test dialog UI detected hotkeyPressed change: \(newValue)")
-                    }
+                // Display keys as separate visual elements - Services shortcuts are user-assigned  
+                keyVisualizationRow(isPressed: keyPressed)
                 
                 Image(systemName: "globe")
                     .font(.system(size: 16))
@@ -206,8 +191,8 @@ private struct KeyboardShortcutView: View {
                     // Save the current shortcut to settings and register globally
                     userSettings.saveToLocalStorage()
                     
-                    // Register the hotkey globally for immediate use
-                    GlobalHotkeyManager.shared.updateHotkey(userSettings.keyboardShortcuts.globalDictationHotkey)
+                    // Note: Services-based shortcuts are managed by user in System Settings
+                    // No programmatic registration needed
                     
                     onContinue()
                 }
@@ -260,15 +245,8 @@ private struct KeyboardShortcutView: View {
                         currentShortcut = newHotkey.displayString
                         print("🔧 Custom hotkey changed to: \(newHotkey.displayString)")
                         
-                        // Register the new hotkey for onboarding test
-                        hotkeyManager.registerHotkey(newHotkey, 
-                            onPressed: {
-                                print("🟢 Custom hotkey PRESSED during onboarding test!")
-                            },
-                            onReleased: {
-                                print("🟢 Custom hotkey RELEASED during onboarding test!")
-                            }
-                        )
+                        // Tell the AppDelegate to update its hotkey registration
+                        NotificationCenter.default.post(name: .updateGlobalHotkey, object: newHotkey)
                     }
                 }
             }
@@ -285,8 +263,7 @@ private struct KeyboardShortcutView: View {
                 Button("Save") {
                     userSettings.saveToLocalStorage()
                     
-                    // Update the global hotkey registration
-                    GlobalHotkeyManager.shared.updateHotkey(userSettings.keyboardShortcuts.globalDictationHotkey)
+                    // Note: Services-based shortcuts are managed by user in System Settings
                     
                     withAnimation(.easeInOut(duration: 0.3)) {
                         showingCustomization = false
@@ -337,19 +314,9 @@ private struct KeyboardShortcutView: View {
             userSettings.keyboardShortcuts.globalDictationHotkey = newHotkey
             userSettings.saveToLocalStorage()
             
-            // Register the new hotkey globally and for onboarding test
+            // Tell the AppDelegate to update its hotkey registration
             print("🔧 Updating hotkey to: \(newHotkey.displayString)")
-            hotkeyManager.registerHotkey(newHotkey, 
-                onPressed: {
-                    print("🟢 New hotkey PRESSED during onboarding test!")
-                },
-                onReleased: {
-                    print("🟢 New hotkey RELEASED during onboarding test!")
-                }
-            )
-            
-            // Also update the global system hotkey
-            GlobalHotkeyManager.shared.updateHotkey(newHotkey)
+            NotificationCenter.default.post(name: .updateGlobalHotkey, object: newHotkey)
         }) {
             HStack {
                 // Radio button

@@ -9,7 +9,7 @@ import SwiftUI
 
 /// Main menu bar interface following the Hermes design system
 struct MenuBarView: View {
-    @StateObject private var dictationEngine = DictationEngine()
+    @ObservedObject private var dictationEngine = DictationEngine.shared
     @State private var showingDictationPopup = false
     @State private var showingSettings = false
     

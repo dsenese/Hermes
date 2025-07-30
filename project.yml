@@ -18,10 +18,10 @@ targets:
       - path: Hermes
         excludes:
           - "*.entitlements"
+          - "HermesIcon.icon"
         includes:
           - "**/*.swift"
-      - path: Hermes/Hermes.icon
-        type: folder
+      - path: Hermes/Assets.xcassets
         buildPhase: resources
       - path: CLAUDE.md
         optional: true
@@ -56,6 +56,7 @@ targets:
         INFOPLIST_FILE: Hermes/Info.plist
         COMBINE_HIDPI_IMAGES: true
         CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION: true
+        ASSETCATALOG_COMPILER_APPICON_NAME: HermesIcon
     dependencies:
       - package: WhisperKit
       - package: Supabase

@@ -203,9 +203,8 @@ struct HotkeyRecorder: View {
             hotkey = newHotkey
             checkForConflicts(newHotkey)
             
-            // Save to user settings and update global registration
+            // Save to user settings - Services shortcuts are managed by user in System Settings
             UserSettings.shared.saveToLocalStorage()
-            GlobalHotkeyManager.shared.updateHotkey(newHotkey)
         }
         
         currentKeys.removeAll()

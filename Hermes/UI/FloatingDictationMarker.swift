@@ -10,7 +10,7 @@ import AppKit
 
 /// Floating dictation marker that hovers over all applications
 struct FloatingDictationMarker: View {
-    @StateObject private var dictationEngine = DictationEngine()
+    @ObservedObject var dictationEngine: DictationEngine
     @State private var isHovered = false
     @State private var showingClickPrompt = false
     @State private var waveformAmplitude: CGFloat = 0.0
@@ -203,8 +203,10 @@ struct FloatingDictationMarker: View {
 
 class FloatingDictationController: NSWindowController {
     private var floatingWindow: NSFloatingPanel?
+    private var dictationEngine: DictationEngine
     
-    init() {
+    init(dictationEngine: DictationEngine) {
+        self.dictationEngine = dictationEngine
         super.init(window: nil)
         setupFloatingWindow()
     }
@@ -236,7 +238,7 @@ class FloatingDictationController: NSWindowController {
         positionWindowAtBottomCenter()
         
         // Set up SwiftUI content
-        let contentView = NSHostingView(rootView: FloatingDictationMarker())
+        let contentView = NSHostingView(rootView: FloatingDictationMarker(dictationEngine: dictationEngine))
         window.contentView = contentView
         
         self.window = window
@@ -289,7 +291,7 @@ class NSFloatingPanel: NSPanel {
 // MARK: - Preview
 
 #Preview {
-    FloatingDictationMarker()
+    FloatingDictationMarker(dictationEngine: DictationEngine.shared)
         .frame(width: 200, height: 100)
         .background(Color.gray.opacity(0.3))
 }

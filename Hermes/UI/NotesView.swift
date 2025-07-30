@@ -505,6 +505,6 @@ struct DictationTextEditor: View {
 }
 
 #Preview {
-    NotesView(dictationEngine: DictationEngine())
+    NotesView(dictationEngine: DictationEngine.shared)
         .frame(width: 1000, height: 700)
 }

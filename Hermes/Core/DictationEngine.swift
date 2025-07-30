@@ -11,6 +11,8 @@ import Combine
 /// Main dictation engine that coordinates audio capture, transcription, and text injection
 @MainActor
 class DictationEngine: ObservableObject {
+    // MARK: - Singleton
+    static let shared = DictationEngine()
     // MARK: - Published Properties
     @Published private(set) var isActive = false
     @Published private(set) var currentTranscription = ""
@@ -32,7 +34,7 @@ class DictationEngine: ObservableObject {
     private var latencyMeasurements: [TimeInterval] = []
     
     // MARK: - Initialization
-    init(
+    private init(
         audioManager: AudioManager? = nil,
         transcriptionService: TranscriptionService? = nil,
         textInjector: TextInjector? = nil
@@ -42,7 +44,7 @@ class DictationEngine: ObservableObject {
         self.textInjector = textInjector ?? TextInjector()
         
         setupSubscriptions()
-        setupGlobalHotkey()
+        // Don't setup global hotkey here - let AppDelegate handle it
     }
     
     // MARK: - Public Methods
@@ -197,38 +199,13 @@ class DictationEngine: ObservableObject {
     
     deinit {
         transcriptionTask?.cancel()
-        Task { @MainActor in
-            GlobalHotkeyManager.shared.unregisterHotkey()
-        }
+        // Don't unregister hotkey here - let AppDelegate manage it
     }
     
-    // MARK: - Global Hotkey Integration
-    
-    private func setupGlobalHotkey() {
-        let hotkeyManager = GlobalHotkeyManager.shared
-        let currentHotkey = UserSettings.shared.keyboardShortcuts.globalDictationHotkey
-        
-        // Register the global hotkey for hold-to-talk dictation control
-        hotkeyManager.registerHotkey(currentHotkey, 
-            onPressed: {
-                Task { @MainActor in
-                    await self.startDictation()
-                }
-            },
-            onReleased: {
-                Task { @MainActor in
-                    await self.stopDictation()
-                }
-            }
-        )
-        
-        print("🔥 Global hotkey registered for hold-to-talk: \(currentHotkey.displayString)")
-    }
-    
-    /// Update the global hotkey when settings change
+    /// Update the global hotkey when settings change (called by AppDelegate)
     func updateGlobalHotkey(_ hotkey: HotkeyConfiguration) {
-        GlobalHotkeyManager.shared.updateHotkey(hotkey)
-        print("🔄 Updated global hotkey to: \(hotkey.displayString)")
+        // This will be called by AppDelegate when hotkey changes
+        print("🔄 DictationEngine notified of hotkey update to: \(hotkey.displayString)")
     }
 }
 

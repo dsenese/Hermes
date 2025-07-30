@@ -10,7 +10,7 @@ import AppKit
 
 /// Main dashboard view with sidebar navigation and activity timeline
 struct MainAppView: View {
-    @StateObject private var dictationEngine = DictationEngine()
+    @ObservedObject private var dictationEngine = DictationEngine.shared
     @State private var selectedSection: SidebarSection = .home
     @State private var userName: String = "isabela"
     @State private var userEmail: String = "isaccosta.889@gmail.com"

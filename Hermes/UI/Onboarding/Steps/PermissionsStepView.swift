@@ -31,6 +31,7 @@ private struct GuidePermissionsView: View {
     let onContinue: () -> Void
     @State private var microphoneSetupCompleted = false
     @State private var accessibilitySetupCompleted = false
+    @State private var servicesSetupCompleted = false
     
     var body: some View {
         VStack(spacing: 40) {
@@ -67,6 +68,17 @@ private struct GuidePermissionsView: View {
                             openAccessibilitySettings()
                         }
                     )
+                    
+                    // Services-based shortcuts (no permission needed)
+                    permissionItem(
+                        title: "Set up global keyboard shortcuts",
+                        subtitle: "Assign shortcuts to Hermes services in System Settings (no permission required)",
+                        isCompleted: servicesSetupCompleted,
+                        buttonTitle: "Open Keyboard Shortcuts",
+                        action: {
+                            openKeyboardShortcutsSettings()
+                        }
+                    )
                 }
                 .frame(width: 400)
                 
@@ -91,8 +103,14 @@ private struct GuidePermissionsView: View {
                         
                         guidanceStep(
                             number: 3,
-                            title: "Ready to Go",
-                            description: "Once both permissions are enabled, you can continue to start using Hermes"
+                            title: "Keyboard Shortcuts",
+                            description: "Go to Keyboard > Shortcuts > Services and assign a shortcut to 'Hermes: Toggle Dictation'"
+                        )
+                        
+                        guidanceStep(
+                            number: 4,
+                            title: "Ready to Go", 
+                            description: "Once permissions are set and shortcuts assigned, you can use Hermes anywhere"
                         )
                     }
                 }
@@ -209,8 +227,19 @@ private struct GuidePermissionsView: View {
             }
         }
         
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone")!
-        NSWorkspace.shared.open(url)
+        // Try multiple URLs for different macOS versions
+        let urls = [
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone",
+            "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Microphone"
+        ]
+        
+        for urlString in urls {
+            if let url = URL(string: urlString) {
+                if NSWorkspace.shared.open(url) {
+                    break
+                }
+            }
+        }
         
         // Mark as completed for demonstration (user can continue regardless)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
@@ -219,12 +248,44 @@ private struct GuidePermissionsView: View {
     }
     
     private func openAccessibilitySettings() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
-        NSWorkspace.shared.open(url)
+        // Try multiple URLs for different macOS versions
+        let urls = [
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility",
+            "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility"
+        ]
+        
+        for urlString in urls {
+            if let url = URL(string: urlString) {
+                if NSWorkspace.shared.open(url) {
+                    break
+                }
+            }
+        }
         
         // Mark as completed for demonstration (user can continue regardless)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             accessibilitySetupCompleted = true
+        }
+    }
+    
+    private func openKeyboardShortcutsSettings() {
+        // Try multiple URLs for different macOS versions
+        let urls = [
+            "x-apple.systempreferences:com.apple.preference.keyboard?Shortcuts",
+            "x-apple.systempreferences:com.apple.settings.Keyboard.extension?Shortcuts"
+        ]
+        
+        for urlString in urls {
+            if let url = URL(string: urlString) {
+                if NSWorkspace.shared.open(url) {
+                    break
+                }
+            }
+        }
+        
+        // Mark as completed for demonstration (user can continue regardless)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            servicesSetupCompleted = true
         }
     }
 }

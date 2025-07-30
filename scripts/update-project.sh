@@ -59,6 +59,14 @@ if pgrep -x "Xcode" > /dev/null || pgrep -x "Xcode-26.0.0-Beta.4" > /dev/null; t
     echo -e "${GREEN}✅ Xcode closed successfully${NC}"
 fi
 
+# Backup HermesIcon.icon if it exists (to preserve manual Icon Composer bundle)
+HERMESICON_BACKUP=""
+if [ -f "Hermes/HermesIcon.icon" ] || [ -d "Hermes/HermesIcon.icon" ]; then
+    HERMESICON_BACKUP="/tmp/HermesIcon.icon.backup.$(date +%s)"
+    echo -e "${BLUE}💾 Backing up HermesIcon.icon to preserve manual changes...${NC}"
+    cp -R "Hermes/HermesIcon.icon" "$HERMESICON_BACKUP"
+fi
+
 # Remove existing project to avoid conflicts
 if [ -d "Hermes.xcodeproj" ]; then
     echo -e "${YELLOW}📦 Removing existing project file to avoid conflicts...${NC}"
@@ -74,6 +82,19 @@ done
 # Run xcodegen to regenerate project
 echo -e "${YELLOW}🏗️  Generating fresh Xcode project...${NC}"
 xcodegen
+
+# Restore HermesIcon.icon backup if it existed
+if [ -n "$HERMESICON_BACKUP" ] && [ -e "$HERMESICON_BACKUP" ]; then
+    echo -e "${BLUE}🔄 Restoring HermesIcon.icon from backup...${NC}"
+    rm -rf "Hermes/HermesIcon.icon" 2>/dev/null || true
+    cp -R "$HERMESICON_BACKUP" "Hermes/HermesIcon.icon"
+    
+    # Set bundle bit to make macOS recognize it as a bundle instead of folder
+    SetFile -a B "Hermes/HermesIcon.icon" 2>/dev/null || true
+    
+    rm -rf "$HERMESICON_BACKUP"
+    echo -e "${GREEN}✅ HermesIcon.icon restored as Icon Composer bundle${NC}"
+fi
 
 # Check if generation was successful
 if [ $? -eq 0 ]; then

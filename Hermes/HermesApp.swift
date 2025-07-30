@@ -36,7 +36,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var menuBarWindowController: MenuBarWindowController?
     private var dictationPopupController: DictationPopupWindowController?
     private var floatingDictationController: FloatingDictationController?
-    private var sharedDictationEngine: DictationEngine?
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         print("🚀 Starting Hermes application launch...")
@@ -113,23 +112,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func setupGlobalHotkeys() {
+        print("🔧 Setting up Services-based global shortcuts in AppDelegate...")
+        
         Task { @MainActor in
-            let hotkeyManager = GlobalHotkeyManager.shared
-            let currentHotkey = UserSettings.shared.keyboardShortcuts.globalDictationHotkey
+            let servicesManager = ServicesManager.shared
             
-            // Register the configured hotkey for hold-to-talk behavior
-            hotkeyManager.registerHotkey(currentHotkey, 
-                onPressed: { [weak self] in
-                    Task { @MainActor in
-                        await self?.startDictation()
-                    }
-                },
-                onReleased: { [weak self] in
-                    Task { @MainActor in
-                        await self?.stopDictation()
-                    }
-                }
-            )
+            // Register the dictation engine with services manager
+            servicesManager.registerDictationEngine(DictationEngine.shared)
+            
+            print("✅ AppDelegate Services registration complete")
+            print("📋 Users can assign shortcuts in System Settings > Keyboard > Shortcuts > Services")
+        }
+    }
+    
+    /// Update global hotkey when settings change (called from onboarding) 
+    /// Note: With Services API, shortcuts are managed by the user in System Settings
+    func updateGlobalHotkey(_ hotkey: HotkeyConfiguration) {
+        Task { @MainActor in
+            print("🔄 AppDelegate: Services-based shortcuts are user-managed in System Settings")
+            print("📋 No programmatic hotkey update needed with Services API")
+            
+            // Still notify the dictation engine for UI consistency
+            DictationEngine.shared.updateGlobalHotkey(hotkey)
         }
     }
     
@@ -170,28 +174,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @MainActor
     private func startDictation() async {
-        // Use shared dictation engine instance to avoid audio conflicts
-        if sharedDictationEngine == nil {
-            sharedDictationEngine = DictationEngine()
-        }
+        print("🔥 AppDelegate.startDictation() called!")
         
-        guard let dictationEngine = sharedDictationEngine else { return }
+        let dictationEngine = DictationEngine.shared
         
         // Only start if not already active
         if !dictationEngine.isActive {
+            print("🚀 Starting dictation session...")
             await dictationEngine.startDictation()
             showDictationPopup(with: dictationEngine)
+        } else {
+            print("⚠️ Dictation already active, skipping start")
         }
     }
     
     @MainActor
     private func stopDictation() async {
-        guard let dictationEngine = sharedDictationEngine else { return }
+        print("🛑 AppDelegate.stopDictation() called!")
+        
+        let dictationEngine = DictationEngine.shared
         
         // Only stop if currently active
         if dictationEngine.isActive {
+            print("⏹️ Stopping dictation session...")
             await dictationEngine.stopDictation()
             hideDictationPopup()
+        } else {
+            print("⚠️ Dictation not active, skipping stop")
         }
     }
     
@@ -243,9 +252,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     private func setupFloatingDictationMarker() {
-        floatingDictationController = FloatingDictationController()
-        floatingDictationController?.show()
-        print("✅ Floating dictation marker created and shown")
+        Task { @MainActor in
+            let dictationEngine = DictationEngine.shared
+            
+            floatingDictationController = FloatingDictationController(dictationEngine: dictationEngine)
+            floatingDictationController?.show()
+            print("✅ Floating dictation marker created and shown")
+        }
     }
     
     private func setupNotificationObservers() {
@@ -255,11 +268,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             name: .openMainApp,
             object: nil
         )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleUpdateGlobalHotkey),
+            name: .updateGlobalHotkey,
+            object: nil
+        )
     }
     
     @objc private func handleOpenMainApp() {
         // Activate the app to bring main window to front
         NSApp.activate(ignoringOtherApps: true)
+    }
+    
+    @objc private func handleUpdateGlobalHotkey(_ notification: Notification) {
+        if let hotkey = notification.object as? HotkeyConfiguration {
+            updateGlobalHotkey(hotkey)
+        }
     }
 }
 
@@ -355,6 +381,12 @@ class MenuBarWindowController: NSWindowController, NSWindowDelegate {
 enum PermissionType {
     case microphone
     case accessibility
+}
+
+// MARK: - Notification Extensions
+
+extension Notification.Name {
+    static let updateGlobalHotkey = Notification.Name("updateGlobalHotkey")
 }
 
 

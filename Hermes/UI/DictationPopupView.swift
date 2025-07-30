@@ -294,5 +294,5 @@ class DictationPopupWindowController: NSWindowController {
 // MARK: - Preview
 
 #Preview {
-    DictationPopupView(dictationEngine: DictationEngine())
+    DictationPopupView(dictationEngine: DictationEngine.shared)
 }
