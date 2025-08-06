@@ -83,8 +83,11 @@ private struct KeyboardShortcutView: View {
     @State private var showingTestDialog = false
     @State private var keyPressed = false
     @State private var keyTestPassed = false
-    @State private var currentShortcut = "fn"
+    @State private var currentShortcut = ""
     @State private var isListeningForKey = false
+    @State private var globalKeyMonitor: Any?
+    @State private var pendingShortcut: HotkeyConfiguration?
+    @State private var localKeyMonitor: Any?
     @EnvironmentObject private var coordinator: OnboardingCoordinator
     
     var body: some View {
@@ -103,7 +106,7 @@ private struct KeyboardShortcutView: View {
                     }
                     
                     // Subtitle
-                    Text("We recommend Option + Space")
+                    Text("We recommend fn")
                         .font(.body)
                         .foregroundColor(.secondary)
                 }
@@ -142,13 +145,13 @@ private struct KeyboardShortcutView: View {
             }
         }
         .onAppear {
-            // Set current shortcut from settings
-            currentShortcut = userSettings.keyboardShortcuts.globalDictationHotkey.displayString
-            
-            // Don't register hotkey callbacks here - let AppDelegate handle the callbacks
-            // Services-based shortcuts are managed by the user in System Settings
+            // Set current shortcut from settings - should be "fn" by default
             let hotkeyConfig = userSettings.keyboardShortcuts.globalDictationHotkey
-            print("🔧 Onboarding observing hotkey: \(hotkeyConfig.displayString) (AppDelegate handles callbacks)")
+            currentShortcut = hotkeyConfig.displayString
+            print("🔧 Onboarding loaded with hotkey: \(hotkeyConfig.displayString)")
+            
+            // Start monitoring for key presses to show visual feedback
+            startKeyMonitoring()
             
             // Show the test dialog after a short delay
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
@@ -156,6 +159,11 @@ private struct KeyboardShortcutView: View {
                     showingTestDialog = true
                 }
             }
+        }
+        .onDisappear {
+            // Only stop onboarding key monitoring, not global monitoring
+            stopKeyMonitoring()
+            print("🔧 Onboarding: Stopped local key monitoring (global monitoring remains active)")
         }
     }
     
@@ -188,13 +196,16 @@ private struct KeyboardShortcutView: View {
                 
                 Button("Yes") {
                     keyTestPassed = true
-                    // Save the current shortcut to settings and register globally
-                    userSettings.saveToLocalStorage()
                     
-                    // Note: Services-based shortcuts are managed by user in System Settings
-                    // No programmatic registration needed
-                    
-                    onContinue()
+                    // Save and automatically configure the Services shortcut
+                    Task {
+                        await userSettings.updateKeyboardShortcut(userSettings.keyboardShortcuts.globalDictationHotkey)
+                        
+                        // Also notify AppDelegate to update global hotkey registration
+                        NotificationCenter.default.post(name: .updateGlobalHotkey, object: userSettings.keyboardShortcuts.globalDictationHotkey)
+                        
+                        onContinue()
+                    }
                 }
                 .primaryButtonStyle()
             }
@@ -220,8 +231,8 @@ private struct KeyboardShortcutView: View {
                         .foregroundColor(.primary)
                     
                     VStack(spacing: 12) {
-                        shortcutOption("⌥ Space", description: "Option + Space (recommended)")
-                        shortcutOption("fn", description: "Function key")
+                        shortcutOption("fn", description: "Function key (recommended)")
+                        shortcutOption("⌥ Space", description: "Option + Space")
                         shortcutOption("⌘⌘", description: "Double Command")
                         shortcutOption("⌃ Space", description: "Control + Space")
                     }
@@ -240,19 +251,21 @@ private struct KeyboardShortcutView: View {
                         title: "Record custom shortcut",
                         description: "Press any key combination",
                         hotkey: $userSettings.keyboardShortcuts.globalDictationHotkey
-                    )
-                    .onChange(of: userSettings.keyboardShortcuts.globalDictationHotkey) { _, newHotkey in
+                    ) { newHotkey in
+                        // Store the pending shortcut but don't save yet
+                        pendingShortcut = newHotkey
                         currentShortcut = newHotkey.displayString
-                        print("🔧 Custom hotkey changed to: \(newHotkey.displayString)")
-                        
-                        // Tell the AppDelegate to update its hotkey registration
-                        NotificationCenter.default.post(name: .updateGlobalHotkey, object: newHotkey)
+                        print("🔧 Custom shortcut pending: \(newHotkey.displayString) (modifiers: \(newHotkey.modifiers), key: \(newHotkey.key))")
                     }
                 }
             }
             
             HStack(spacing: 16) {
                 Button("Cancel") {
+                    // Discard pending shortcut and revert to current
+                    pendingShortcut = nil
+                    currentShortcut = userSettings.keyboardShortcuts.globalDictationHotkey.displayString
+                    
                     withAnimation(.easeInOut(duration: 0.3)) {
                         showingCustomization = false
                         showingTestDialog = true
@@ -261,13 +274,17 @@ private struct KeyboardShortcutView: View {
                 .secondaryButtonStyle()
                 
                 Button("Save") {
-                    userSettings.saveToLocalStorage()
+                    // Save the pending shortcut if it exists, otherwise keep current
+                    let shortcutToSave = pendingShortcut ?? userSettings.keyboardShortcuts.globalDictationHotkey
                     
-                    // Note: Services-based shortcuts are managed by user in System Settings
-                    
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showingCustomization = false
-                        showingTestDialog = true
+                    Task {
+                        print("💾 Saving shortcut: \(shortcutToSave.displayString)")
+                        await userSettings.updateKeyboardShortcut(shortcutToSave)
+                        
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showingCustomization = false
+                            showingTestDialog = true
+                        }
                     }
                 }
                 .primaryButtonStyle()
@@ -312,10 +329,14 @@ private struct KeyboardShortcutView: View {
             
             // Update settings and immediately register the new hotkey globally
             userSettings.keyboardShortcuts.globalDictationHotkey = newHotkey
-            userSettings.saveToLocalStorage()
+            
+            // Save and automatically configure the Services shortcut
+            Task {
+                await userSettings.updateKeyboardShortcut(newHotkey)
+                print("🔧 Updated hotkey to: \(newHotkey.displayString)")
+            }
             
             // Tell the AppDelegate to update its hotkey registration
-            print("🔧 Updating hotkey to: \(newHotkey.displayString)")
             NotificationCenter.default.post(name: .updateGlobalHotkey, object: newHotkey)
         }) {
             HStack {
@@ -354,7 +375,7 @@ private struct KeyboardShortcutView: View {
                 individualKeyView(modifier: modifier, isPressed: isPressed)
             }
             
-            // Display main key with icon and/or text
+            // Display main key
             individualKeyView(key: hotkey.key, isPressed: isPressed)
         }
     }
@@ -453,8 +474,169 @@ private struct KeyboardShortcutView: View {
             .scaleEffect(isPressed ? 0.95 : 1.0)
     }
     
+    // MARK: - Key Monitoring Methods
     
+    private func startKeyMonitoring() {
+        print("🔍 Starting key monitoring for visual feedback")
+        
+        // Stop any existing monitors
+        stopKeyMonitoring()
+        
+        // Monitor for key events to show visual feedback
+        // Use global monitor to capture keys even when not focused
+        globalKeyMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged]) { event in
+            self.handleKeyEvent(event)
+        }
+        
+        // Also add local monitor for when app is focused
+        localKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged]) { event in
+            self.handleKeyEvent(event)
+            return event
+        }
+    }
     
+    private func stopKeyMonitoring() {
+        if let monitor = globalKeyMonitor {
+            NSEvent.removeMonitor(monitor)
+            globalKeyMonitor = nil
+        }
+        if let monitor = localKeyMonitor {
+            NSEvent.removeMonitor(monitor)
+            localKeyMonitor = nil
+        }
+        print("🛑 Stopped key monitoring")
+    }
+    
+    private func handleKeyEvent(_ event: NSEvent) {
+        let hotkeyConfig = userSettings.keyboardShortcuts.globalDictationHotkey
+        
+        if event.type == .keyDown {
+            // Check if the pressed key matches our hotkey
+            if matchesHotkey(event: event, config: hotkeyConfig) {
+                // Only trigger once per press (avoid key repeat)
+                if !keyPressed {
+                    keyPressed = true
+                    print("✅ Hotkey pressed: \(hotkeyConfig.displayString)")
+                }
+            }
+        } else if event.type == .keyUp {
+            // Check if this is the release of our hotkey
+            if keyPressed && matchesHotkey(event: event, config: hotkeyConfig) {
+                keyPressed = false
+                print("✅ Hotkey released: \(hotkeyConfig.displayString)")
+            }
+        } else if event.type == .flagsChanged {
+            // Handle special cases like fn key or double-tap shortcuts
+            if hotkeyConfig.key == .fn && hotkeyConfig.modifiers.isEmpty {
+                // Check for fn key
+                let wasPressedBefore = keyPressed
+                keyPressed = event.modifierFlags.contains(.function)
+                if keyPressed && !wasPressedBefore {
+                    print("✅ Hotkey pressed: \(hotkeyConfig.displayString)")
+                } else if !keyPressed && wasPressedBefore {
+                    print("✅ Hotkey released: \(hotkeyConfig.displayString)")
+                }
+            } else {
+                // For all other shortcuts, modifiers alone should NOT trigger
+                // Only highlight when the complete combination is pressed
+                keyPressed = false
+            }
+        }
+    }
+    
+    private func matchesHotkey(event: NSEvent, config: HotkeyConfiguration) -> Bool {
+        // Check modifiers
+        let eventModifiers = extractModifiers(from: event.modifierFlags)
+        if eventModifiers != config.modifiers {
+            return false
+        }
+        
+        // Check key
+        if let mappedKey = mapKeyCodeToKey(event.keyCode) {
+            return mappedKey == config.key
+        }
+        
+        return false
+    }
+    
+    private func extractModifiers(from flags: NSEvent.ModifierFlags) -> Set<KeyboardModifier> {
+        var modifiers: Set<KeyboardModifier> = []
+        
+        if flags.contains(.command) {
+            modifiers.insert(.command)
+        }
+        if flags.contains(.option) {
+            modifiers.insert(.option)
+        }
+        if flags.contains(.shift) {
+            modifiers.insert(.shift)
+        }
+        if flags.contains(.control) {
+            modifiers.insert(.control)
+        }
+        
+        return modifiers
+    }
+    
+    private func mapKeyCodeToKey(_ keyCode: UInt16) -> KeyboardKey? {
+        // Map all key codes to our KeyboardKey enum
+        switch keyCode {
+        case 49: return .space
+        case 36: return .enter
+        case 48: return .tab
+        case 53: return .escape
+        case 0: return .a
+        case 11: return .b
+        case 8: return .c
+        case 2: return .d
+        case 14: return .e
+        case 3: return .f
+        case 5: return .g
+        case 4: return .h
+        case 34: return .i
+        case 38: return .j
+        case 40: return .k
+        case 37: return .l
+        case 46: return .m
+        case 45: return .n
+        case 31: return .o
+        case 35: return .p
+        case 12: return .q
+        case 15: return .r
+        case 1: return .s
+        case 17: return .t
+        case 32: return .u
+        case 9: return .v
+        case 13: return .w
+        case 7: return .x
+        case 16: return .y
+        case 6: return .z
+        case 29: return .zero
+        case 18: return .one
+        case 19: return .two
+        case 20: return .three
+        case 21: return .four
+        case 23: return .five
+        case 22: return .six
+        case 26: return .seven
+        case 28: return .eight
+        case 25: return .nine
+        case 122: return .f1
+        case 120: return .f2
+        case 99: return .f3
+        case 118: return .f4
+        case 96: return .f5
+        case 97: return .f6
+        case 98: return .f7
+        case 100: return .f8
+        case 101: return .f9
+        case 109: return .f10
+        case 103: return .f11
+        case 111: return .f12
+        case 55: return .command // Command key when pressed alone
+        default: return nil
+        }
+    }
 }
 
 private struct MicrophoneTestView: View {

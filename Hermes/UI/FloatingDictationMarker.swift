@@ -164,9 +164,13 @@ struct FloatingDictationMarker: View {
         let maxHeight: CGFloat = 20
         let animationDelay = Double(index) * 0.1
         
+        // Ensure height is always positive by using abs() and adding a minimum
+        let waveHeight = abs(sin(Date().timeIntervalSince1970 * 3 + animationDelay))
+        let finalHeight = max(2, baseHeight + (waveformAmplitude * maxHeight * waveHeight))
+        
         return Rectangle()
             .fill(Color.white)
-            .frame(width: 2, height: baseHeight + (waveformAmplitude * maxHeight * sin(Date().timeIntervalSince1970 * 3 + animationDelay)))
+            .frame(width: 2, height: finalHeight)
             .cornerRadius(1)
     }
     

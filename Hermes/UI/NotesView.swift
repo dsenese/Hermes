@@ -154,16 +154,10 @@ struct NotesView: View {
     
     private var dictationControls: some View {
         VStack(spacing: 16) {
-            // Record button
-            Button(action: {
-                if isRecording {
-                    stopDictation()
-                } else {
-                    startDictation()
-                }
-            }) {
+            // Status indicator instead of button - use hotkey to dictate
+            VStack(spacing: 8) {
                 HStack(spacing: 12) {
-                    Image(systemName: isRecording ? "stop.circle.fill" : "mic.circle.fill")
+                    Image(systemName: isRecording ? "stop.circle.fill" : "mic.circle")
                         .font(.system(size: 20))
                         .foregroundColor(isRecording ? .red : Color(hex: HermesConstants.primaryAccentColor))
                     
@@ -171,7 +165,7 @@ struct NotesView: View {
                         Text("Processing...")
                             .font(.system(size: 14, weight: .medium))
                     } else {
-                        Text(isRecording ? "Stop Recording" : "Start Recording")
+                        Text(isRecording ? "Recording..." : "Use hotkey to dictate")
                             .font(.system(size: 14, weight: .medium))
                     }
                 }
@@ -179,15 +173,21 @@ struct NotesView: View {
                 .padding(.vertical, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(isRecording ? Color.red.opacity(0.1) : Color(hex: HermesConstants.primaryAccentColor).opacity(0.1))
+                        .fill(isRecording ? Color.red.opacity(0.1) : Color(hex: HermesConstants.primaryAccentColor).opacity(0.05))
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(isRecording ? Color.red : Color(hex: HermesConstants.primaryAccentColor), lineWidth: 1)
+                                .stroke(isRecording ? Color.red : Color(hex: HermesConstants.primaryAccentColor).opacity(0.5), lineWidth: 1)
                         )
                 )
+                
+                // Hotkey hint
+                if !isRecording {
+                    Text("Hold your configured hotkey to start dictation")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
             }
-            .buttonStyle(.plain)
-            .disabled(dictationEngine.isProcessing && !isRecording)
             
             // Audio level indicator (if recording)
             if isRecording {
@@ -348,10 +348,25 @@ struct NotesView: View {
     // MARK: - Methods
     
     private func setupTranscriptionListener() {
+        // Listen to dictation engine state changes to sync recording status
+        dictationEngine.$isActive
+            .receive(on: DispatchQueue.main)
+            .sink { isActive in
+                // Update recording state based on dictation engine
+                if dictationEngine.dictationContext == .local {
+                    self.isRecording = isActive
+                }
+            }
+            .store(in: &cancellables)
+        
+        // Listen to transcriptions when dictation context is local
         dictationEngine.transcriptionService.transcriptionPublisher
             .receive(on: DispatchQueue.main)
             .sink { transcriptionResult in
-                handleTranscription(transcriptionResult)
+                // Only handle transcription if we're in local context (Notes view)
+                if self.dictationEngine.dictationContext == .local {
+                    self.handleTranscription(transcriptionResult)
+                }
             }
             .store(in: &cancellables)
     }
@@ -384,23 +399,6 @@ struct NotesView: View {
         }
     }
     
-    private func startDictation() {
-        Task {
-            await dictationEngine.startDictation()
-            await MainActor.run {
-                isRecording = true
-            }
-        }
-    }
-    
-    private func stopDictation() {
-        Task {
-            await dictationEngine.stopDictation()
-            await MainActor.run {
-                isRecording = false
-            }
-        }
-    }
     
     private func saveCurrentNote() {
         currentNote.content = noteText

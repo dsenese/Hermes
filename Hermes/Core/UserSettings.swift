@@ -15,6 +15,11 @@ import SwiftUI
 class UserSettings: ObservableObject {
     static let shared = UserSettings()
     
+    // MARK: - Debug Flags
+    
+    /// Set to true to always show onboarding, false to respect saved state, nil to auto-detect
+    static let DEBUG_FORCE_ONBOARDING: Bool? = true  // Change to false or nil for production
+    
     // MARK: - Published Properties
     
     @Published var onboardingSettings: OnboardingSettings
@@ -48,6 +53,9 @@ class UserSettings: ObservableObject {
         
         // Load from local storage
         loadFromLocalStorage()
+        
+        // Apply debug flags after loading
+        applyDebugFlags()
     }
     
     // MARK: - Storage Methods
@@ -64,6 +72,16 @@ class UserSettings: ObservableObject {
             print("❌ Failed to save settings: \(error)")
         }
     }
+    
+    /// Update keyboard shortcut
+    func updateKeyboardShortcut(_ newHotkey: HotkeyConfiguration) async {
+        keyboardShortcuts.globalDictationHotkey = newHotkey
+        saveToLocalStorage()
+        
+        // We're using GlobalShortcutManager now, not Services
+        print("✅ Keyboard shortcut updated: \(newHotkey.displayString)")
+    }
+    
     
     private func loadFromLocalStorage() {
         guard let data = UserDefaults.standard.data(forKey: "HermesUserSettings") else {
@@ -102,6 +120,21 @@ class UserSettings: ObservableObject {
     
     // MARK: - Helper Methods
     
+    private func applyDebugFlags() {
+        // Apply debug flags for testing
+        if let forceOnboarding = UserSettings.DEBUG_FORCE_ONBOARDING {
+            if forceOnboarding {
+                print("🔧 DEBUG: Forcing onboarding to show")
+                self.isOnboardingCompleted = false
+            } else {
+                print("🔧 DEBUG: Forcing onboarding to be completed")
+                self.isOnboardingCompleted = true
+            }
+        } else {
+            print("🔧 DEBUG: Using saved onboarding state: \(isOnboardingCompleted ? "completed" : "not completed")")
+        }
+    }
+    
     private static func generateDeviceId() -> String {
         if let existingId = UserDefaults.standard.string(forKey: "HermesDeviceId") {
             return existingId
@@ -110,6 +143,13 @@ class UserSettings: ObservableObject {
         let newId = UUID().uuidString
         UserDefaults.standard.set(newId, forKey: "HermesDeviceId")
         return newId
+    }
+    
+    /// Reset onboarding for testing purposes
+    func resetOnboarding() {
+        print("🔧 Resetting onboarding state")
+        isOnboardingCompleted = false
+        saveToLocalStorage()
     }
     
     func resetToDefaults() {

@@ -10,7 +10,6 @@ import AVFoundation
 import Combine
 
 /// Manages audio capture and processing for dictation
-@MainActor
 class AudioManager: ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var isRecording = false
@@ -47,12 +46,17 @@ class AudioManager: ObservableObject {
     // MARK: - Public Methods
     
     /// Requests microphone permission and starts audio capture
+    @MainActor
     func startRecording() async throws {
         guard !isRecording else { return }
         
         // Request microphone permission explicitly
         print("🎤 Requesting microphone permission...")
-        let permission = await AVAudioApplication.requestRecordPermission()
+        let permission = await withCheckedContinuation { continuation in
+            AVCaptureDevice.requestAccess(for: .audio) { granted in
+                continuation.resume(returning: granted)
+            }
+        }
         
         if permission {
             print("✅ Microphone permission granted")
@@ -61,13 +65,19 @@ class AudioManager: ObservableObject {
             throw AudioManagerError.microphonePermissionDenied
         }
         
-        // Always create fresh audio engine to avoid session conflicts
-        setupAudioEngine()
+        // Configure audio session to be non-intrusive
+        try configureAudioSession()
+        
+        // Only setup engine if not already initialized
+        if audioEngine == nil {
+            setupAudioEngine()
+        }
         
         try await setupAndStartRecording()
     }
     
     /// Stops audio capture
+    @MainActor
     func stopRecording() {
         guard isRecording else { return }
         
@@ -89,16 +99,13 @@ class AudioManager: ObservableObject {
     // MARK: - Private Methods
     
     private func setupAudioEngine() {
-        // Always create a fresh engine to avoid -10877 errors
-        if audioEngine != nil {
-            audioEngine?.stop()
+        // Only create new engine if needed
+        if audioEngine == nil {
+            audioEngine = AVAudioEngine()
+            print("🎤 Created new audio engine")
+        } else {
+            print("🎤 Reusing existing audio engine")
         }
-        
-        audioEngine = AVAudioEngine()
-        print("🎤 Created new audio engine")
-        
-        // Set up the default audio input device (non-intrusive)  
-        configureInputDevice()
         
         inputNode = audioEngine?.inputNode
         
@@ -108,15 +115,11 @@ class AudioManager: ObservableObject {
         }
     }
     
-    private func configureInputDevice() {
-        // On macOS, respect the user's current audio device configuration
-        // Don't change or interfere with existing audio routing
-        
-        print("🎤 Preserving current audio device configuration")
-        print("🎤 Using whatever input device is currently active")
-        
-        // Note: We intentionally don't modify audio device settings to avoid
-        // disconnecting headphones or changing the user's audio setup
+    private func configureAudioSession() throws {
+        // On macOS, we don't need to configure audio sessions like iOS
+        // The system handles audio routing automatically
+        // We just need to ensure we don't interfere with existing audio device setup
+        print("✅ Audio session configured for macOS (non-intrusive mode)")
     }
     
     private func resetAudioEngine() {
@@ -127,12 +130,8 @@ class AudioManager: ObservableObject {
             }
             if let input = inputNode {
                 // Safely remove tap with error handling
-                do {
-                    input.removeTap(onBus: 0)
-                    print("🔧 Audio tap removed successfully")
-                } catch {
-                    print("⚠️ Error removing audio tap: \(error)")
-                }
+                input.removeTap(onBus: 0)
+                print("🔧 Audio tap removed successfully")
             }
         }
         
@@ -201,9 +200,19 @@ class AudioManager: ObservableObject {
             }
         }
         
-        // Start the audio engine without prepare() to avoid session disruption
-        // prepare() can sometimes change audio routing, so we skip it
-        try audioEngine.start()
+        // Prepare and start the audio engine with error handling
+        do {
+            if !audioEngine.isRunning {
+                audioEngine.prepare()
+                try audioEngine.start()
+                print("✅ Audio engine started successfully")
+            } else {
+                print("🎤 Audio engine already running")
+            }
+        } catch {
+            print("❌ Failed to start audio engine: \(error)")
+            throw AudioManagerError.recordingFailed
+        }
         
         isRecording = true
         self.inputNode = inputNode

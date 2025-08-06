@@ -648,12 +648,16 @@ struct MainAppView: View {
                 showingKeyboardShortcuts = true
                 showingSettingsMenu = false
             }) {
-                Text("Keyboard Shortcuts")
-                    .font(.system(size: 13))
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+                HStack {
+                    Text("Keyboard Shortcuts")
+                        .font(.system(size: 13))
+                        .foregroundColor(.primary)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             }
             .buttonStyle(.plain)
             

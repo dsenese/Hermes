@@ -26,67 +26,9 @@
 	<string>public.app-category.productivity</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
+	<key>NSAccessibilityUsageDescription</key>
+	<string>Hermes needs accessibility access to inject transcribed text into other applications and register global shortcuts.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Hermes needs access to your microphone for real-time dictation and transcription.</string>
-	<key>NSServices</key>
-	<array>
-		<dict>
-			<key>NSMenuItem</key>
-			<dict>
-				<key>default</key>
-				<string>Hermes: Toggle Dictation</string>
-			</dict>
-			<key>NSMessage</key>
-			<string>toggleDictation</string>
-			<key>NSPortName</key>
-			<string>Hermes</string>
-			<key>NSReturnTypes</key>
-			<array>
-				<string>NSStringPboardType</string>
-			</array>
-			<key>NSSendTypes</key>
-			<array>
-				<string>NSStringPboardType</string>
-			</array>
-		</dict>
-		<dict>
-			<key>NSMenuItem</key>
-			<dict>
-				<key>default</key>
-				<string>Hermes: Start Dictation</string>
-			</dict>
-			<key>NSMessage</key>
-			<string>startDictation</string>
-			<key>NSPortName</key>
-			<string>Hermes</string>
-			<key>NSReturnTypes</key>
-			<array>
-				<string>NSStringPboardType</string>
-			</array>
-			<key>NSSendTypes</key>
-			<array>
-				<string>NSStringPboardType</string>
-			</array>
-		</dict>
-		<dict>
-			<key>NSMenuItem</key>
-			<dict>
-				<key>default</key>
-				<string>Hermes: Stop Dictation</string>
-			</dict>
-			<key>NSMessage</key>
-			<string>stopDictation</string>
-			<key>NSPortName</key>
-			<string>Hermes</string>
-			<key>NSReturnTypes</key>
-			<array>
-				<string>NSStringPboardType</string>
-			</array>
-			<key>NSSendTypes</key>
-			<array>
-				<string>NSStringPboardType</string>
-			</array>
-		</dict>
-	</array>
 </dict>
 </plist>

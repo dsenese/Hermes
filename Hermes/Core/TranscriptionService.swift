@@ -10,8 +10,9 @@ import WhisperKit
 import Combine
 
 /// Handles speech-to-text transcription using WhisperKit
-@MainActor
 class TranscriptionService: ObservableObject {
+    // MARK: - Singleton
+    static let shared = TranscriptionService()
     // MARK: - Published Properties
     @Published private(set) var isInitialized = false
     @Published private(set) var currentModel: String = ""
@@ -40,10 +41,9 @@ class TranscriptionService: ObservableObject {
     }
     
     // MARK: - Initialization
-    init() {
-        Task {
-            await loadAvailableModels()
-        }
+    private init() {
+        // Don't load models during init to avoid blocking the main thread
+        // Models will be loaded lazily when initialize() is called
     }
     
     // MARK: - Public Methods
@@ -51,6 +51,11 @@ class TranscriptionService: ObservableObject {
     /// Initializes WhisperKit with the appropriate model
     func initialize() async throws {
         guard !isInitialized else { return }
+        
+        // Load available models first if not already loaded
+        if availableModels.isEmpty {
+            await loadAvailableModels()
+        }
         
         print("🤖 Initializing WhisperKit...")
         
@@ -173,7 +178,7 @@ class TranscriptionService: ObservableObject {
         // Get available models from WhisperKit
         // These are the models we want to support in Hermes
         let preferredModels = [
-            primaryModel,      // "large-v3"
+            primaryModel,      // "base"
             fallbackModel,     // "distil-large-v3"
             "base"             // Lightweight option
         ]

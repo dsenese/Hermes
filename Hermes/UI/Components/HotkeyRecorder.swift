@@ -11,6 +11,7 @@ import AppKit
 /// Interactive component for recording keyboard shortcuts
 struct HotkeyRecorder: View {
     @Binding var hotkey: HotkeyConfiguration
+    var onShortcutChanged: ((HotkeyConfiguration) -> Void)? = nil
     @State private var isRecording = false
     @State private var currentKeys: Set<KeyboardModifier> = []
     @State private var currentKey: KeyboardKey?
@@ -20,10 +21,11 @@ struct HotkeyRecorder: View {
     let title: String
     let description: String?
     
-    init(title: String, description: String? = nil, hotkey: Binding<HotkeyConfiguration>) {
+    init(title: String, description: String? = nil, hotkey: Binding<HotkeyConfiguration>, onShortcutChanged: ((HotkeyConfiguration) -> Void)? = nil) {
         self.title = title
         self.description = description
         self._hotkey = hotkey
+        self.onShortcutChanged = onShortcutChanged
     }
     
     var body: some View {
@@ -203,8 +205,9 @@ struct HotkeyRecorder: View {
             hotkey = newHotkey
             checkForConflicts(newHotkey)
             
-            // Save to user settings - Services shortcuts are managed by user in System Settings
-            UserSettings.shared.saveToLocalStorage()
+            // Notify parent about the change but don't save automatically
+            onShortcutChanged?(newHotkey)
+            print("🔧 Custom hotkey changed to: \(newHotkey.displayString)")
         }
         
         currentKeys.removeAll()

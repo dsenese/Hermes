@@ -31,7 +31,6 @@ private struct GuidePermissionsView: View {
     let onContinue: () -> Void
     @State private var microphoneSetupCompleted = false
     @State private var accessibilitySetupCompleted = false
-    @State private var servicesSetupCompleted = false
     
     var body: some View {
         VStack(spacing: 40) {
@@ -68,17 +67,6 @@ private struct GuidePermissionsView: View {
                             openAccessibilitySettings()
                         }
                     )
-                    
-                    // Services-based shortcuts (no permission needed)
-                    permissionItem(
-                        title: "Set up global keyboard shortcuts",
-                        subtitle: "Assign shortcuts to Hermes services in System Settings (no permission required)",
-                        isCompleted: servicesSetupCompleted,
-                        buttonTitle: "Open Keyboard Shortcuts",
-                        action: {
-                            openKeyboardShortcutsSettings()
-                        }
-                    )
                 }
                 .frame(width: 400)
                 
@@ -103,14 +91,8 @@ private struct GuidePermissionsView: View {
                         
                         guidanceStep(
                             number: 3,
-                            title: "Keyboard Shortcuts",
-                            description: "Go to Keyboard > Shortcuts > Services and assign a shortcut to 'Hermes: Toggle Dictation'"
-                        )
-                        
-                        guidanceStep(
-                            number: 4,
                             title: "Ready to Go", 
-                            description: "Once permissions are set and shortcuts assigned, you can use Hermes anywhere"
+                            description: "Once permissions are set, you can configure keyboard shortcuts and use Hermes anywhere"
                         )
                     }
                 }
@@ -127,7 +109,7 @@ private struct GuidePermissionsView: View {
                 }
                 .primaryButtonStyle()
                 
-                Text("You can continue even if permissions aren't set up yet. Hermes will work once you enable them.")
+                Text("You can continue even if permissions aren't set up yet. Keyboard shortcuts will be configured automatically when you choose them.")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -219,25 +201,10 @@ private struct GuidePermissionsView: View {
     }
     
     private func openMicrophoneSettings() {
-        if #available(macOS 10.14, *) {
-            AVCaptureDevice.requestAccess(for: .audio) { granted in
-                DispatchQueue.main.async {
-                    microphoneSetupCompleted = granted
-                }
-            }
-        }
-        
-        // Try multiple URLs for different macOS versions
-        let urls = [
-            "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone",
-            "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Microphone"
-        ]
-        
-        for urlString in urls {
-            if let url = URL(string: urlString) {
-                if NSWorkspace.shared.open(url) {
-                    break
-                }
+        // Use the standard API that matches AudioManager
+        AVCaptureDevice.requestAccess(for: .audio) { granted in
+            DispatchQueue.main.async {
+                self.microphoneSetupCompleted = granted
             }
         }
         
@@ -248,46 +215,22 @@ private struct GuidePermissionsView: View {
     }
     
     private func openAccessibilitySettings() {
-        // Try multiple URLs for different macOS versions
-        let urls = [
-            "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility",
-            "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility"
-        ]
+        // Request accessibility permission when user explicitly clicks the button
+        print("🔐 User requested accessibility permission during onboarding")
         
-        for urlString in urls {
-            if let url = URL(string: urlString) {
-                if NSWorkspace.shared.open(url) {
-                    break
-                }
-            }
-        }
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true]
+        let granted = AXIsProcessTrustedWithOptions(options as CFDictionary)
         
-        // Mark as completed for demonstration (user can continue regardless)
+        print("🔐 Accessibility permission request result: \(granted)")
+        
+        // Mark as completed (user can continue regardless of result)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             accessibilitySetupCompleted = true
         }
     }
     
-    private func openKeyboardShortcutsSettings() {
-        // Try multiple URLs for different macOS versions
-        let urls = [
-            "x-apple.systempreferences:com.apple.preference.keyboard?Shortcuts",
-            "x-apple.systempreferences:com.apple.settings.Keyboard.extension?Shortcuts"
-        ]
-        
-        for urlString in urls {
-            if let url = URL(string: urlString) {
-                if NSWorkspace.shared.open(url) {
-                    break
-                }
-            }
-        }
-        
-        // Mark as completed for demonstration (user can continue regardless)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            servicesSetupCompleted = true
-        }
-    }
+    
+    
 }
 
 // MARK: - Legacy Real Permissions View (for reference)
@@ -439,16 +382,20 @@ private struct RealPermissionsView: View {
     }
     
     private func requestMicrophonePermission() {
-        if #available(macOS 10.14, *) {
-            AVCaptureDevice.requestAccess(for: .audio) { granted in
-                // Permission handling is done by the timer checking
-            }
+        // Use the standard API that matches AudioManager
+        AVCaptureDevice.requestAccess(for: .audio) { granted in
+            // Permission handling is done by the timer checking
         }
     }
     
     private func openAccessibilitySettings() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
-        NSWorkspace.shared.open(url)
+        // Request accessibility permission when user explicitly clicks the button
+        print("🔐 User requested accessibility permission during onboarding")
+        
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true]
+        let granted = AXIsProcessTrustedWithOptions(options as CFDictionary)
+        
+        print("🔐 Accessibility permission request result: \(granted)")
         
         // Mark that user has gone through accessibility setup
         UserDefaults.standard.set(true, forKey: "hasCompletedAccessibilitySetup")

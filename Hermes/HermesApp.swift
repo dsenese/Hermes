@@ -47,13 +47,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Setup menu bar
         setupMenuBar()
         
-        // Setup global hotkeys
-        setupGlobalHotkeys()
+        // Initialize WhisperKit in background immediately (critical for dictation)
+        Task {
+            await initializeWhisperKitInBackground()
+        }
+        
+        // Initialize permission managers and global hotkeys - defer to avoid blocking UI startup
+        Task {
+            try? await Task.sleep(nanoseconds: 2_000_000_000) // Wait 2 seconds
+            
+            // Start permission monitoring
+            await MainActor.run {
+                AccessibilityManager.shared.startMonitoring()
+                print("🔧 AppDelegate: Started permission monitoring")
+            }
+            
+            // Wait a bit more for permission checks
+            try? await Task.sleep(nanoseconds: 1_000_000_000) // Wait 1 more second
+            
+            await setupGlobalHotkeys()
+            
+            // Also ensure GlobalShortcutManager is set up for monitoring
+            print("🔧 AppDelegate: Ensuring GlobalShortcutManager monitoring is active...")
+            GlobalShortcutManager.shared.retrySetup()
+        }
         
         // Main app window is now managed by SwiftUI WindowGroup
         
-        // Setup floating dictation marker
-        setupFloatingDictationMarker()
+        // Setup floating dictation marker - defer to avoid blocking UI
+        Task {
+            try? await Task.sleep(nanoseconds: 5_000_000_000) // Wait 5 seconds
+            await setupFloatingDictationMarker()
+        }
         
         // Note: Permissions are now handled in the onboarding flow only
         
@@ -111,65 +136,102 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    private func setupGlobalHotkeys() {
-        print("🔧 Setting up Services-based global shortcuts in AppDelegate...")
+    private func setupGlobalHotkeys() async {
+        print("🔧 Setting up global shortcuts using GlobalShortcutManager...")
         
         Task { @MainActor in
-            let servicesManager = ServicesManager.shared
+            // Get user's preferred shortcut from settings, default to "fn"
+            let userSettings = UserSettings.shared
+            let shortcut = userSettings.keyboardShortcuts.globalDictationHotkey
+            let accelerator = shortcut.displayString
             
-            // Register the dictation engine with services manager
-            servicesManager.registerDictationEngine(DictationEngine.shared)
+            // Register the shortcut with GlobalShortcutManager (hold-to-dictate mode)
+            let success = GlobalShortcutManager.shared.register(accelerator) {
+                // This callback is not used for hold-to-dictate - GlobalShortcutManager handles it internally
+                print("🔥 Global shortcut '\(accelerator)' registered (hold-to-dictate mode)")
+            }
             
-            print("✅ AppDelegate Services registration complete")
-            print("📋 Users can assign shortcuts in System Settings > Keyboard > Shortcuts > Services")
+            if success {
+                print("✅ Global shortcut '\(accelerator)' registered successfully")
+            } else {
+                print("❌ Failed to register global shortcut '\(accelerator)'")
+            }
         }
     }
     
-    /// Update global hotkey when settings change (called from onboarding) 
-    /// Note: With Services API, shortcuts are managed by the user in System Settings
+    /// Update global hotkey when settings change (called from onboarding)
     func updateGlobalHotkey(_ hotkey: HotkeyConfiguration) {
         Task { @MainActor in
-            print("🔄 AppDelegate: Services-based shortcuts are user-managed in System Settings")
-            print("📋 No programmatic hotkey update needed with Services API")
+            print("🔄 AppDelegate: Updating global shortcut to '\(hotkey.displayString)'")
             
-            // Still notify the dictation engine for UI consistency
+            // Unregister all existing shortcuts
+            GlobalShortcutManager.shared.unregisterAll()
+            
+            // Register new shortcut
+            let accelerator = hotkey.displayString
+            let success = GlobalShortcutManager.shared.register(accelerator) {
+                // This callback is not used for hold-to-dictate - GlobalShortcutManager handles it internally
+                print("🔥 Updated global shortcut '\(accelerator)' registered (hold-to-dictate mode)")
+            }
+            
+            if success {
+                print("✅ Global shortcut updated to '\(accelerator)'")
+            } else {
+                print("❌ Failed to update global shortcut to '\(accelerator)'")
+            }
+            
+            // Notify the dictation engine for UI consistency
             DictationEngine.shared.updateGlobalHotkey(hotkey)
         }
     }
     
     private func requestPermissions() {
-        // Only check permissions without requesting them during app launch
         Task { @MainActor in
-            // Check microphone permission (without requesting)
-            if #available(macOS 10.14, *) {
-                let microphoneStatus = AVCaptureDevice.authorizationStatus(for: .audio)
-                switch microphoneStatus {
-                case .authorized:
-                    print("✅ Microphone permission already granted")
-                case .denied:
-                    print("⚠️ Microphone permission denied")
-                case .notDetermined:
-                    print("⚠️ Microphone permission not determined")
-                case .restricted:
-                    print("⚠️ Microphone permission restricted")
-                @unknown default:
-                    print("⚠️ Unknown microphone permission status")
+            // TEST: Request microphone permission immediately on launch to verify it works
+            print("🔍 Testing microphone permission request...")
+            
+            let micStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+            print("📱 Current microphone status: \(micStatus.rawValue)")
+            
+            if micStatus == .notDetermined {
+                print("🎤 Requesting microphone permission...")
+                AVCaptureDevice.requestAccess(for: .audio) { granted in
+                    DispatchQueue.main.async {
+                        if granted {
+                            print("✅ Microphone permission granted!")
+                        } else {
+                            print("❌ Microphone permission denied!")
+                        }
+                    }
                 }
+            } else {
+                print("📱 Microphone permission already determined: \(micStatus)")
             }
             
-            // Check accessibility permission (without prompting)
-            let hasAccessibility = AXIsProcessTrusted()
-            if hasAccessibility {
-                print("✅ Accessibility permission granted")
-            } else {
-                print("⚠️ Accessibility permissions not granted. Please enable in System Preferences > Security & Privacy > Privacy > Accessibility")
-            }
+            // Removed accessibility test - was breaking System Settings
         }
     }
     
     @objc private func toggleMenuBar() {
         print("🖱️ Menu bar icon clicked")
         menuBarWindowController?.toggle(relativeTo: statusBarItem)
+    }
+    
+    @MainActor
+    private func toggleDictation() async {
+        print("🔥 AppDelegate.toggleDictation() called!")
+        
+        let dictationEngine = DictationEngine.shared
+        
+        if dictationEngine.isActive {
+            print("⏹️ Stopping dictation session...")
+            await dictationEngine.stopDictation()
+            hideDictationPopup()
+        } else {
+            print("🚀 Starting dictation session...")
+            await dictationEngine.startDictation()
+            showDictationPopup(with: dictationEngine)
+        }
     }
     
     @MainActor
@@ -251,14 +313,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    private func setupFloatingDictationMarker() {
-        Task { @MainActor in
-            let dictationEngine = DictationEngine.shared
-            
-            floatingDictationController = FloatingDictationController(dictationEngine: dictationEngine)
-            floatingDictationController?.show()
-            print("✅ Floating dictation marker created and shown")
-        }
+    @MainActor
+    private func setupFloatingDictationMarker() async {
+        print("🚀 Setting up floating dictation marker...")
+        let dictationEngine = DictationEngine.shared
+        
+        floatingDictationController = FloatingDictationController(dictationEngine: dictationEngine)
+        floatingDictationController?.show()
+        print("✅ Floating dictation marker created and shown")
     }
     
     private func setupNotificationObservers() {
@@ -285,6 +347,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func handleUpdateGlobalHotkey(_ notification: Notification) {
         if let hotkey = notification.object as? HotkeyConfiguration {
             updateGlobalHotkey(hotkey)
+        }
+    }
+    
+    /// Initialize WhisperKit in the background on app startup
+    private func initializeWhisperKitInBackground() async {
+        print("🤖 Starting WhisperKit initialization in background...")
+        
+        do {
+            // Initialize the shared transcription service
+            try await TranscriptionService.shared.initialize()
+            print("✅ WhisperKit initialized successfully on app startup")
+            
+            // Post notification that models are ready
+            await MainActor.run {
+                NotificationCenter.default.post(name: .whisperKitReady, object: nil)
+            }
+            
+        } catch {
+            print("⚠️ WhisperKit initialization failed on startup: \(error)")
+            print("💡 Models will be downloaded on first dictation attempt")
+            
+            // Not a critical failure - user can still use the app
+            // Models will be downloaded when first needed
         }
     }
 }
@@ -387,6 +472,7 @@ enum PermissionType {
 
 extension Notification.Name {
     static let updateGlobalHotkey = Notification.Name("updateGlobalHotkey")
+    static let whisperKitReady = Notification.Name("whisperKitReady")
 }
 
 

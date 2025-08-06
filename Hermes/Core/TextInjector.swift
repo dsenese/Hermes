@@ -14,68 +14,105 @@ import Carbon
 @MainActor
 class TextInjector: ObservableObject {
     // MARK: - Published Properties
-    @Published private(set) var isAccessibilityEnabled = false
     @Published private(set) var currentApplication: String = ""
+    
+    // MARK: - Dependencies
+    private let accessibilityManager = AccessibilityManager.shared
     
     // MARK: - Private Properties
     private var lastInjectedText: String = ""
     private var currentElement: AXUIElement?
     private var insertionPoint: Int = 0
     
+    // Performance optimization properties
+    private var cachedFocusedElement: AXUIElement?
+    private var elementCacheTime: Date = .distantPast
+    private let cacheTimeout: TimeInterval = 0.5 // 500ms cache
+    
+    // App-specific handling
+    private let appSpecificHandler = AppSpecificHandler()
+    
+    // Injection history tracking
+    private var injectionHistory: [(text: String, timestamp: Date)] = []
+    private let maxHistorySize = 5
+    
     // MARK: - Initialization
     init() {
-        checkAccessibilityPermissions()
+        // AccessibilityManager handles permission checking
+    }
+    
+    // MARK: - Computed Properties
+    
+    /// Current accessibility permission status
+    var isAccessibilityEnabled: Bool {
+        return accessibilityManager.isAccessibilityEnabled
     }
     
     // MARK: - Public Methods
     
     /// Checks and requests accessibility permissions
     func requestAccessibilityPermissions() -> Bool {
-        // First check without prompting
-        let trusted = AXIsProcessTrusted()
-        isAccessibilityEnabled = trusted
-        return trusted
+        Task { @MainActor in
+            accessibilityManager.checkPermissions()
+        }
+        return accessibilityManager.isAccessibilityEnabled
     }
     
     func requestAccessibilityPermissionsWithPrompt() -> Bool {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true]
-        let trusted = AXIsProcessTrustedWithOptions(options as CFDictionary)
-        
-        isAccessibilityEnabled = trusted
-        return trusted
+        return accessibilityManager.requestPermissionsWithPrompt()
     }
     
     /// Replaces the current dictation text with new text
     func replaceCurrentDictation(with text: String) async {
-        guard isAccessibilityEnabled else {
-            print("❌ Accessibility not enabled, cannot inject text")
+        let startTime = CFAbsoluteTimeGetCurrent()
+        
+        // Performance check - your <400ms target
+        defer {
+            let duration = CFAbsoluteTimeGetCurrent() - startTime
+            if duration > 0.4 {
+                print("⚠️ Text injection took \(Int(duration * 1000))ms - exceeding 400ms target")
+            } else {
+                print("🚀 Text injection completed in \(Int(duration * 1000))ms")
+            }
+        }
+        
+        // Always recheck accessibility status before attempting injection
+        let hasAccess = accessibilityManager.isAccessibilityEnabled
+        guard hasAccess else {
+            print("❌ Accessibility not enabled, cannot inject text (status: \(accessibilityManager.permissionStatus.description))")
             return
         }
         
+        print("🔄 Text injection attempt: '\(text.prefix(30))...' in app: \(NSWorkspace.shared.frontmostApplication?.localizedName ?? "Unknown")")
+        
         guard !text.isEmpty else { return }
         
+        // Track injection history
+        trackInjection(text: text)
+        
+        // Get injection strategy for current app
+        let strategy = getInjectionStrategy()
+        
         do {
-            // Get the currently focused element
-            let focusedElement = try getFocusedElement()
-            
-            // If we have previous text, select and replace it
-            if !lastInjectedText.isEmpty {
-                try await selectAndReplace(element: focusedElement, oldText: lastInjectedText, newText: text)
-            } else {
-                // First injection, just insert text
-                try await insertText(element: focusedElement, text: text)
-            }
-            
+            // Use strategy-based injection
+            try await performInjection(text: text, strategy: strategy)
             lastInjectedText = text
             
         } catch {
-            print("❌ Text injection failed: \(error)")
+            print("❌ Text injection via primary method failed: \(error)")
+            print("🔄 Falling back to keyboard simulation...")
+            
+            // Fallback to keyboard simulation
+            await simulateKeyboardInput(text: text)
+            lastInjectedText = text
         }
     }
     
     /// Finalizes dictation by ensuring text is properly inserted
     func finalizeDictation(with text: String) async {
         guard !text.isEmpty else { return }
+        
+        print("🎤 Finalizing dictation with text: '\(text.prefix(50))...'")
         
         // Ensure final text is injected
         await replaceCurrentDictation(with: text)
@@ -103,15 +140,15 @@ class TextInjector: ObservableObject {
     
     // MARK: - Private Methods
     
-    private func checkAccessibilityPermissions() {
-        isAccessibilityEnabled = AXIsProcessTrusted()
-        
-        if !isAccessibilityEnabled {
-            print("⚠️ Accessibility permissions not granted. Please enable in System Preferences > Security & Privacy > Privacy > Accessibility")
-        }
-    }
     
     private func getFocusedElement() throws -> AXUIElement {
+        // Use cached element if still valid
+        let now = Date()
+        if now.timeIntervalSince(elementCacheTime) < cacheTimeout,
+           let cached = cachedFocusedElement {
+            return cached
+        }
+        
         // Get the frontmost application
         guard let frontmostApp = NSWorkspace.shared.frontmostApplication else {
             throw TextInjectorError.noFrontmostApplication
@@ -130,7 +167,13 @@ class TextInjector: ObservableObject {
             throw TextInjectorError.noFocusedElement
         }
         
-        return (element as! AXUIElement)
+        let axElement = (element as! AXUIElement)
+        
+        // Cache the element
+        cachedFocusedElement = axElement
+        elementCacheTime = now
+        
+        return axElement
     }
     
     private func insertText(element: AXUIElement, text: String) async throws {
@@ -223,19 +266,27 @@ class TextInjector: ObservableObject {
     }
     
     private func simulateKeyboardInput(text: String) async {
-        // Use CGEvent to simulate keyboard input
+        // Use CGEvent to simulate keyboard input with proper modifier handling
         for character in text {
-            let keyCode = getKeyCodeForCharacter(character)
-            let keyDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true)
-            let keyUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false)
-            
-            keyDown?.post(tap: .cghidEventTap)
-            keyUp?.post(tap: .cghidEventTap)
-            
-            // Small delay between keystrokes for reliability
-            do {
-                try await Task.sleep(nanoseconds: 1_000_000) // 1ms
-            } catch {}
+            if let (keyCode, needsShift) = KeyCodeMapper.getKeyCode(for: character) {
+                let flags: CGEventFlags = needsShift ? .maskShift : []
+                
+                let keyDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true)
+                let keyUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false)
+                
+                keyDown?.flags = flags
+                keyUp?.flags = flags
+                
+                keyDown?.post(tap: .cghidEventTap)
+                keyUp?.post(tap: .cghidEventTap)
+                
+                // Adaptive delay based on character complexity
+                let delay = character.isLetter ? 500_000 : 1_000_000 // 0.5ms for letters, 1ms for symbols
+                try? await Task.sleep(nanoseconds: UInt64(delay))
+            } else {
+                // Handle unsupported characters by skipping or using space
+                print("⚠️ Unsupported character '\(character)' in keyboard simulation")
+            }
         }
     }
     
@@ -262,31 +313,227 @@ class TextInjector: ObservableObject {
     }
     
     private func getKeyCodeForCharacter(_ character: Character) -> CGKeyCode {
-        // This is a simplified mapping - in production, you'd want a complete character-to-keycode mapping
-        switch character {
-        case "a"..."z":
-            let ascii = character.asciiValue ?? 97
-            return CGKeyCode(ascii - 97)
-        case "A"..."Z":
-            let ascii = character.asciiValue ?? 65
-            return CGKeyCode(ascii - 65)
-        case "0"..."9":
-            let ascii = character.asciiValue ?? 48
-            return CGKeyCode(ascii - 48 + 29)
-        case " ":
-            return 49 // Space
-        case ".":
-            return 47
-        case ",":
-            return 43
-        case "!":
-            return 18 // 1 with shift
-        case "?":
-            return 44 // / with shift
-        default:
-            // For characters we don't have mapped, use the Unicode input method
-            return 49 // Default to space
+        // Use enhanced character mapping
+        return KeyCodeMapper.getKeyCode(for: character)?.keyCode ?? 49 // Default to space
+    }
+    
+    // MARK: - Enhanced Methods
+    
+    /// Track injection for history and performance analysis
+    private func trackInjection(text: String) {
+        injectionHistory.append((text: text, timestamp: Date()))
+        if injectionHistory.count > maxHistorySize {
+            injectionHistory.removeFirst()
         }
+    }
+    
+    /// Get injection strategy for current app
+    private func getInjectionStrategy() -> TextInjectionStrategy {
+        guard let frontmostApp = NSWorkspace.shared.frontmostApplication,
+              let bundleID = frontmostApp.bundleIdentifier else {
+            return .adaptive
+        }
+        
+        return appSpecificHandler.getStrategy(for: bundleID)
+    }
+    
+    /// Perform injection based on strategy
+    private func performInjection(text: String, strategy: TextInjectionStrategy) async throws {
+        switch strategy {
+        case .accessibilityOnly:
+            try await performAccessibilityInjection(text: text)
+        case .clipboardPreferred:
+            await performClipboardInjection(text: text)
+        case .keyboardSimulation:
+            await simulateKeyboardInput(text: text)
+        case .adaptive:
+            try await performAdaptiveInjection(text: text)
+        case .none:
+            throw TextInjectorError.unsupportedApplication
+        }
+    }
+    
+    /// Perform accessibility-based injection
+    private func performAccessibilityInjection(text: String) async throws {
+        let focusedElement = try getFocusedElement()
+        
+        // Check if we need to handle long text
+        if text.count > 2000 {
+            try await injectLongText(element: focusedElement, text: text)
+        } else {
+            // If we have previous text, select and replace it
+            if !lastInjectedText.isEmpty {
+                try await selectAndReplace(element: focusedElement, oldText: lastInjectedText, newText: text)
+            } else {
+                // First injection, just insert text
+                try await insertText(element: focusedElement, text: text)
+            }
+        }
+    }
+    
+    /// Handle long text injection with chunking
+    private func injectLongText(element: AXUIElement, text: String) async throws {
+        let chunkSize = 2000
+        let totalChunks = (text.count + chunkSize - 1) / chunkSize
+        
+        print("📝 Injecting long text (\(text.count) chars) in \(totalChunks) chunks")
+        
+        for i in stride(from: 0, to: text.count, by: chunkSize) {
+            let end = min(i + chunkSize, text.count)
+            let startIndex = text.index(text.startIndex, offsetBy: i)
+            let endIndex = text.index(text.startIndex, offsetBy: end)
+            let chunk = String(text[startIndex..<endIndex])
+            
+            if i == 0 && !lastInjectedText.isEmpty {
+                // First chunk - replace previous text
+                try await selectAndReplace(element: element, oldText: lastInjectedText, newText: chunk)
+            } else {
+                // Subsequent chunks - append
+                try await insertText(element: element, text: chunk)
+            }
+            
+            // Small delay between chunks
+            try await Task.sleep(nanoseconds: 10_000_000) // 10ms
+        }
+    }
+    
+    /// Perform clipboard-based injection
+    private func performClipboardInjection(text: String) async {
+        let pasteboard = NSPasteboard.general
+        
+        // Store current clipboard content
+        let originalTypes = pasteboard.types
+        let originalContent = originalTypes?.compactMap { type in
+            pasteboard.data(forType: type).map { (type, $0) }
+        } ?? []
+        
+        // Set new content
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+        
+        // If we have previous text, select it first
+        if !lastInjectedText.isEmpty {
+            await selectPreviousText(lastInjectedText)
+        }
+        
+        // Simulate Cmd+V
+        simulateKeyPress(keyCode: 9, modifiers: .maskCommand) // V key with Command
+        
+        // Restore original clipboard after delay
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+            pasteboard.clearContents()
+            for (type, data) in originalContent {
+                pasteboard.setData(data, forType: type)
+            }
+        }
+    }
+    
+    /// Perform adaptive injection (tries multiple methods)
+    private func performAdaptiveInjection(text: String) async throws {
+        do {
+            // First try accessibility
+            try await performAccessibilityInjection(text: text)
+        } catch {
+            print("⚠️ Accessibility injection failed, trying clipboard method")
+            await performClipboardInjection(text: text)
+        }
+    }
+    
+    /// Select previous text using keyboard shortcuts
+    private func selectPreviousText(_ text: String) async {
+        let textLength = text.count
+        
+        if textLength > 0 {
+            // Select previous text by simulating Shift+Left Arrow
+            for _ in 0..<textLength {
+                simulateKeyPress(keyCode: 123, modifiers: .maskShift) // Left arrow with shift
+            }
+            
+            // Small delay to ensure selection is registered
+            try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
+        }
+    }
+}
+
+// MARK: - Supporting Classes
+
+/// App-specific text injection strategies
+class AppSpecificHandler {
+    private let handlers: [String: TextInjectionStrategy] = [
+        "com.apple.dt.Xcode": .accessibilityOnly,
+        "com.microsoft.VSCode": .clipboardPreferred,
+        "com.google.Chrome": .adaptive,
+        "com.microsoft.Word": .clipboardPreferred,
+        "com.adobe.Photoshop": .none,
+        "com.apple.Safari": .adaptive,
+        "com.slack.Slack": .adaptive,
+        "com.microsoft.teams": .clipboardPreferred
+    ]
+    
+    func getStrategy(for bundleID: String) -> TextInjectionStrategy {
+        return handlers[bundleID] ?? .adaptive
+    }
+}
+
+enum TextInjectionStrategy {
+    case accessibilityOnly
+    case clipboardPreferred
+    case keyboardSimulation
+    case adaptive
+    case none
+}
+
+/// Enhanced key code mapping
+struct KeyCodeMapper {
+    static let characterMap: [Character: (keyCode: CGKeyCode, shift: Bool)] = [
+        // Letters
+        "a": (0, false), "A": (0, true),
+        "b": (11, false), "B": (11, true),
+        "c": (8, false), "C": (8, true),
+        "d": (2, false), "D": (2, true),
+        "e": (14, false), "E": (14, true),
+        "f": (3, false), "F": (3, true),
+        "g": (5, false), "G": (5, true),
+        "h": (4, false), "H": (4, true),
+        "i": (34, false), "I": (34, true),
+        "j": (38, false), "J": (38, true),
+        "k": (40, false), "K": (40, true),
+        "l": (37, false), "L": (37, true),
+        "m": (46, false), "M": (46, true),
+        "n": (45, false), "N": (45, true),
+        "o": (31, false), "O": (31, true),
+        "p": (35, false), "P": (35, true),
+        "q": (12, false), "Q": (12, true),
+        "r": (15, false), "R": (15, true),
+        "s": (1, false), "S": (1, true),
+        "t": (17, false), "T": (17, true),
+        "u": (32, false), "U": (32, true),
+        "v": (9, false), "V": (9, true),
+        "w": (13, false), "W": (13, true),
+        "x": (7, false), "X": (7, true),
+        "y": (16, false), "Y": (16, true),
+        "z": (6, false), "Z": (6, true),
+        
+        // Numbers
+        "0": (29, false), "1": (18, false), "2": (19, false), "3": (20, false),
+        "4": (21, false), "5": (23, false), "6": (22, false), "7": (26, false),
+        "8": (28, false), "9": (25, false),
+        
+        // Special characters
+        " ": (49, false),
+        "\n": (36, false), // Return key
+        "\t": (48, false), // Tab key
+        ".": (47, false), "!": (18, true),
+        ",": (43, false), "?": (44, true),
+        ";": (41, false), ":": (41, true),
+        "'": (39, false), "\"": (39, true),
+        "-": (27, false), "_": (27, true),
+        "=": (24, false), "+": (24, true)
+    ]
+    
+    static func getKeyCode(for character: Character) -> (keyCode: CGKeyCode, shift: Bool)? {
+        return characterMap[character]
     }
 }
 

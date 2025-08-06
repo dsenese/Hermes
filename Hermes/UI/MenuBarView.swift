@@ -9,7 +9,7 @@ import SwiftUI
 
 /// Main menu bar interface following the Hermes design system
 struct MenuBarView: View {
-    @ObservedObject private var dictationEngine = DictationEngine.shared
+    @StateObject private var dictationEngine = DictationEngineWrapper()
     @State private var showingDictationPopup = false
     @State private var showingSettings = false
     
@@ -35,7 +35,7 @@ struct MenuBarView: View {
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
         .sheet(isPresented: $showingDictationPopup) {
-            DictationPopupView(dictationEngine: dictationEngine)
+            DictationPopupView(dictationEngine: dictationEngine.engine)
         }
     }
     
@@ -58,8 +58,8 @@ struct MenuBarView: View {
             // App icon
             Image(systemName: "waveform.circle.fill")
                 .font(.title2)
-                .foregroundColor(dictationEngine.isActive ? Color(hex: HermesConstants.primaryAccentColor) : .secondary)
-                .symbolEffect(.pulse, isActive: dictationEngine.isActive)
+                .foregroundColor(dictationEngine.engine.isActive ? Color(hex: HermesConstants.primaryAccentColor) : .secondary)
+                .symbolEffect(.pulse, isActive: dictationEngine.engine.isActive)
             
             // Status text
             VStack(alignment: .leading, spacing: 2) {
@@ -76,8 +76,8 @@ struct MenuBarView: View {
     
     private var statusText: some View {
         Group {
-            if dictationEngine.isActive {
-                if dictationEngine.isProcessing {
+            if dictationEngine.engine.isActive {
+                if dictationEngine.engine.isProcessing {
                     Text("Listening...")
                         .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
                 } else {
@@ -104,12 +104,12 @@ struct MenuBarView: View {
             
             // Dictation toggle button
             Button(action: toggleDictation) {
-                Image(systemName: dictationEngine.isActive ? "stop.circle.fill" : "mic.circle.fill")
+                Image(systemName: dictationEngine.engine.isActive ? "stop.circle.fill" : "mic.circle.fill")
                     .font(.title2)
-                    .foregroundColor(dictationEngine.isActive ? .red : Color(hex: HermesConstants.primaryAccentColor))
+                    .foregroundColor(dictationEngine.engine.isActive ? .red : Color(hex: HermesConstants.primaryAccentColor))
             }
             .buttonStyle(.plain)
-            .help(dictationEngine.isActive ? "Stop Dictation" : "Start Dictation")
+            .help(dictationEngine.engine.isActive ? "Stop Dictation" : "Start Dictation")
             
             // Settings button
             Button(action: toggleSettings) {
@@ -206,10 +206,10 @@ struct MenuBarView: View {
     
     private func toggleDictation() {
         Task {
-            await dictationEngine.toggleDictation()
+            await dictationEngine.engine.toggleDictation()
             
             // Show dictation popup when starting
-            if dictationEngine.isActive {
+            if dictationEngine.engine.isActive {
                 showingDictationPopup = true
             }
         }

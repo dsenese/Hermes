@@ -64,7 +64,9 @@ class OnboardingCoordinator: ObservableObject {
             case .setUp:
                 currentStep = .tryIt
             case .tryIt:
-                completeOnboarding()
+                Task { @MainActor in
+                    completeOnboarding()
+                }
             }
         }
     }
@@ -90,8 +92,13 @@ class OnboardingCoordinator: ObservableObject {
         }
     }
     
+    @MainActor
     private func completeOnboarding() {
         withAnimation(.easeInOut(duration: 0.3)) {
+            // Mark onboarding as completed in UserSettings
+            UserSettings.shared.isOnboardingCompleted = true
+            UserSettings.shared.saveToLocalStorage()
+            
             showingOnboarding = false
         }
     }

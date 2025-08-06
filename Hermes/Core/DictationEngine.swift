@@ -9,16 +9,34 @@ import Foundation
 import Combine
 
 /// Main dictation engine that coordinates audio capture, transcription, and text injection
-@MainActor
 class DictationEngine: ObservableObject {
     // MARK: - Singleton
-    static let shared = DictationEngine()
+    private static var _shared: DictationEngine?
+    
+    @MainActor
+    static var shared: DictationEngine {
+        if let instance = _shared {
+            return instance
+        }
+        print("🔄 Lazy loading DictationEngine.shared...")
+        let instance = DictationEngine()
+        _shared = instance
+        return instance
+    }
     // MARK: - Published Properties
     @Published private(set) var isActive = false
     @Published private(set) var currentTranscription = ""
     @Published private(set) var partialTranscription = ""
     @Published private(set) var isProcessing = false
     @Published private(set) var errorMessage: String?
+    
+    // Context tracking to differentiate global vs local dictation
+    private var currentContext: DictationContext = .global
+    
+    // Public read-only access to current context
+    var dictationContext: DictationContext {
+        currentContext
+    }
     
     // MARK: - Dependencies
     let audioManager: AudioManager
@@ -34,24 +52,37 @@ class DictationEngine: ObservableObject {
     private var latencyMeasurements: [TimeInterval] = []
     
     // MARK: - Initialization
+    @MainActor
     private init(
         audioManager: AudioManager? = nil,
         transcriptionService: TranscriptionService? = nil,
         textInjector: TextInjector? = nil
     ) {
+        print("🚀 Initializing DictationEngine...")
+        
         self.audioManager = audioManager ?? AudioManager()
-        self.transcriptionService = transcriptionService ?? TranscriptionService()
+        print("✅ AudioManager initialized")
+        
+        self.transcriptionService = transcriptionService ?? TranscriptionService.shared
+        print("✅ TranscriptionService initialized")
+        
         self.textInjector = textInjector ?? TextInjector()
+        print("✅ TextInjector initialized")
         
         setupSubscriptions()
+        print("✅ DictationEngine initialization complete")
         // Don't setup global hotkey here - let AppDelegate handle it
     }
     
     // MARK: - Public Methods
     
     /// Starts the dictation session
-    func startDictation() async {
+    @MainActor
+    func startDictation(context: DictationContext = .global) async {
         guard !isActive else { return }
+        
+        currentContext = context
+        print("🚀 Starting dictation with context: \(context)")
         
         do {
             // Clear previous state
@@ -66,8 +97,10 @@ class DictationEngine: ObservableObject {
             // Start audio capture
             try await audioManager.startRecording()
             
-            // Initialize transcription service
-            try await transcriptionService.initialize()
+            // Initialize transcription service if not already done
+            if !transcriptionService.isInitialized {
+                try await transcriptionService.initialize()
+            }
             
             isActive = true
             isProcessing = true
@@ -81,6 +114,7 @@ class DictationEngine: ObservableObject {
     }
     
     /// Stops the dictation session and processes the complete audio
+    @MainActor
     func stopDictation() async {
         guard isActive else { return }
         
@@ -123,6 +157,7 @@ class DictationEngine: ObservableObject {
     }
     
     /// Toggles dictation on/off
+    @MainActor
     func toggleDictation() async {
         if isActive {
             await stopDictation()
@@ -161,6 +196,7 @@ class DictationEngine: ObservableObject {
         await transcriptionService.processAudioData(audioData)
     }
     
+    @MainActor
     private func handleTranscriptionResult(_ result: HermesTranscriptionResult) async {
         switch result.type {
         case .partial:
@@ -187,14 +223,25 @@ class DictationEngine: ObservableObject {
     private func injectTranscriptionUpdate() async {
         guard !currentTranscription.isEmpty else { return }
         
-        await textInjector.replaceCurrentDictation(with: currentTranscription)
+        // Only inject text for global dictation context
+        if currentContext == .global {
+            await textInjector.replaceCurrentDictation(with: currentTranscription)
+            print("🔄 Text injected (global): \(currentTranscription.prefix(30))...")
+        } else {
+            print("🔄 Skipping text injection for local context: \(currentContext)")
+        }
     }
     
     private func injectFinalText() async {
         guard !currentTranscription.isEmpty else { return }
         
-        await textInjector.finalizeDictation(with: currentTranscription)
-        print("✅ Final text injected: \(currentTranscription.prefix(50))...")
+        // Only inject text for global dictation context
+        if currentContext == .global {
+            await textInjector.finalizeDictation(with: currentTranscription)
+            print("✅ Final text injected (global): \(currentTranscription.prefix(50))...")
+        } else {
+            print("✅ Skipping final text injection for local context: \(currentContext)")
+        }
     }
     
     deinit {
@@ -217,6 +264,12 @@ enum DictationState {
     case listening
     case processing
     case error(String)
+}
+
+/// Represents the context where dictation is being performed
+enum DictationContext {
+    case global    // Global dictation (inject into active app)
+    case local     // Local dictation (e.g., Notes view)
 }
 
 /// Performance metrics for monitoring
