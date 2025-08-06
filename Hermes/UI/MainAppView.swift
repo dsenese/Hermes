@@ -7,16 +7,18 @@
 
 import SwiftUI
 import AppKit
+import ApplicationServices
 
 /// Main dashboard view with sidebar navigation and activity timeline
 struct MainAppView: View {
-    @ObservedObject private var dictationEngine = DictationEngine.shared
+    @StateObject private var dictationEngine = DictationEngineWrapper()
     @State private var selectedSection: SidebarSection = .home
     @State private var userName: String = "isabela"
     @State private var userEmail: String = "isaccosta.889@gmail.com"
-    @State private var showingOnboarding: Bool = true // TODO: Check if user has completed onboarding
+    @State private var showingOnboarding: Bool = !UserSettings.shared.isOnboardingCompleted
     @State private var showingProfileMenu: Bool = false
     @State private var showingSettingsMenu: Bool = false
+    @State private var showingKeyboardShortcuts: Bool = false
     
     var body: some View {
         ZStack {
@@ -40,6 +42,25 @@ struct MainAppView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color(NSColor.windowBackgroundColor))
                     .transition(.opacity.combined(with: .move(edge: .trailing)))
+            }
+            
+            // Debug indicator
+            if UserSettings.DEBUG_FORCE_ONBOARDING != nil {
+                VStack {
+                    HStack {
+                        Text("🔧 DEBUG MODE: Onboarding = \(UserSettings.DEBUG_FORCE_ONBOARDING! ? "FORCED ON" : "FORCED OFF")")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.black.opacity(0.8))
+                            .cornerRadius(4)
+                        Spacer()
+                    }
+                    Spacer()
+                }
+                .padding(8)
+                .allowsHitTesting(false)
             }
         }
         .cornerRadius(12)
@@ -272,6 +293,7 @@ struct MainAppView: View {
                 if showingSettingsMenu {
                     showingSettingsMenu = false
                 }
+                // Note: Don't close keyboard shortcuts on tap - user should use back button
             }
         }
     }
@@ -370,17 +392,174 @@ struct MainAppView: View {
     }
     
     
+    // MARK: - Permission Status
+    
+    @StateObject private var accessibilityManager = AccessibilityManager.shared
+    @State private var isWhisperKitReady = false
+    
+    private var permissionStatusSection: some View {
+        VStack(spacing: 0) {
+            // WhisperKit status (if not ready)
+            if !isWhisperKitReady {
+                HStack(spacing: 16) {
+                    Image(systemName: "arrow.down.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.blue)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Downloading AI models")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                        
+                        Text("Speech recognition models are being downloaded in the background (one-time setup)")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    // Progress indicator
+                    ProgressView()
+                        .scaleEffect(0.8)
+                }
+                .padding(20)
+                .background(Color.blue.opacity(0.1))
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                )
+            }
+            
+            if !accessibilityManager.isAccessibilityEnabled {
+                HStack(spacing: 16) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.orange)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(accessibilityManager.permissionStatus == .inconsistent ? "Permission issue detected" : "Global shortcuts require accessibility permission")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                        
+                        Text(accessibilityManager.statusMessage)
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(accessibilityManager.recommendedAction) {
+                        if accessibilityManager.permissionStatus == .inconsistent {
+                            // For inconsistent state, try to recheck first
+                            accessibilityManager.forceRecheck()
+                            // If still inconsistent after recheck, open preferences
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                if accessibilityManager.permissionStatus == .inconsistent {
+                                    accessibilityManager.openAccessibilityPreferences()
+                                }
+                            }
+                        } else {
+                            _ = accessibilityManager.requestPermissionsWithPrompt()
+                        }
+                    }
+                    .primaryButtonStyle()
+                }
+                .padding(20)
+                .background((accessibilityManager.permissionStatus == .inconsistent ? Color.red : Color.orange).opacity(0.1))
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke((accessibilityManager.permissionStatus == .inconsistent ? Color.red : Color.orange).opacity(0.3), lineWidth: 1)
+                )
+            } else {
+                HStack(spacing: 16) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.green)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Global shortcuts are enabled")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(.primary)
+                        
+                        HStack(spacing: 8) {
+                            Text("Hold \\(UserSettings.shared.keyboardShortcuts.globalDictationHotkey.displayString) to start dictation anywhere")
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                            
+                            if GlobalShortcutManager.shared.isMonitoringActive {
+                                Text("• Monitoring Active")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.green)
+                            } else {
+                                Text("• Monitoring Inactive")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.orange)
+                            }
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    if !GlobalShortcutManager.shared.isMonitoringActive {
+                        Button("Activate") {
+                            GlobalShortcutManager.shared.retrySetup()
+                        }
+                        .primaryButtonStyle()
+                    }
+                }
+                .padding(20)
+                .background(Color.green.opacity(0.1))
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.green.opacity(0.3), lineWidth: 1)
+                )
+            }
+        }
+        .onAppear {
+            // Start accessibility monitoring
+            accessibilityManager.startMonitoring()
+            print("🔍 MainAppView: Started AccessibilityManager monitoring")
+            
+            // Check if WhisperKit is already ready
+            isWhisperKitReady = TranscriptionService.shared.isInitialized
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .accessibilityStateChanged)) { _ in
+            // Permission state changed - retry GlobalShortcutManager setup if needed
+            if accessibilityManager.isAccessibilityEnabled {
+                print("✅ Accessibility permission granted - retrying GlobalShortcutManager setup")
+                GlobalShortcutManager.shared.retrySetup()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            // Force recheck when app becomes active (user might have changed settings)
+            accessibilityManager.forceRecheck()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .whisperKitReady)) { _ in
+            // WhisperKit models are ready
+            isWhisperKitReady = true
+            print("✅ MainAppView: WhisperKit models ready")
+        }
+    }
+    
+    
     // MARK: - Content Sections
     
     @ViewBuilder
     private var contentForSelectedSection: some View {
-        switch selectedSection {
-        case .home:
-            homeContent
-        case .dictionary:
-            dictionaryContent
-        case .notes:
-            notesContent
+        if showingKeyboardShortcuts {
+            keyboardShortcutsContent
+        } else {
+            switch selectedSection {
+            case .home:
+                homeContent
+            case .dictionary:
+                dictionaryContent
+            case .notes:
+                notesContent
+            }
         }
     }
     
@@ -388,6 +567,9 @@ struct MainAppView: View {
         VStack(alignment: .leading, spacing: 32) {
             // Voice dictation instructions
             voiceDictationSection
+            
+            // Permission status check
+            permissionStatusSection
             
             // Recent Activity
             recentActivitySection
@@ -462,7 +644,10 @@ struct MainAppView: View {
     private var settingsDropdownMenu: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Keyboard shortcuts
-            Button(action: {}) {
+            Button(action: {
+                showingKeyboardShortcuts = true
+                showingSettingsMenu = false
+            }) {
                 Text("Keyboard Shortcuts")
                     .font(.system(size: 13))
                     .foregroundColor(.primary)
@@ -526,7 +711,7 @@ struct MainAppView: View {
                             .fill(Color(NSColor.quaternaryLabelColor).opacity(0.3))
                     )
                 
-                Text("and speak into any textbox")
+                Text("and speak - text appears where your cursor is")
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
             }
@@ -549,7 +734,44 @@ struct MainAppView: View {
     }
     
     private var notesContent: some View {
-        NotesView(dictationEngine: dictationEngine)
+        NotesView(dictationEngine: dictationEngine.engine)
+    }
+    
+    private var keyboardShortcutsContent: some View {
+        VStack(spacing: 24) {
+            // Header with back button
+            HStack {
+                Button(action: {
+                    showingKeyboardShortcuts = false
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 14))
+                        Text("Back")
+                            .font(.system(size: 14, weight: .medium))
+                    }
+                    .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+                
+                Spacer()
+            }
+            
+            // Keyboard shortcut customization view
+            KeyboardShortcutCustomizationView(
+                onSave: {
+                    showingKeyboardShortcuts = false
+                },
+                onCancel: {
+                    showingKeyboardShortcuts = false
+                },
+                isMainApp: true
+            )
+            .environmentObject(UserSettings.shared)
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
     
     // MARK: - Computed Properties
