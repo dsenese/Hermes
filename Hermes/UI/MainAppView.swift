@@ -34,6 +34,43 @@ struct MainAppView: View {
                     .background(Color(NSColor.windowBackgroundColor))
             }
             .disabled(showingOnboarding)
+            .onTapGesture {
+                // Close dropdowns when clicking outside
+                if showingSettingsMenu || showingProfileMenu {
+                    showingSettingsMenu = false
+                    showingProfileMenu = false
+                }
+            }
+            
+            // Dropdown menus at root level to avoid clipping
+            if showingProfileMenu {
+                VStack {
+                    HStack {
+                        Spacer()
+                        profileDropdownMenu
+                            .offset(x: -80, y: 84) // Adjust for header position
+                    }
+                    Spacer()
+                }
+                .allowsHitTesting(true)
+                .zIndex(1001)
+            }
+            
+            if showingSettingsMenu {
+                VStack {
+                    HStack {
+                        Spacer()
+                        settingsDropdownMenu
+                            .offset(x: -20, y: 84) // Adjust for header position  
+                    }
+                    Spacer()
+                }
+                .allowsHitTesting(true)
+                .zIndex(1002)
+                .onTapGesture {
+                    // Allow taps to pass through to buttons
+                }
+            }
             
             // Onboarding overlay - solid background
             if showingOnboarding {
@@ -42,6 +79,7 @@ struct MainAppView: View {
                     .background(Color(NSColor.windowBackgroundColor))
                     .transition(.opacity.combined(with: .move(edge: .trailing)))
             }
+            
             
             // Debug indicator
             if UserSettings.DEBUG_FORCE_ONBOARDING != nil {
@@ -285,15 +323,6 @@ struct MainAppView: View {
                     .padding(.top, 32)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onTapGesture {
-                if showingProfileMenu {
-                    showingProfileMenu = false
-                }
-                if showingSettingsMenu {
-                    showingSettingsMenu = false
-                }
-                // Note: Don't close keyboard shortcuts on tap - user should use back button
-            }
         }
     }
     
@@ -359,9 +388,7 @@ struct MainAppView: View {
             
             // Settings button - moved outside and to the far right
             Button(action: {
-                print("⚙️⚙️⚙️ SETTINGS BUTTON CLICKED - showingSettingsMenu was: \(showingSettingsMenu)")
                 showingSettingsMenu.toggle()
-                print("⚙️⚙️⚙️ SETTINGS BUTTON CLICKED - showingSettingsMenu now: \(showingSettingsMenu)")
             }) {
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 16))
@@ -375,24 +402,6 @@ struct MainAppView: View {
             .buttonStyle(.plain)
             .padding(.trailing, 8)
         }
-        .overlay(
-            // Dropdown menus
-            Group {
-                if showingProfileMenu {
-                    profileDropdownMenu
-                        .offset(x: -80, y: 60)
-                        .zIndex(1001)
-                }
-                
-                if showingSettingsMenu {
-                    settingsDropdownMenu
-                        .offset(x: -20, y: 60)
-                        .zIndex(10000)
-                        .allowsHitTesting(true)
-                }
-            },
-            alignment: .topTrailing
-        )
     }
     
     
@@ -525,7 +534,6 @@ struct MainAppView: View {
         .onAppear {
             // Start accessibility monitoring
             accessibilityManager.startMonitoring()
-            print("🔍 MainAppView: Started AccessibilityManager monitoring")
             
             // Check if WhisperKit is already ready
             isWhisperKitReady = TranscriptionService.shared.isInitialized
@@ -533,7 +541,6 @@ struct MainAppView: View {
         .onReceive(NotificationCenter.default.publisher(for: .accessibilityStateChanged)) { _ in
             // Permission state changed - retry GlobalShortcutManager setup if needed
             if accessibilityManager.isAccessibilityEnabled {
-                print("✅ Accessibility permission granted - retrying GlobalShortcutManager setup")
                 GlobalShortcutManager.shared.retrySetup()
             }
         }
@@ -544,7 +551,6 @@ struct MainAppView: View {
         .onReceive(NotificationCenter.default.publisher(for: .whisperKitReady)) { _ in
             // WhisperKit models are ready
             isWhisperKitReady = true
-            print("✅ MainAppView: WhisperKit models ready")
         }
     }
     
@@ -560,11 +566,8 @@ struct MainAppView: View {
             dictionaryContent
         case .notes:
             notesContent
-        case .keyboardShortcuts:
-            keyboardShortcutsContent
-                .onAppear {
-                    print("✅ Keyboard shortcuts content is now showing")
-                }
+        case .settings:
+            settingsContent
         }
     }
     
@@ -595,7 +598,8 @@ struct MainAppView: View {
                     .foregroundColor(.secondary)
                 
                 Button("Refer a friend") {
-                    // TODO: Handle refer action
+                    print("🔍 Refer a friend button tapped")
+                    showingProfileMenu = false
                 }
                 .font(.system(size: 12, weight: .medium))
                 .foregroundColor(.black)
@@ -610,7 +614,10 @@ struct MainAppView: View {
             Divider()
             
             // Download app
-            Button(action: {}) {
+            Button(action: {
+                print("🔍 Download app button tapped")
+                showingProfileMenu = false
+            }) {
                 HStack {
                     Image(systemName: "arrow.down.circle")
                         .font(.system(size: 14))
@@ -623,41 +630,56 @@ struct MainAppView: View {
                 .foregroundColor(.primary)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
+                .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.borderless)
+            .background(
+                Rectangle()
+                    .fill(Color.clear)
+                    .contentShape(Rectangle())
+            )
             
             Divider()
             
             // Manage account
-            Button(action: {}) {
-                Text("Manage account")
-                    .font(.system(size: 13))
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+            Button(action: {
+                print("🔍 Manage account button tapped")
+                showingProfileMenu = false
+            }) {
+                HStack {
+                    Text("Manage account")
+                        .font(.system(size: 13))
+                        .foregroundColor(.primary)
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.borderless)
+            .background(
+                Rectangle()
+                    .fill(Color.clear)
+                    .contentShape(Rectangle())
+            )
         }
         .background(Color(NSColor.windowBackgroundColor))
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 4)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(NSColor.separatorColor), lineWidth: 0.5)
+                .stroke(Color(NSColor.separatorColor).opacity(0.5), lineWidth: 0.5)
         )
         .frame(width: 250)
-        .zIndex(1000)
     }
     
     private var settingsDropdownMenu: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Keyboard shortcuts
             Button(action: {
-                print("🚨🚨🚨 BUTTON CLICKED - BEFORE: selectedSection=\(selectedSection)")
-                selectedSection = .keyboardShortcuts
+                print("🔍 Keyboard Shortcuts button tapped")
+                selectedSection = .settings // Change to settings section
                 showingSettingsMenu = false
-                print("🚨🚨🚨 BUTTON CLICKED - AFTER: selectedSection=\(selectedSection)")
             }) {
                 HStack {
                     Text("Keyboard Shortcuts")
@@ -665,18 +687,23 @@ struct MainAppView: View {
                         .foregroundColor(.primary)
                     Spacer()
                 }
-                .frame(maxWidth: .infinity)
-                .contentShape(Rectangle())
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
+                .contentShape(Rectangle()) // Ensure entire area is tappable
             }
-            .buttonStyle(BorderlessButtonStyle())
+            .buttonStyle(.borderless)
+            .background(
+                Rectangle()
+                    .fill(Color.clear)
+                    .contentShape(Rectangle())
+            )
             
             Divider()
             
             // Preferences
             Button(action: {
-                print("🔧 Preferences clicked")
+                print("🔍 Preferences button tapped")
+                showingSettingsMenu = false
             }) {
                 HStack {
                     Text("Preferences")
@@ -684,18 +711,23 @@ struct MainAppView: View {
                         .foregroundColor(.primary)
                     Spacer()
                 }
-                .frame(maxWidth: .infinity)
-                .contentShape(Rectangle())
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
+                .contentShape(Rectangle())
             }
-            .buttonStyle(BorderlessButtonStyle())
+            .buttonStyle(.borderless)
+            .background(
+                Rectangle()
+                    .fill(Color.clear)
+                    .contentShape(Rectangle())
+            )
             
             Divider()
             
             // About
             Button(action: {
-                print("🔧 About clicked")
+                print("🔍 About button tapped")
+                showingSettingsMenu = false
             }) {
                 HStack {
                     Text("About Hermes")
@@ -703,21 +735,25 @@ struct MainAppView: View {
                         .foregroundColor(.primary)
                     Spacer()
                 }
-                .frame(maxWidth: .infinity)
-                .contentShape(Rectangle())
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
+                .contentShape(Rectangle())
             }
-            .buttonStyle(BorderlessButtonStyle())
+            .buttonStyle(.borderless)
+            .background(
+                Rectangle()
+                    .fill(Color.clear)
+                    .contentShape(Rectangle())
+            )
         }
         .background(Color(NSColor.windowBackgroundColor))
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 4)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color(NSColor.separatorColor).opacity(0.5), lineWidth: 0.5)
+        )
         .frame(width: 180)
-        .allowsHitTesting(true)
-        .onAppear {
-            print("📋📋📋 SETTINGS DROPDOWN APPEARED")
-        }
     }
     
     private var voiceDictationSection: some View {
@@ -767,21 +803,29 @@ struct MainAppView: View {
         NotesView(dictationEngine: dictationEngine.engine)
     }
     
-    private var keyboardShortcutsContent: some View {
+    private var settingsContent: some View {
         VStack(alignment: .leading, spacing: 24) {
-            // Title like other sections
-            Text("Keyboard Shortcuts")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.primary)
+            // Header
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Settings")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(.primary)
+                
+                Text("Customize your Hermes experience")
+                    .font(.system(size: 14))
+                    .foregroundColor(.secondary)
+            }
             
-            // Keyboard shortcut customization view
+            Divider()
+            
+            // Keyboard shortcut customization - embedded in content area
             KeyboardShortcutCustomizationView(
                 onSave: {
-                    // Stay on this section after save, like other sections
-                    print("✅ Keyboard shortcut saved")
+                    // Settings saved
+                    print("✅ Keyboard shortcut saved from settings")
                 },
                 onCancel: {
-                    // Go back to home section on cancel
+                    // Navigate back to home
                     selectedSection = .home
                 },
                 isMainApp: true
@@ -792,6 +836,7 @@ struct MainAppView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
+    
     
     // MARK: - Computed Properties
     
@@ -850,9 +895,9 @@ struct MainAppView: View {
 
 enum SidebarSection: String, CaseIterable {
     case home = "Home"
-    case dictionary = "Dictionary"
+    case dictionary = "Dictionary"  
     case notes = "Notes"
-    case keyboardShortcuts = "Keyboard Shortcuts"
+    case settings = "Settings"
     
     var title: String {
         rawValue
@@ -863,7 +908,7 @@ enum SidebarSection: String, CaseIterable {
         case .home: return "house.fill"
         case .dictionary: return "book.fill"
         case .notes: return "note.text"
-        case .keyboardShortcuts: return "keyboard"
+        case .settings: return "gearshape.fill"
         }
     }
 }
