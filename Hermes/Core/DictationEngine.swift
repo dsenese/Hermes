@@ -121,23 +121,23 @@ class DictationEngine: ObservableObject {
         isActive = false
         isProcessing = true // Keep processing true while transcribing
         
-        // Stop audio capture
+        // Stop audio capture - this should preserve all buffered audio
         audioManager.stopRecording()
         
         print("⏹️ Audio recording stopped - starting transcription...")
         
-        // Transcribe the complete recorded session
-        await transcriptionService.transcribeCompleteSession()
-        
         // Cancel ongoing transcription task
         transcriptionTask?.cancel()
         
-        // Wait a moment for transcription result to arrive
-        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        // Wait for complete transcription (this now returns the actual result)
+        let finalTranscription = await transcriptionService.transcribeCompleteSession()
         
-        // Inject final transcription if we have any
-        if !currentTranscription.isEmpty {
-            await injectFinalText()
+        // Inject final transcription only if we have meaningful text
+        if !finalTranscription.isEmpty {
+            currentTranscription = finalTranscription // Update for consistency
+            await injectFinalText(finalTranscription)
+        } else {
+            print("🔄 No meaningful transcription to inject")
         }
         
         isProcessing = false
@@ -215,8 +215,13 @@ class DictationEngine: ObservableObject {
             // Clear partial transcription
             partialTranscription = ""
             
-            // Inject text immediately for real-time experience
-            await injectTranscriptionUpdate()
+            // Only inject text for real-time updates if still actively dictating
+            // Skip injection if we're in the final processing phase
+            if isActive {
+                await injectTranscriptionUpdate()
+            } else {
+                print("🔄 Skipping real-time injection - dictation stopped, waiting for final transcription")
+            }
         }
     }
     
@@ -232,13 +237,16 @@ class DictationEngine: ObservableObject {
         }
     }
     
-    private func injectFinalText() async {
-        guard !currentTranscription.isEmpty else { return }
+    private func injectFinalText(_ text: String) async {
+        guard !text.isEmpty else { 
+            print("🔄 No text to inject")
+            return 
+        }
         
         // Only inject text for global dictation context
         if currentContext == .global {
-            await textInjector.finalizeDictation(with: currentTranscription)
-            print("✅ Final text injected (global): \(currentTranscription.prefix(50))...")
+            await textInjector.finalizeDictation(with: text)
+            print("✅ Final text injected (global): \(text.prefix(50))...")
         } else {
             print("✅ Skipping final text injection for local context: \(currentContext)")
         }

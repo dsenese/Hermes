@@ -10,14 +10,20 @@ import ApplicationServices
 import AppKit
 import Carbon
 
-/// Handles universal text injection into any macOS application using Accessibility API
+/// Enhanced universal text injection with context awareness and multiple strategies
 @MainActor
 class TextInjector: ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var currentApplication: String = ""
+    @Published private(set) var lastInjectionContext: ContextInfo?
     
     // MARK: - Dependencies
     private let accessibilityManager = AccessibilityManager.shared
+    private let appleScriptInjector = AppleScriptTextInjector()
+    private let contextDetector = ApplicationContextDetector()
+    private let contentCapture = TextFieldContentCapture()
+    private let textFormatter = ContextAwareTextFormatter()
+    private let sessionManager = DictationSessionManager()
     
     // MARK: - Private Properties
     private var lastInjectedText: String = ""
@@ -62,7 +68,7 @@ class TextInjector: ObservableObject {
         return accessibilityManager.requestPermissionsWithPrompt()
     }
     
-    /// Replaces the current dictation text with new text
+    /// Enhanced text injection with context awareness and intelligent replacement
     func replaceCurrentDictation(with text: String) async {
         let startTime = CFAbsoluteTimeGetCurrent()
         
@@ -76,36 +82,65 @@ class TextInjector: ObservableObject {
             }
         }
         
-        // Always recheck accessibility status before attempting injection
-        let hasAccess = accessibilityManager.isAccessibilityEnabled
-        guard hasAccess else {
-            print("❌ Accessibility not enabled, cannot inject text (status: \(accessibilityManager.permissionStatus.description))")
-            return
-        }
-        
-        print("🔄 Text injection attempt: '\(text.prefix(30))...' in app: \(NSWorkspace.shared.frontmostApplication?.localizedName ?? "Unknown")")
-        
         guard !text.isEmpty else { return }
         
-        // Track injection history
-        trackInjection(text: text)
+        // Update context detection
+        contextDetector.updateContext()
+        let contextInfo = contextDetector.getCurrentContextInfo()
+        lastInjectionContext = contextInfo
+        currentApplication = contextInfo.applicationName
         
-        // Get injection strategy for current app
-        let strategy = getInjectionStrategy()
+        print("🔄 Enhanced injection: '\(text.prefix(30))...' in \(contextInfo.description)")
         
-        do {
-            // Use strategy-based injection
-            try await performInjection(text: text, strategy: strategy)
-            lastInjectedText = text
-            
-        } catch {
-            print("❌ Text injection via primary method failed: \(error)")
-            print("🔄 Falling back to keyboard simulation...")
-            
-            // Fallback to keyboard simulation
-            await simulateKeyboardInput(text: text)
-            lastInjectedText = text
+        // Capture current text field content for intelligent replacement
+        let currentContent = await contentCapture.captureCurrentContent()
+        print("📝 Current field content: \(currentContent.contextDescription)")
+        
+        // Apply context-aware formatting
+        let formattingResult = textFormatter.formatText(text, context: contextInfo, existingContent: currentContent)
+        let finalText = formattingResult.formattedText
+        
+        if formattingResult.wasModified {
+            print("🎨 Applied formatting: \(formattingResult.formattingDescription)")
         }
+        
+        // Track injection with context and session
+        trackInjectionWithContext(text: finalText, context: contextInfo, existingContent: currentContent)
+        
+        // Try Tier 1: NSAppleScript injection (most universal)
+        if appleScriptInjector.isAvailable {
+            let result = await performAppleScriptInjection(text: finalText, existingContent: currentContent)
+            if result.isSuccess {
+                lastInjectedText = finalText
+                addToCurrentSession(text: text, formattedText: finalText, context: contextInfo, existingContent: currentContent)
+                print("✅ AppleScript injection successful")
+                return
+            } else {
+                print("⚠️ AppleScript injection failed: \(result)")
+            }
+        }
+        
+        // Try Tier 2: Accessibility API (fastest when working)
+        if accessibilityManager.isAccessibilityEnabled {
+            let strategy = getInjectionStrategy(for: contextInfo)
+            do {
+                try await performAccessibilityInjection(text: finalText, strategy: strategy, existingContent: currentContent)
+                lastInjectedText = finalText
+                addToCurrentSession(text: text, formattedText: finalText, context: contextInfo, existingContent: currentContent)
+                print("✅ Accessibility API injection successful")
+                return
+            } catch {
+                print("⚠️ Accessibility injection failed: \(error)")
+            }
+        }
+        
+        // Try Tier 3: Clipboard-based injection
+        print("🔄 Falling back to clipboard injection...")
+        await performClipboardInjection(text: finalText, existingContent: currentContent)
+        lastInjectedText = finalText
+        addToCurrentSession(text: text, formattedText: finalText, context: contextInfo, existingContent: currentContent)
+        
+        print("✅ Fallback injection completed")
     }
     
     /// Finalizes dictation by ensuring text is properly inserted
@@ -324,6 +359,131 @@ class TextInjector: ObservableObject {
         injectionHistory.append((text: text, timestamp: Date()))
         if injectionHistory.count > maxHistorySize {
             injectionHistory.removeFirst()
+        }
+    }
+    
+    /// Enhanced injection tracking with context information
+    private func trackInjectionWithContext(text: String, context: ContextInfo, existingContent: TextFieldContent) {
+        // Enhanced tracking with context - could be expanded for analytics
+        trackInjection(text: text)
+        
+        // Log context for debugging
+        print("📊 Injection context: \(context.applicationType.rawValue) | Field: \(existingContent.elementRole) | Content: \(existingContent.characterCount) chars")
+    }
+    
+    /// Add text to current session or create new session
+    private func addToCurrentSession(text: String, formattedText: String, context: ContextInfo, existingContent: TextFieldContent) {
+        // Check if we have an active session for the same context
+        if let currentSession = sessionManager.getCurrentSession() {
+            // Update context if needed
+            if !sessionManager.updateSessionContext(sessionId: currentSession.id, newContext: context, newContent: existingContent) {
+                // Context changed significantly - start new session
+                let sessionId = sessionManager.startSession(context: context, initialContent: existingContent)
+                _ = sessionManager.addToSession(sessionId: sessionId, text: text, formattedText: formattedText)
+            } else {
+                // Add to existing session
+                _ = sessionManager.addToSession(sessionId: currentSession.id, text: text, formattedText: formattedText)
+            }
+        } else {
+            // Start new session
+            let sessionId = sessionManager.startSession(context: context, initialContent: existingContent)
+            _ = sessionManager.addToSession(sessionId: sessionId, text: text, formattedText: formattedText)
+        }
+    }
+    
+    /// Get current session information
+    func getCurrentSession() -> EnhancedDictationSession? {
+        return sessionManager.getCurrentSession()
+    }
+    
+    /// End current session
+    func endCurrentSession(reason: SessionEndReason = .userInitiated) {
+        if let session = sessionManager.getCurrentSession() {
+            sessionManager.endSession(sessionId: session.id, reason: reason)
+        }
+    }
+    
+    /// Get today's dictation statistics
+    func getTodayStatistics() -> SessionStatistics {
+        return sessionManager.getTodayStatistics()
+    }
+    
+    /// Perform AppleScript-based injection with intelligent text replacement
+    private func performAppleScriptInjection(text: String, existingContent: TextFieldContent) async -> TextInjectionResult {
+        // If we have previous text and current content, intelligently replace it
+        if !lastInjectedText.isEmpty && !existingContent.isEmpty {
+            // Calculate how much text to replace based on last injection
+            let replaceLength = min(lastInjectedText.count, existingContent.characterCount)
+            return await appleScriptInjector.replaceSelectedText(text, replacingLength: replaceLength)
+        } else {
+            // Simple injection
+            return await appleScriptInjector.injectText(text)
+        }
+    }
+    
+    /// Perform Accessibility API injection with enhanced strategy
+    private func performAccessibilityInjection(text: String, strategy: TextInjectionStrategy, existingContent: TextFieldContent) async throws {
+        // Use existing accessibility injection logic but with enhanced context
+        switch strategy {
+        case .accessibilityOnly:
+            try await performAccessibilityInjection(text: text)
+        case .clipboardPreferred:
+            await performClipboardInjection(text: text, existingContent: existingContent)
+        case .keyboardSimulation:
+            await simulateKeyboardInput(text: text)
+        case .adaptive:
+            try await performAdaptiveInjection(text: text)
+        case .none:
+            throw TextInjectorError.unsupportedApplication
+        }
+    }
+    
+    /// Enhanced clipboard injection with context awareness
+    private func performClipboardInjection(text: String, existingContent: TextFieldContent) async {
+        let pasteboard = NSPasteboard.general
+        
+        // Store current clipboard content
+        let originalTypes = pasteboard.types
+        let originalContent = originalTypes?.compactMap { type in
+            pasteboard.data(forType: type).map { (type, $0) }
+        } ?? []
+        
+        // Set new content
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+        
+        // If we have previous text and current content, select it first
+        if !lastInjectedText.isEmpty && !existingContent.isEmpty {
+            await selectPreviousText(lastInjectedText)
+        }
+        
+        // Simulate Cmd+V
+        simulateKeyPress(keyCode: 9, modifiers: .maskCommand) // V key with Command
+        
+        // Restore original clipboard after delay
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+            pasteboard.clearContents()
+            for (type, data) in originalContent {
+                pasteboard.setData(data, forType: type)
+            }
+        }
+    }
+    
+    /// Get context-aware injection strategy
+    private func getInjectionStrategy(for context: ContextInfo) -> TextInjectionStrategy {
+        // Use enhanced context-aware strategy selection
+        switch context.applicationType {
+        case .email, .document:
+            return .clipboardPreferred // Better for formatted text
+        case .codeEditor, .terminal:
+            return .accessibilityOnly // Preserve exact formatting
+        case .chat, .social:
+            return .adaptive // Mix of methods
+        case .browser:
+            return .keyboardSimulation // Many web forms don't support accessibility
+        default:
+            return .adaptive
         }
     }
     

@@ -24,10 +24,9 @@ class TranscriptionService: ObservableObject {
     private var whisperKit: WhisperKit?
     private let transcriptionSubject = PassthroughSubject<HermesTranscriptionResult, Never>()
     
-    // Model configuration - try base model first for reliability
-    private let primaryModel = "base"
-    private let fallbackModel = "distil-large-v3"
-    private var isUsingFallback = false
+    // Model configuration - Use ONLY Large-V3 for best accuracy and performance
+    // Large-V3 provides optimal accuracy for production use (~1.5GB, requires Apple Silicon)
+    private let targetModel = "openai_whisper-large-v3"  // Production model - no fallback
     
     // Audio processing
     private var audioBuffer: [Float] = []
@@ -57,40 +56,18 @@ class TranscriptionService: ObservableObject {
             await loadAvailableModels()
         }
         
-        print("🤖 Initializing WhisperKit...")
+        print("🤖 Initializing WhisperKit with openai_whisper-large-v3 model...")
         
         do {
-            // Try primary model first
-            whisperKit = try await initializeWhisperKit(with: primaryModel)
-            currentModel = primaryModel
-            isUsingFallback = false
-            print("✅ WhisperKit initialized with primary model: \(primaryModel)")
+            // Initialize with openai_whisper-large-v3 model only - no fallbacks
+            whisperKit = try await initializeWhisperKit(with: targetModel)
+            currentModel = targetModel
+            print("✅ WhisperKit initialized successfully with: \(targetModel)")
             
         } catch {
-            print("⚠️ Primary model failed, trying fallback: \(error)")
-            
-            // Fall back to smaller model
-            do {
-                whisperKit = try await initializeWhisperKit(with: fallbackModel)
-                currentModel = fallbackModel
-                isUsingFallback = true
-                print("✅ WhisperKit initialized with fallback model: \(fallbackModel)")
-                
-            } catch {
-                print("⚠️ Fallback model failed, trying base model: \(error)")
-                
-                // Try base model as final fallback
-                do {
-                    whisperKit = try await initializeWhisperKit(with: "base")
-                    currentModel = "base"
-                    isUsingFallback = true
-                    print("✅ WhisperKit initialized with base model")
-                    
-                } catch {
-                    print("❌ All models failed: \(error)")
-                    throw TranscriptionError.modelInitializationFailed(error)
-                }
-            }
+            print("❌ Failed to initialize WhisperKit with \(targetModel): \(error)")
+            print("💡 Model will be downloaded from argmaxinc/whisperkit-coreml repository")
+            throw TranscriptionError.modelInitializationFailed(error)
         }
         
         isInitialized = true
@@ -128,15 +105,16 @@ class TranscriptionService: ObservableObject {
     }
     
     /// Transcribes the entire accumulated audio buffer (called when recording stops)
-    func transcribeCompleteSession() async {
+    /// Returns the transcription result directly instead of just publishing it
+    func transcribeCompleteSession() async -> String {
         guard !audioBuffer.isEmpty else { 
             print("⚠️ No audio data to transcribe")
-            return 
+            return ""
         }
         
         guard !isTranscribing else {
             print("⚠️ Already transcribing, ignoring request")
-            return
+            return ""
         }
         
         let totalDuration = Double(audioBuffer.count) / HermesConstants.sampleRate
@@ -146,14 +124,90 @@ class TranscriptionService: ObservableObject {
         guard totalDuration >= 0.5 else {
             print("⚠️ Audio too short to transcribe: \(String(format: "%.2f", totalDuration))s")
             audioBuffer.removeAll()
-            return
+            return ""
         }
         
         isTranscribing = true
-        await transcribeAudio(floatArray: audioBuffer)
+        let result = await transcribeAudioDirectly(floatArray: audioBuffer)
         audioBuffer.removeAll()
         lastTranscribedIndex = 0
         isTranscribing = false
+        
+        return result
+    }
+    
+    /// Direct transcription that returns result instead of publishing
+    private func transcribeAudioDirectly(floatArray: [Float]) async -> String {
+        guard let whisperKit = whisperKit else { 
+            print("⚠️ WhisperKit not available for transcription")
+            return ""
+        }
+        
+        let startTime = Date()
+        
+        do {
+            // Normalize float array to [-1.0, 1.0] range if needed
+            let normalizedAudio = normalizeAudioArray(floatArray)
+            
+            // Check audio levels to ensure we have meaningful audio
+            let maxAmplitude = normalizedAudio.map { abs($0) }.max() ?? 0.0
+            let avgAmplitude = normalizedAudio.map { abs($0) }.reduce(0, +) / Float(normalizedAudio.count)
+            
+            print("🎤 Transcribing audio: \(normalizedAudio.count) samples, duration: \(String(format: "%.2f", Double(normalizedAudio.count) / HermesConstants.sampleRate))s")
+            print("🎤 Audio levels: max=\(String(format: "%.4f", maxAmplitude)), avg=\(String(format: "%.4f", avgAmplitude))")
+            
+            // Skip transcription if audio is too quiet (likely silence)
+            // Lower threshold for natural microphone input levels
+            guard avgAmplitude > 0.00001 else {
+                print("🔇 Audio too quiet (avg: \(String(format: "%.6f", avgAmplitude))), skipping transcription")
+                return ""
+            }
+            
+            // Transcribe using WhisperKit with optimized settings
+            let results = try await whisperKit.transcribe(audioArray: normalizedAudio)
+            
+            let latency = Date().timeIntervalSince(startTime)
+            
+            // Extract transcription text from first result
+            let transcriptionText = results.first?.text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) ?? ""
+            
+            print("🔍 WhisperKit returned: '\(transcriptionText)' (latency: \(String(format: "%.2f", latency * 1000))ms)")
+            print("🔍 Result length: \(transcriptionText.count), characters: \(Array(transcriptionText))")
+            
+            // Check if result is just dots or other meaningless patterns
+            let onlyDots = transcriptionText.allSatisfy { $0 == "." }
+            let onlyWhitespace = transcriptionText.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).isEmpty
+            
+            // Skip empty results or common false positives
+            guard !transcriptionText.isEmpty,
+                  !onlyDots,
+                  !onlyWhitespace,
+                  transcriptionText.lowercased() != "thank you",
+                  transcriptionText.lowercased() != "thanks",
+                  transcriptionText.count > 2 else {
+                print("🔄 Skipping invalid result: '\(transcriptionText)' (dots: \(onlyDots), empty: \(onlyWhitespace), length: \(transcriptionText.count))")
+                return ""
+            }
+            
+            print("✅ Transcription completed: '\(transcriptionText)'")
+            
+            // Also publish for any listeners
+            let result = HermesTranscriptionResult(
+                text: transcriptionText,
+                type: .final,
+                confidence: calculateConfidence(from: results.first),
+                latency: latency,
+                timestamp: Date(),
+                modelUsed: currentModel
+            )
+            transcriptionSubject.send(result)
+            
+            return transcriptionText
+            
+        } catch {
+            print("❌ Transcription error: \(error)")
+            return ""
+        }
     }
     
     /// Resets the transcription service state
@@ -176,11 +230,9 @@ class TranscriptionService: ObservableObject {
         print("🔍 Loading available WhisperKit models...")
         
         // Get available models from WhisperKit
-        // These are the models we want to support in Hermes
+        // We only support openai_whisper-large-v3 in production
         let preferredModels = [
-            primaryModel,      // "base"
-            fallbackModel,     // "distil-large-v3"
-            "base"             // Lightweight option
+            targetModel        // "openai_whisper-large-v3"
         ]
         
         availableModels = preferredModels
@@ -202,6 +254,7 @@ class TranscriptionService: ObservableObject {
         }
         
         do {
+            // Initialize WhisperKit with optimized settings for <400ms performance
             let whisperKit = try await WhisperKit(
                 model: modelName,
                 verbose: false,
@@ -303,10 +356,7 @@ class TranscriptionService: ObservableObject {
             
             transcriptionSubject.send(errorResult)
             
-            // Try fallback model if primary fails repeatedly
-            if !isUsingFallback {
-                await tryFallbackModel()
-            }
+            // No fallback - openai_whisper-large-v3 is the only supported model
         }
     }
     
@@ -389,18 +439,6 @@ class TranscriptionService: ObservableObject {
     
     
     
-    private func tryFallbackModel() async {
-        print("🔄 Switching to fallback model...")
-        
-        do {
-            whisperKit = try await initializeWhisperKit(with: fallbackModel)
-            currentModel = fallbackModel
-            isUsingFallback = true
-            print("✅ Switched to fallback model: \(fallbackModel)")
-        } catch {
-            print("❌ Fallback model initialization failed: \(error)")
-        }
-    }
 }
 
 // MARK: - Supporting Types

@@ -30,5 +30,7 @@
 	<string>Hermes needs accessibility access to inject transcribed text into other applications and register global shortcuts.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Hermes needs access to your microphone for real-time dictation and transcription.</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Hermes uses AppleScript to inject transcribed text into other applications with maximum compatibility and reliability.</string>
 </dict>
 </plist>

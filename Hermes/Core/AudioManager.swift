@@ -68,6 +68,9 @@ class AudioManager: ObservableObject {
         // Configure audio session to be non-intrusive
         try configureAudioSession()
         
+        // Clear any residual audio buffer before starting new session
+        audioDataBuffer.removeAll()
+        
         // Only setup engine if not already initialized
         if audioEngine == nil {
             setupAudioEngine()
@@ -89,11 +92,25 @@ class AudioManager: ObservableObject {
             inputNode.removeTap(onBus: 0)
         }
         
+        // CRITICAL: Send any remaining buffered audio before clearing
+        if !audioDataBuffer.isEmpty {
+            print("🎤 Sending final \(audioDataBuffer.count) samples (\(String(format: "%.2f", Double(audioDataBuffer.count) / sampleRate))s) to transcription")
+            
+            // Convert remaining samples to Data and send to transcription service
+            let remainingAudio = audioDataBuffer.withUnsafeBufferPointer { buffer in
+                Data(buffer: buffer)
+            }
+            audioDataSubject.send(remainingAudio)
+        }
+        
+        // Now clear the buffer to prevent carryover to next session
+        audioDataBuffer.removeAll()
+        
         isRecording = false
         isVoiceActive = false
         audioLevel = 0.0
         
-        print("🎤 Audio recording stopped")
+        print("🎤 Audio recording stopped, all audio sent to transcription")
     }
     
     // MARK: - Private Methods
