@@ -1,0 +1,18 @@
+"/Users/dominicsenese008/projects/Hermes/Hermes/UI/Components/HermesDropdown.swift":
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.d"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.swiftdeps"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.swiftconstvalues"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.dia"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.o"
+"/Users/dominicsenese008/projects/Hermes/Hermes/UI/Components/HermesTextField.swift":
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.d"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.o"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.swiftconstvalues"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.swiftdeps"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.dia"
+"/Users/dominicsenese008/projects/Hermes/Hermes/UI/MainAppView.swift":
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.swiftdeps"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.d"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.o"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.swiftconstvalues"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.dia"

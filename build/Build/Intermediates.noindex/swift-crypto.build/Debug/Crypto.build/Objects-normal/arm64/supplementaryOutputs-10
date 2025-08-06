@@ -1,0 +1,36 @@
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/Message Authentication Codes/HMAC/HMAC.swift":
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/HMAC.swiftconstvalues"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/HMAC.o"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/HMAC.dia"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/HMAC.d"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/HMAC.swiftdeps"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/Message Authentication Codes/MACFunctions.swift":
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/MACFunctions.swiftdeps"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/MACFunctions.dia"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/MACFunctions.d"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/MACFunctions.swiftconstvalues"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/MACFunctions.o"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/Signatures/BoringSSL/ECDSASignature_boring.swift":
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/ECDSASignature_boring.dia"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/ECDSASignature_boring.d"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/ECDSASignature_boring.o"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/ECDSASignature_boring.swiftconstvalues"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/ECDSASignature_boring.swiftdeps"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/Message Authentication Codes/MessageAuthenticationCode.swift":
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/MessageAuthenticationCode.swiftconstvalues"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/MessageAuthenticationCode.d"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/MessageAuthenticationCode.swiftdeps"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/MessageAuthenticationCode.o"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/MessageAuthenticationCode.dia"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/PRF/AES.swift":
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/AES.swiftdeps"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/AES.dia"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/AES.d"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/AES.swiftconstvalues"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/AES.o"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/Signatures/BoringSSL/ECDSA_boring.swift":
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/ECDSA_boring.d"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/ECDSA_boring.dia"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/ECDSA_boring.o"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/ECDSA_boring.swiftconstvalues"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/ECDSA_boring.swiftdeps"

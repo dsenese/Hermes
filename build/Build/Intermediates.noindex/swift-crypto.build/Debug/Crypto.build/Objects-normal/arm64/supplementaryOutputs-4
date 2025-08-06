@@ -1,0 +1,42 @@
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/Digests/BoringSSL/Digest_boring.swift":
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/Digest_boring.swiftdeps"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/Digest_boring.o"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/Digest_boring.d"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/Digest_boring.swiftconstvalues"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/Digest_boring.dia"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/CryptoError_boring.swift":
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/CryptoError_boring.o"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/CryptoError_boring.swiftconstvalues"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/CryptoError_boring.d"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/CryptoError_boring.swiftdeps"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/CryptoError_boring.dia"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/CryptoKitErrors.swift":
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/CryptoKitErrors.dia"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/CryptoKitErrors.swiftdeps"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/CryptoKitErrors.d"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/CryptoKitErrors.o"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/CryptoKitErrors.swiftconstvalues"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/ASN1/PKCS8PrivateKey.swift":
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/PKCS8PrivateKey.swiftconstvalues"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/PKCS8PrivateKey.swiftdeps"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/PKCS8PrivateKey.dia"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/PKCS8PrivateKey.d"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/PKCS8PrivateKey.o"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/ASN1/SEC1PrivateKey.swift":
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/SEC1PrivateKey.swiftdeps"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/SEC1PrivateKey.dia"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/SEC1PrivateKey.o"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/SEC1PrivateKey.swiftconstvalues"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/SEC1PrivateKey.d"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/ASN1/SubjectPublicKeyInfo.swift":
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/SubjectPublicKeyInfo.d"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/SubjectPublicKeyInfo.o"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/SubjectPublicKeyInfo.swiftdeps"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/SubjectPublicKeyInfo.dia"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/SubjectPublicKeyInfo.swiftconstvalues"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-crypto/Sources/Crypto/Digests/Digest.swift":
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/Digest.swiftconstvalues"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/Digest.swiftdeps"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/Digest.dia"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/Digest.o"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-crypto.build/Debug/Crypto.build/Objects-normal/arm64/Digest.d"

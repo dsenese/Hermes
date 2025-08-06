@@ -1,0 +1,30 @@
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-collections/Sources/OrderedCollections/OrderedSet/OrderedSet+Hashable.swift":
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Hashable.swiftconstvalues"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Hashable.dia"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Hashable.swiftdeps"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Hashable.d"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Hashable.o"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-collections/Sources/OrderedCollections/OrderedSet/OrderedSet+Invariants.swift":
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Invariants.swiftdeps"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Invariants.o"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Invariants.dia"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Invariants.d"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Invariants.swiftconstvalues"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-collections/Sources/OrderedCollections/OrderedSet/OrderedSet+Partial MutableCollection.swift":
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Partial MutableCollection.dia"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Partial MutableCollection.swiftdeps"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Partial MutableCollection.o"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Partial MutableCollection.swiftconstvalues"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Partial MutableCollection.d"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-collections/Sources/OrderedCollections/OrderedSet/OrderedSet+Insertions.swift":
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Insertions.swiftdeps"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Insertions.d"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Insertions.o"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Insertions.swiftconstvalues"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Insertions.dia"
+"/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/swift-collections/Sources/OrderedCollections/OrderedSet/OrderedSet+Initializers.swift":
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Initializers.d"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Initializers.swiftconstvalues"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Initializers.swiftdeps"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Initializers.dia"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/swift-collections.build/Debug/OrderedCollections.build/Objects-normal/arm64/OrderedSet+Initializers.o"

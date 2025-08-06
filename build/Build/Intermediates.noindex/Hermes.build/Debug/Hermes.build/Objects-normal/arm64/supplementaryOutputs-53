@@ -1,0 +1,18 @@
+"/Users/dominicsenese008/projects/Hermes/Hermes/UI/Components/ButtonStyles.swift":
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.d"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.o"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.swiftconstvalues"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.dia"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.swiftdeps"
+"/Users/dominicsenese008/projects/Hermes/Hermes/UI/FloatingDictationMarker.swift":
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.swiftconstvalues"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.swiftdeps"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.o"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.d"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.dia"
+"/Users/dominicsenese008/projects/Hermes/Hermes/UI/DictationPopupView.swift":
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.o"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.swiftdeps"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.d"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.swiftconstvalues"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.dia"

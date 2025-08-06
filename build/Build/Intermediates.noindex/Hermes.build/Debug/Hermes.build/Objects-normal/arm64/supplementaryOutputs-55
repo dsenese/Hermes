@@ -1,0 +1,18 @@
+"/Users/dominicsenese008/projects/Hermes/Hermes/UI/Onboarding/OnboardingStepContainer.swift":
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.d"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.o"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.swiftconstvalues"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.swiftdeps"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.dia"
+"/Users/dominicsenese008/projects/Hermes/Hermes/Core/TextInjector.swift":
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.swiftconstvalues"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.swiftdeps"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.o"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.d"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.dia"
+"/Users/dominicsenese008/projects/Hermes/Hermes/UI/Onboarding/OnboardingProgressBar.swift":
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.swiftconstvalues"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.d"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.dia"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.o"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.swiftdeps"

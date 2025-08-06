@@ -1,0 +1,318 @@
+{
+  "" : {
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Hermes-master.dia",
+    "emit-module-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Hermes-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Hermes-master-emit-module.dia",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Hermes-master.swiftdeps"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/ContentView.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ContentView.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ContentView.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ContentView~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Core/AccessibilityManager.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AccessibilityManager.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AccessibilityManager.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AccessibilityManager.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AccessibilityManager.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AccessibilityManager.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AccessibilityManager.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AccessibilityManager.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AccessibilityManager~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Core/AudioManager.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Core/Constants.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Core/DictationEngine.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngine.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngine.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngine.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngine.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngine.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngine.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngine.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngine~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Core/DictationEngineWrapper.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngineWrapper.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngineWrapper.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngineWrapper.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngineWrapper.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngineWrapper.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngineWrapper.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngineWrapper.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationEngineWrapper~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Core/DictationHistoryManager.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationHistoryManager.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationHistoryManager.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationHistoryManager.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationHistoryManager.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationHistoryManager.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationHistoryManager.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationHistoryManager.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationHistoryManager~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Core/GlobalShortcutManager.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GlobalShortcutManager.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GlobalShortcutManager.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GlobalShortcutManager.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GlobalShortcutManager.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GlobalShortcutManager.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GlobalShortcutManager.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GlobalShortcutManager.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GlobalShortcutManager~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Core/ServicesManager.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ServicesManager.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ServicesManager.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ServicesManager.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ServicesManager.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ServicesManager.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ServicesManager.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ServicesManager.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ServicesManager~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Core/TextInjector.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TextInjector~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Core/TranscriptionService.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TranscriptionService.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TranscriptionService.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TranscriptionService.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TranscriptionService.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TranscriptionService.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TranscriptionService.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TranscriptionService.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TranscriptionService~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Core/UserSettings.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/UserSettings.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/UserSettings.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/UserSettings.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/UserSettings.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/UserSettings.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/UserSettings.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/UserSettings.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/UserSettings~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/HermesApp.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesApp.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesApp.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesApp.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesApp.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesApp.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesApp.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesApp.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesApp~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/Components/ButtonStyles.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/ButtonStyles~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/Components/HermesDropdown.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesDropdown~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/Components/HermesTextField.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HermesTextField~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/Components/HotkeyRecorder.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HotkeyRecorder.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HotkeyRecorder.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HotkeyRecorder.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HotkeyRecorder.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HotkeyRecorder.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HotkeyRecorder.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HotkeyRecorder.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/HotkeyRecorder~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/DictationPopupView.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/DictationPopupView~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/FloatingDictationMarker.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/FloatingDictationMarker~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/MainAppView.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MainAppView~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/MenuBarView.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MenuBarView.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MenuBarView.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MenuBarView.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MenuBarView.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MenuBarView.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MenuBarView.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MenuBarView.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/MenuBarView~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/NotesView.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/Onboarding/OnboardingProgressBar.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingProgressBar~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/Onboarding/OnboardingStepContainer.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingStepContainer~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/Onboarding/OnboardingView.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingView.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingView.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingView.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingView.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingView.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingView.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingView.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/OnboardingView~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/Onboarding/Steps/PermissionsStepView.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/PermissionsStepView.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/PermissionsStepView.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/PermissionsStepView.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/PermissionsStepView.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/PermissionsStepView.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/PermissionsStepView.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/PermissionsStepView.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/PermissionsStepView~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/Onboarding/Steps/SetUpStepView.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SetUpStepView.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SetUpStepView.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SetUpStepView.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SetUpStepView.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SetUpStepView.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SetUpStepView.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SetUpStepView.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SetUpStepView~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/Onboarding/Steps/SignInStepView.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SignInStepView.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SignInStepView.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SignInStepView.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SignInStepView.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SignInStepView.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SignInStepView.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SignInStepView.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/SignInStepView~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/UI/Onboarding/Steps/TryItStepView.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TryItStepView.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TryItStepView.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TryItStepView.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TryItStepView.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TryItStepView.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TryItStepView.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TryItStepView.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/TryItStepView~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/Hermes/Utilities/Extensions.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Extensions.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Extensions.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Extensions.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Extensions.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Extensions.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Extensions.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Extensions.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Extensions~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "index-unit-output-path" : "/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/GeneratedAssetSymbols~partial.swiftmodule"
+  }
+}

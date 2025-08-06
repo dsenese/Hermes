@@ -1,0 +1,18 @@
+"/Users/dominicsenese008/projects/Hermes/Hermes/Core/Constants.swift":
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.dia"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.swiftdeps"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.swiftconstvalues"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.d"
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/Constants.o"
+"/Users/dominicsenese008/projects/Hermes/Hermes/Core/AudioManager.swift":
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.o"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.dia"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.swiftdeps"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.swiftconstvalues"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/AudioManager.d"
+"/Users/dominicsenese008/projects/Hermes/Hermes/UI/NotesView.swift":
+  object: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.o"
+  swift-dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.swiftdeps"
+  diagnostics: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.dia"
+  const-values: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.swiftconstvalues"
+  dependencies: "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Hermes.build/Debug/Hermes.build/Objects-normal/arm64/NotesView.d"

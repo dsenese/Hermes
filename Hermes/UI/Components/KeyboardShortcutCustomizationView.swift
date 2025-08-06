@@ -105,11 +105,43 @@ struct KeyboardShortcutCustomizationView: View {
     /// Create a shortcut option button
     private func shortcutOption(_ keys: String, description: String) -> some View {
         Button(action: {
-            if let shortcut = createHotkeyFromDisplayString(keys) {
-                pendingShortcut = shortcut
-                currentShortcut = keys
-                print("🔧 Preset shortcut selected: \(keys)")
+            currentShortcut = keys
+            
+            // Update the user settings based on the selected shortcut (same logic as SetUpStepView)
+            let newHotkey: HotkeyConfiguration
+            switch keys {
+            case "fn":
+                newHotkey = HotkeyConfiguration(
+                    key: .fn, modifiers: [], description: "Start/Stop Dictation"
+                )
+            case "⌘⌘":
+                newHotkey = HotkeyConfiguration(
+                    key: .command, modifiers: [], description: "Start/Stop Dictation"
+                )
+            case "⌥ Space":
+                newHotkey = HotkeyConfiguration(
+                    key: .space, modifiers: [.option], description: "Start/Stop Dictation"
+                )
+            case "⌃ Space":
+                newHotkey = HotkeyConfiguration(
+                    key: .space, modifiers: [.control], description: "Start/Stop Dictation"
+                )
+            default:
+                return
             }
+            
+            // Update settings and pending shortcut
+            userSettings.keyboardShortcuts.globalDictationHotkey = newHotkey
+            pendingShortcut = newHotkey
+            
+            // Save and notify
+            Task {
+                await userSettings.updateKeyboardShortcut(newHotkey)
+                print("🔧 Updated hotkey to: \(newHotkey.displayString)")
+            }
+            
+            // Tell the AppDelegate to update its hotkey registration
+            NotificationCenter.default.post(name: .updateGlobalHotkey, object: newHotkey)
         }) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
@@ -148,19 +180,4 @@ struct KeyboardShortcutCustomizationView: View {
         .animation(.easeInOut(duration: 0.2), value: currentShortcut)
     }
     
-    /// Create HotkeyConfiguration from display string
-    private func createHotkeyFromDisplayString(_ displayString: String) -> HotkeyConfiguration? {
-        switch displayString {
-        case "fn":
-            return HotkeyConfiguration(key: .fn, modifiers: [], description: "Start/Stop Dictation")
-        case "⌥ Space":
-            return HotkeyConfiguration(key: .space, modifiers: [.option], description: "Start/Stop Dictation")
-        case "⌘⌘":
-            return HotkeyConfiguration(key: .command, modifiers: [], description: "Start/Stop Dictation")
-        case "⌃ Space":
-            return HotkeyConfiguration(key: .space, modifiers: [.control], description: "Start/Stop Dictation")
-        default:
-            return nil
-        }
-    }
 }

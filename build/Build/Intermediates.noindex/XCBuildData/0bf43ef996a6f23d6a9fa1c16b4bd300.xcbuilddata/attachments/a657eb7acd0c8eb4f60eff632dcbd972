@@ -1,0 +1,98 @@
+{
+  "" : {
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/_Helpers-master.dia",
+    "emit-module-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/_Helpers-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/_Helpers-master-emit-module.dia",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/_Helpers-master.swiftdeps"
+  },
+  "/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/supabase-swift/Sources/_Helpers/AnyJSON/AnyJSON+Codable.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON+Codable.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON+Codable.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON+Codable.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON+Codable.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON+Codable.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON+Codable.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON+Codable.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON+Codable~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/supabase-swift/Sources/_Helpers/AnyJSON/AnyJSON.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/AnyJSON~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/supabase-swift/Sources/_Helpers/DateFormatter.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/DateFormatter.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/DateFormatter.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/DateFormatter.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/DateFormatter.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/DateFormatter.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/DateFormatter.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/DateFormatter.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/DateFormatter~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/supabase-swift/Sources/_Helpers/EventEmitter.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/EventEmitter.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/EventEmitter.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/EventEmitter.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/EventEmitter.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/EventEmitter.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/EventEmitter.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/EventEmitter.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/EventEmitter~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/supabase-swift/Sources/_Helpers/Request.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Request.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Request.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Request.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Request.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Request.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Request.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Request.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Request~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/supabase-swift/Sources/_Helpers/SharedModels/PostgrestError.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/PostgrestError.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/PostgrestError.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/PostgrestError.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/PostgrestError.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/PostgrestError.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/PostgrestError.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/PostgrestError.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/PostgrestError~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/supabase-swift/Sources/_Helpers/SupabaseLogger.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/SupabaseLogger.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/SupabaseLogger.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/SupabaseLogger.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/SupabaseLogger.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/SupabaseLogger.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/SupabaseLogger.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/SupabaseLogger.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/SupabaseLogger~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/supabase-swift/Sources/_Helpers/URLSession+AsyncAwait.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/URLSession+AsyncAwait.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/URLSession+AsyncAwait.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/URLSession+AsyncAwait.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/URLSession+AsyncAwait.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/URLSession+AsyncAwait.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/URLSession+AsyncAwait.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/URLSession+AsyncAwait.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/URLSession+AsyncAwait~partial.swiftmodule"
+  },
+  "/Users/dominicsenese008/projects/Hermes/build/SourcePackages/checkouts/supabase-swift/Sources/_Helpers/Version.swift" : {
+    "const-values" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Version.swiftconstvalues",
+    "dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Version.d",
+    "diagnostics" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Version.dia",
+    "index-unit-output-path" : "/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Version.o",
+    "llvm-bc" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Version.bc",
+    "object" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Version.o",
+    "swift-dependencies" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Version.swiftdeps",
+    "swiftmodule" : "/Users/dominicsenese008/projects/Hermes/build/Build/Intermediates.noindex/Supabase.build/Debug/_Helpers.build/Objects-normal/arm64/Version~partial.swiftmodule"
+  }
+}
