@@ -46,7 +46,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
-				UI/MainAppView.swift.backup,
 			);
 			target = 6323EBC93973267DFF276769 /* Hermes */;
 		};

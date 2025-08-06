@@ -18,7 +18,6 @@ struct MainAppView: View {
     @State private var showingOnboarding: Bool = !UserSettings.shared.isOnboardingCompleted
     @State private var showingProfileMenu: Bool = false
     @State private var showingSettingsMenu: Bool = false
-    @State private var showingKeyboardShortcuts: Bool = false
     
     var body: some View {
         ZStack {
@@ -360,7 +359,9 @@ struct MainAppView: View {
             
             // Settings button - moved outside and to the far right
             Button(action: {
+                print("⚙️⚙️⚙️ SETTINGS BUTTON CLICKED - showingSettingsMenu was: \(showingSettingsMenu)")
                 showingSettingsMenu.toggle()
+                print("⚙️⚙️⚙️ SETTINGS BUTTON CLICKED - showingSettingsMenu now: \(showingSettingsMenu)")
             }) {
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 16))
@@ -380,11 +381,14 @@ struct MainAppView: View {
                 if showingProfileMenu {
                     profileDropdownMenu
                         .offset(x: -80, y: 60)
+                        .zIndex(1001)
                 }
                 
                 if showingSettingsMenu {
                     settingsDropdownMenu
                         .offset(x: -20, y: 60)
+                        .zIndex(10000)
+                        .allowsHitTesting(true)
                 }
             },
             alignment: .topTrailing
@@ -549,17 +553,18 @@ struct MainAppView: View {
     
     @ViewBuilder
     private var contentForSelectedSection: some View {
-        if showingKeyboardShortcuts {
+        switch selectedSection {
+        case .home:
+            homeContent
+        case .dictionary:
+            dictionaryContent
+        case .notes:
+            notesContent
+        case .keyboardShortcuts:
             keyboardShortcutsContent
-        } else {
-            switch selectedSection {
-            case .home:
-                homeContent
-            case .dictionary:
-                dictionaryContent
-            case .notes:
-                notesContent
-            }
+                .onAppear {
+                    print("✅ Keyboard shortcuts content is now showing")
+                }
         }
     }
     
@@ -636,17 +641,23 @@ struct MainAppView: View {
         }
         .background(Color(NSColor.windowBackgroundColor))
         .cornerRadius(12)
-        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+        .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color(NSColor.separatorColor), lineWidth: 0.5)
+        )
         .frame(width: 250)
-        .zIndex(100)
+        .zIndex(1000)
     }
     
     private var settingsDropdownMenu: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Keyboard shortcuts
             Button(action: {
-                showingKeyboardShortcuts = true
+                print("🚨🚨🚨 BUTTON CLICKED - BEFORE: selectedSection=\(selectedSection)")
+                selectedSection = .keyboardShortcuts
                 showingSettingsMenu = false
+                print("🚨🚨🚨 BUTTON CLICKED - AFTER: selectedSection=\(selectedSection)")
             }) {
                 HStack {
                     Text("Keyboard Shortcuts")
@@ -659,39 +670,54 @@ struct MainAppView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(BorderlessButtonStyle())
             
             Divider()
             
             // Preferences
-            Button(action: {}) {
-                Text("Preferences")
-                    .font(.system(size: 13))
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+            Button(action: {
+                print("🔧 Preferences clicked")
+            }) {
+                HStack {
+                    Text("Preferences")
+                        .font(.system(size: 13))
+                        .foregroundColor(.primary)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(BorderlessButtonStyle())
             
             Divider()
             
             // About
-            Button(action: {}) {
-                Text("About Hermes")
-                    .font(.system(size: 13))
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
+            Button(action: {
+                print("🔧 About clicked")
+            }) {
+                HStack {
+                    Text("About Hermes")
+                        .font(.system(size: 13))
+                        .foregroundColor(.primary)
+                    Spacer()
+                }
+                .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(BorderlessButtonStyle())
         }
         .background(Color(NSColor.windowBackgroundColor))
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
         .frame(width: 180)
-        .zIndex(100)
+        .allowsHitTesting(true)
+        .onAppear {
+            print("📋📋📋 SETTINGS DROPDOWN APPEARED")
+        }
     }
     
     private var voiceDictationSection: some View {
@@ -742,32 +768,21 @@ struct MainAppView: View {
     }
     
     private var keyboardShortcutsContent: some View {
-        VStack(spacing: 24) {
-            // Header with back button
-            HStack {
-                Button(action: {
-                    showingKeyboardShortcuts = false
-                }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 14))
-                        Text("Back")
-                            .font(.system(size: 14, weight: .medium))
-                    }
-                    .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
-                
-                Spacer()
-            }
+        VStack(alignment: .leading, spacing: 24) {
+            // Title like other sections
+            Text("Keyboard Shortcuts")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.primary)
             
             // Keyboard shortcut customization view
             KeyboardShortcutCustomizationView(
                 onSave: {
-                    showingKeyboardShortcuts = false
+                    // Stay on this section after save, like other sections
+                    print("✅ Keyboard shortcut saved")
                 },
                 onCancel: {
-                    showingKeyboardShortcuts = false
+                    // Go back to home section on cancel
+                    selectedSection = .home
                 },
                 isMainApp: true
             )
@@ -837,6 +852,7 @@ enum SidebarSection: String, CaseIterable {
     case home = "Home"
     case dictionary = "Dictionary"
     case notes = "Notes"
+    case keyboardShortcuts = "Keyboard Shortcuts"
     
     var title: String {
         rawValue
@@ -847,6 +863,7 @@ enum SidebarSection: String, CaseIterable {
         case .home: return "house.fill"
         case .dictionary: return "book.fill"
         case .notes: return "note.text"
+        case .keyboardShortcuts: return "keyboard"
         }
     }
 }
