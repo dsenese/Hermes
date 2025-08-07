@@ -82,6 +82,13 @@ struct KeyboardShortcutCustomizationView: View {
                     Task {
                         print("💾 Saving shortcut: \(shortcutToSave.displayString)")
                         await userSettings.updateKeyboardShortcut(shortcutToSave)
+                        
+                        // Update the global hotkey system
+                        NotificationCenter.default.post(name: .updateGlobalHotkey, object: shortcutToSave)
+                        
+                        // Show success toast
+                        ToastManager.shared.showSuccess("Keyboard shortcut updated to \(shortcutToSave.displayString)")
+                        
                         onSave()
                     }
                 }
@@ -138,10 +145,13 @@ struct KeyboardShortcutCustomizationView: View {
             Task {
                 await userSettings.updateKeyboardShortcut(newHotkey)
                 print("🔧 Updated hotkey to: \(newHotkey.displayString)")
+                
+                // Update the global hotkey system
+                NotificationCenter.default.post(name: .updateGlobalHotkey, object: newHotkey)
+                
+                // Show success toast
+                ToastManager.shared.showSuccess("Keyboard shortcut changed to \(newHotkey.displayString)")
             }
-            
-            // Tell the AppDelegate to update its hotkey registration
-            NotificationCenter.default.post(name: .updateGlobalHotkey, object: newHotkey)
         }) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {

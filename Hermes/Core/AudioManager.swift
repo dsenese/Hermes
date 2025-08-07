@@ -286,19 +286,23 @@ class AudioManager: ObservableObject {
         // Use raw data for accumulation (no artificial gain)
         audioDataBuffer.append(contentsOf: audioData)
         
-        // Send periodic chunks for accumulation (2 second chunks for smoother flow)
-        let samplesPerChunk = Int(sampleRate * 2.0) // 2 second chunks
-        if audioDataBuffer.count >= samplesPerChunk {
-            let chunk = Array(audioDataBuffer.prefix(samplesPerChunk))
-            audioDataBuffer.removeFirst(samplesPerChunk)
-            
-            // Convert float array to Data
-            let audioData = chunk.withUnsafeBufferPointer { buffer in
-                Data(buffer: buffer)
-            }
-            
-            // Emit audio data for accumulation (not immediate transcription)
-            audioDataSubject.send(audioData)
+        // Send only the NEW audio data to transcription service
+        // This prevents duplicate processing while maintaining the complete buffer
+        let newAudioData = audioData.withUnsafeBufferPointer { buffer in
+            Data(buffer: buffer)
+        }
+        
+        // Send new audio data for accumulation
+        audioDataSubject.send(newAudioData)
+        
+        // Log accumulation progress periodically
+        let totalSamples = audioDataBuffer.count
+        if totalSamples % Int(sampleRate * 2.0) == 0 { // Log every 2 seconds
+            let duration = Double(totalSamples) / sampleRate
+            let maxLevel = audioDataBuffer.suffix(Int(sampleRate * 2.0)).map { abs($0) }.max() ?? 0.0
+            let avgLevel = audioDataBuffer.suffix(Int(sampleRate * 2.0)).map { abs($0) }.reduce(0, +) / Float(min(totalSamples, Int(sampleRate * 2.0)))
+            print("🎤 Accumulating audio: \(totalSamples) total samples (\(String(format: "%.1f", duration))s)")
+            print("🎤 Recent 2s levels: max=\(String(format: "%.6f", maxLevel)), avg=\(String(format: "%.6f", avgLevel))")
         }
     }
     

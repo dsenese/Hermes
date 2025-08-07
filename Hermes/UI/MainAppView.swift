@@ -99,6 +99,10 @@ struct MainAppView: View {
                 .padding(8)
                 .allowsHitTesting(false)
             }
+            
+            // Toast container - highest z-index for visibility
+            ToastContainer()
+                .zIndex(2000)
         }
         .cornerRadius(12)
         .frame(minWidth: 800, minHeight: 600)

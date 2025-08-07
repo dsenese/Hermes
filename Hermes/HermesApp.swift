@@ -156,6 +156,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 print("❌ Failed to register global shortcut '\(accelerator)'")
             }
+            
+            // Enable Fn key monitoring only if user has configured Fn as their hotkey
+            if shortcut.key == .fn {
+                print("🔑 User has configured Fn key - enabling Fn key monitoring...")
+                GlobalShortcutManager.shared.enableFnKeyDictation()
+            } else {
+                print("🔑 User has not configured Fn key - keeping Fn key monitoring disabled")
+                GlobalShortcutManager.shared.disableFnKeyDictation()
+            }
         }
     }
     
@@ -178,6 +187,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 print("✅ Global shortcut updated to '\(accelerator)'")
             } else {
                 print("❌ Failed to update global shortcut to '\(accelerator)'")
+            }
+            
+            // Update Fn key monitoring based on new hotkey setting
+            if hotkey.key == .fn {
+                print("🔑 User changed to Fn key - enabling Fn key monitoring...")
+                GlobalShortcutManager.shared.enableFnKeyDictation()
+            } else {
+                print("🔑 User changed away from Fn key - disabling Fn key monitoring...")
+                GlobalShortcutManager.shared.disableFnKeyDictation()
             }
             
             // Notify the dictation engine for UI consistency

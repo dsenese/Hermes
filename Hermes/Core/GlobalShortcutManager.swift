@@ -24,6 +24,10 @@ class GlobalShortcutManager: NSObject {
     private var registeredHotKeys: [String: HotKey] = [:]
     private var isDictating = false
     
+    // Fn key monitoring
+    private let fnKeyMonitor = FnKeyMonitor()
+    private var isFnKeyEnabled = false
+    
     
     private override init() {
         super.init()
@@ -265,6 +269,77 @@ class GlobalShortcutManager: NSObject {
         }
     }
     
+    // MARK: - Fn Key Support
+    
+    /// Enable Fn key as an additional dictation trigger (alongside configured hotkeys)
+    func enableFnKeyDictation() {
+        guard !isFnKeyEnabled else {
+            print("🔑 Fn key dictation already enabled")
+            return
+        }
+        
+        print("🔑 🚀 Enabling Fn key dictation...")
+        
+        // Check accessibility permissions first
+        if !fnKeyMonitor.checkAccessibilityPermissions() {
+            print("🔑 ❌ Cannot enable Fn key - accessibility permissions required")
+            return
+        }
+        
+        // Start Fn key monitoring
+        fnKeyMonitor.startMonitoring { [weak self] isPressed in
+            Task { @MainActor in
+                if isPressed {
+                    self?.handleFnKeyPressed()
+                } else {
+                    self?.handleFnKeyReleased()
+                }
+            }
+        }
+        
+        isFnKeyEnabled = true
+        print("🔑 ✅ Fn key dictation enabled")
+    }
+    
+    /// Disable Fn key dictation
+    func disableFnKeyDictation() {
+        guard isFnKeyEnabled else {
+            print("🔑 Fn key dictation already disabled")
+            return
+        }
+        
+        print("🔑 ⏹️ Disabling Fn key dictation...")
+        fnKeyMonitor.stopMonitoring()
+        isFnKeyEnabled = false
+        print("🔑 ✅ Fn key dictation disabled")
+    }
+    
+    /// Check if Fn key dictation is currently enabled
+    var isFnKeyDictationEnabled: Bool {
+        return isFnKeyEnabled
+    }
+    
+    /// Handle Fn key press - same logic as regular hotkey press
+    private func handleFnKeyPressed() {
+        print("🔑🎙️ Fn key PRESSED - starting dictation")
+        
+        // Use same logic as regular hotkey
+        handleKeyDown(for: "fn")
+    }
+    
+    /// Handle Fn key release - same logic as regular hotkey release
+    private func handleFnKeyReleased() {
+        print("🔑🛑 Fn key RELEASED - stopping dictation")
+        
+        // Use same logic as regular hotkey
+        handleKeyUp(for: "fn")
+    }
+    
+    /// Test Fn key detection for debugging
+    func testFnKeyDetection() {
+        fnKeyMonitor.testFnKeyDetection()
+    }
+    
     deinit {
         // Clean up all hotkeys on deallocation
         for (_, hotKey) in registeredHotKeys {
@@ -272,6 +347,13 @@ class GlobalShortcutManager: NSObject {
             hotKey.keyUpHandler = nil
         }
         registeredHotKeys.removeAll()
+        
+        // Clean up Fn key monitoring
+        if isFnKeyEnabled {
+            Task { @MainActor in
+                fnKeyMonitor.stopMonitoring()
+            }
+        }
         
     }
 }

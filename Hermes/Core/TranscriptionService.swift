@@ -156,6 +156,22 @@ class TranscriptionService: ObservableObject {
             print("🎤 Transcribing audio: \(normalizedAudio.count) samples, duration: \(String(format: "%.2f", Double(normalizedAudio.count) / HermesConstants.sampleRate))s")
             print("🎤 Audio levels: max=\(String(format: "%.4f", maxAmplitude)), avg=\(String(format: "%.4f", avgAmplitude))")
             
+            // DIAGNOSTIC: Analyze audio distribution to understand potential cutoff causes
+            let sampleRate = HermesConstants.sampleRate
+            let duration = Double(normalizedAudio.count) / sampleRate
+            let segmentDuration = 0.5 // Analyze in 0.5 second segments
+            let samplesPerSegment = Int(segmentDuration * sampleRate)
+            
+            print("🔍 AUDIO ANALYSIS - Analyzing \(String(format: "%.1f", duration))s of audio in \(String(format: "%.1f", segmentDuration))s segments:")
+            for i in stride(from: 0, to: normalizedAudio.count, by: samplesPerSegment) {
+                let endIndex = min(i + samplesPerSegment, normalizedAudio.count)
+                let segment = Array(normalizedAudio[i..<endIndex])
+                let segmentMax = segment.map { abs($0) }.max() ?? 0.0
+                let segmentAvg = segment.map { abs($0) }.reduce(0, +) / Float(segment.count)
+                let segmentTime = Double(i) / sampleRate
+                print("🔍   \(String(format: "%.1f", segmentTime))s-\(String(format: "%.1f", segmentTime + Double(endIndex - i) / sampleRate))s: max=\(String(format: "%.4f", segmentMax)), avg=\(String(format: "%.4f", segmentAvg))")
+            }
+            
             // Skip transcription if audio is too quiet (likely silence)
             // Lower threshold for natural microphone input levels
             guard avgAmplitude > 0.00001 else {
@@ -163,15 +179,59 @@ class TranscriptionService: ObservableObject {
                 return ""
             }
             
-            // Transcribe using WhisperKit with optimized settings
-            let results = try await whisperKit.transcribe(audioArray: normalizedAudio)
+            // ENHANCED: Add longer silence padding and use aggressive audio preprocessing
+            // to ensure WhisperKit processes the complete speech even if user releases hotkey immediately
+            let paddingSamples = Int(1.0 * sampleRate) // Increased to 1.0 second of silence
+            
+            // Apply gentle audio normalization to ensure consistent levels throughout
+            let maxLevel = normalizedAudio.map { abs($0) }.max() ?? 1.0
+            let targetLevel: Float = 0.3 // Target peak level
+            let gainFactor = maxLevel > 0.01 ? min(targetLevel / maxLevel, 3.0) : 1.0 // Limit gain to 3x max
+            
+            let amplifiedAudio = normalizedAudio.map { sample in
+                let amplified = sample * gainFactor
+                // Soft limiting to prevent clipping
+                return amplified > 0.95 ? 0.95 : (amplified < -0.95 ? -0.95 : amplified)
+            }
+            
+            // Add extended silence padding
+            let paddedAudio = amplifiedAudio + Array(repeating: Float(0.0), count: paddingSamples)
+            
+            print("🔧 ENHANCED PREPROCESSING:")
+            print("🔧   Applied gain factor: \(String(format: "%.2f", gainFactor))x")
+            print("🔧   Original audio: \(normalizedAudio.count) samples (\(String(format: "%.2f", Double(normalizedAudio.count) / sampleRate))s)")
+            print("🔧   Padded audio: \(paddedAudio.count) samples (\(String(format: "%.2f", Double(paddedAudio.count) / sampleRate))s)")
+            print("🔧   Original max level: \(String(format: "%.4f", maxLevel))")
+            print("🔧   Amplified max level: \(String(format: "%.4f", amplifiedAudio.map { abs($0) }.max() ?? 0.0))")
+            
+            // Transcribe using WhisperKit with the enhanced audio
+            let results = try await whisperKit.transcribe(audioArray: paddedAudio)
+            
+            // DIAGNOSTIC: Let's examine all the results returned by WhisperKit
+            print("🔍 WhisperKit returned \(results.count) result(s)")
+            for (index, result) in results.enumerated() {
+                print("🔍 Result \(index): '\(result.text)' (segments: \(result.segments.count))")
+                for (segIndex, segment) in result.segments.enumerated() {
+                    print("🔍   Segment \(segIndex): '\(segment.text)' (\(String(format: "%.2f", segment.start))s - \(String(format: "%.2f", segment.end))s)")
+                }
+            }
+            
+            // REVERT: The segment extraction is corrupting text, just use the original result.text
+            // WhisperKit's result.text already contains the clean transcription
+            var fullTranscription = ""
+            if let firstResult = results.first {
+                // Just use the original result.text - it's already clean
+                fullTranscription = firstResult.text.trimmingCharacters(in: .whitespacesAndNewlines)
+                print("🔧 REVERTED: Using original result.text: '\(fullTranscription)'")
+            }
             
             let latency = Date().timeIntervalSince(startTime)
             
-            // Extract transcription text from first result
-            let transcriptionText = results.first?.text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) ?? ""
+            // Use the concatenated segments if available, otherwise fall back to original method  
+            let transcriptionText = !fullTranscription.isEmpty ? fullTranscription : results.first?.text.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines) ?? ""
             
             print("🔍 WhisperKit returned: '\(transcriptionText)' (latency: \(String(format: "%.2f", latency * 1000))ms)")
+            print("🔧 EXPERIMENTAL: Used concatenated segments: \(!fullTranscription.isEmpty)")
             print("🔍 Result length: \(transcriptionText.count), characters: \(Array(transcriptionText))")
             
             // Check if result is just dots or other meaningless patterns
