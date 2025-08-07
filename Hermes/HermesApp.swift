@@ -44,6 +44,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.regular)
         print("✅ App activation policy set to regular (with dock icon)")
         
+        // Request microphone permission immediately for new users
+        requestMicrophonePermissionOnLaunch()
+        
         // Setup menu bar
         setupMenuBar()
         
@@ -388,6 +391,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             
             // Not a critical failure - user can still use the app
             // Models will be downloaded when first needed
+        }
+    }
+    
+    /// Request microphone permission on app launch for new users
+    private func requestMicrophonePermissionOnLaunch() {
+        // Check current permission status first
+        let currentStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+        
+        switch currentStatus {
+        case .authorized:
+            print("✅ Microphone permission already granted")
+            return
+        case .denied, .restricted:
+            print("❌ Microphone permission previously denied or restricted")
+            return
+        case .notDetermined:
+            print("🎤 Requesting microphone permission on app launch...")
+            // Request permission for new users
+            AVCaptureDevice.requestAccess(for: .audio) { granted in
+                DispatchQueue.main.async {
+                    if granted {
+                        print("✅ Microphone permission granted by user")
+                    } else {
+                        print("❌ Microphone permission denied by user")
+                        // Could show a user-friendly message here if needed
+                    }
+                }
+            }
+        @unknown default:
+            print("⚠️ Unknown microphone permission status")
         }
     }
 }

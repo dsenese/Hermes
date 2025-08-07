@@ -50,18 +50,31 @@ class AudioManager: ObservableObject {
     func startRecording() async throws {
         guard !isRecording else { return }
         
-        // Request microphone permission explicitly
-        print("🎤 Requesting microphone permission...")
-        let permission = await withCheckedContinuation { continuation in
-            AVCaptureDevice.requestAccess(for: .audio) { granted in
-                continuation.resume(returning: granted)
-            }
-        }
+        // Check microphone permission (should already be granted from app launch)
+        print("🎤 Checking microphone permission...")
+        let permissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
         
-        if permission {
+        switch permissionStatus {
+        case .authorized:
             print("✅ Microphone permission granted")
-        } else {
-            print("❌ Microphone permission denied")
+        case .denied, .restricted:
+            print("❌ Microphone permission denied or restricted")
+            throw AudioManagerError.microphonePermissionDenied
+        case .notDetermined:
+            print("🎤 Microphone permission undetermined, requesting now...")
+            let permission = await withCheckedContinuation { continuation in
+                AVCaptureDevice.requestAccess(for: .audio) { granted in
+                    continuation.resume(returning: granted)
+                }
+            }
+            
+            if !permission {
+                print("❌ Microphone permission denied by user")
+                throw AudioManagerError.microphonePermissionDenied
+            }
+            print("✅ Microphone permission granted by user")
+        @unknown default:
+            print("⚠️ Unknown microphone permission status")
             throw AudioManagerError.microphonePermissionDenied
         }
         
