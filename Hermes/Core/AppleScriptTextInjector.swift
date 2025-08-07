@@ -140,7 +140,7 @@ class AppleScriptTextInjector: ObservableObject {
         }
         
         var error: NSDictionary?
-        let result = script.executeAndReturnError(&error)
+        _ = script.executeAndReturnError(&error)
         
         if let error = error {
             let errorCode = error["NSAppleScriptErrorNumber"] as? Int ?? -1

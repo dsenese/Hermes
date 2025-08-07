@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import AppKit
 
 /// Main dictation engine that coordinates audio capture, transcription, and text injection
 class DictationEngine: ObservableObject {
@@ -42,6 +43,7 @@ class DictationEngine: ObservableObject {
     let audioManager: AudioManager
     let transcriptionService: TranscriptionService
     private let textInjector: TextInjector
+    private let contextDetector: ApplicationContextDetector
     
     // MARK: - Private Properties
     private var cancellables = Set<AnyCancellable>()
@@ -56,7 +58,8 @@ class DictationEngine: ObservableObject {
     private init(
         audioManager: AudioManager? = nil,
         transcriptionService: TranscriptionService? = nil,
-        textInjector: TextInjector? = nil
+        textInjector: TextInjector? = nil,
+        contextDetector: ApplicationContextDetector? = nil
     ) {
         print("🚀 Initializing DictationEngine...")
         
@@ -68,6 +71,9 @@ class DictationEngine: ObservableObject {
         
         self.textInjector = textInjector ?? TextInjector()
         print("✅ TextInjector initialized")
+        
+        self.contextDetector = contextDetector ?? ApplicationContextDetector()
+        print("✅ ApplicationContextDetector initialized")
         
         setupSubscriptions()
         print("✅ DictationEngine initialization complete")
@@ -129,8 +135,11 @@ class DictationEngine: ObservableObject {
         // Cancel ongoing transcription task
         transcriptionTask?.cancel()
         
-        // Wait for complete transcription (this now returns the actual result)
-        let finalTranscription = await transcriptionService.transcribeCompleteSession()
+        // Get current application context for AI formatting
+        let currentBundleId = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        
+        // Wait for complete transcription with application context (this now returns the actual result)
+        let finalTranscription = await transcriptionService.transcribeCompleteSession(appBundleId: currentBundleId)
         
         // Inject final transcription only if we have meaningful text
         if !finalTranscription.isEmpty {

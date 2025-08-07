@@ -37,8 +37,13 @@ class FnKeyMonitor: ObservableObject {
     }
     
     deinit {
-        Task { @MainActor in
-            stopMonitoring()
+        timer?.invalidate()
+        timer = nil
+        if let globalMonitor = globalMonitor {
+            NSEvent.removeMonitor(globalMonitor)
+        }
+        if let localMonitor = localMonitor {
+            NSEvent.removeMonitor(localMonitor)
         }
     }
     

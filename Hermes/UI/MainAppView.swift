@@ -791,16 +791,8 @@ struct MainAppView: View {
     // MARK: - Other Content Sections
     
     private var dictionaryContent: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Text("Dictionary")
-                .font(.system(size: 24, weight: .bold))
-                .foregroundColor(.primary)
-            
-            Text("Custom words and phrases coming soon...")
-                .font(.system(size: 14))
-                .foregroundColor(.secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        DictionaryView()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private var notesContent: some View {

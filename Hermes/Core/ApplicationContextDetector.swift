@@ -134,9 +134,8 @@ class ApplicationContextDetector: ObservableObject {
     }
     
     deinit {
-        Task { @MainActor in
-            stopMonitoring()
-        }
+        contextUpdateTimer?.invalidate()
+        contextUpdateTimer = nil
     }
     
     // MARK: - Public Methods

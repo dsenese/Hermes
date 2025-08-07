@@ -350,8 +350,9 @@ class GlobalShortcutManager: NSObject {
         
         // Clean up Fn key monitoring
         if isFnKeyEnabled {
+            let monitor = fnKeyMonitor
             Task { @MainActor in
-                fnKeyMonitor.stopMonitoring()
+                monitor.stopMonitoring()
             }
         }
         

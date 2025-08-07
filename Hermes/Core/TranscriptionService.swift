@@ -106,7 +106,7 @@ class TranscriptionService: ObservableObject {
     
     /// Transcribes the entire accumulated audio buffer (called when recording stops)
     /// Returns the transcription result directly instead of just publishing it
-    func transcribeCompleteSession() async -> String {
+    func transcribeCompleteSession(appBundleId: String? = nil) async -> String {
         guard !audioBuffer.isEmpty else { 
             print("⚠️ No audio data to transcribe")
             return ""
@@ -128,12 +128,22 @@ class TranscriptionService: ObservableObject {
         }
         
         isTranscribing = true
-        let result = await transcribeAudioDirectly(floatArray: audioBuffer)
+        let rawTranscription = await transcribeAudioDirectly(floatArray: audioBuffer)
+        
+        // Apply AI formatting if enabled and transcription is not empty
+        let finalResult: String
+        if !rawTranscription.isEmpty {
+            print("🤖 Applying AI formatting to transcription...")
+            finalResult = await AIFormattingService.shared.formatText(rawTranscription, appBundleId: appBundleId)
+        } else {
+            finalResult = rawTranscription
+        }
+        
         audioBuffer.removeAll()
         lastTranscribedIndex = 0
         isTranscribing = false
         
-        return result
+        return finalResult
     }
     
     /// Direct transcription that returns result instead of publishing
