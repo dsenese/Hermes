@@ -1,0 +1,169 @@
+# Git attributes for Hermes project
+# Ensures consistent line endings and proper handling of binary files across platforms
+
+# Text files - enforce LF line endings
+*.swift text eol=lf
+*.h text eol=lf
+*.m text eol=lf
+*.mm text eol=lf
+*.c text eol=lf
+*.cpp text eol=lf
+*.hpp text eol=lf
+*.cc text eol=lf
+*.cxx text eol=lf
+*.pch text eol=lf
+
+# Configuration files
+*.plist text eol=lf
+*.entitlements text eol=lf
+*.xcconfig text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.markdown text eol=lf
+*.txt text eol=lf
+README text eol=lf
+CHANGELOG text eol=lf
+LICENSE text eol=lf
+COPYING text eol=lf
+
+# Scripts
+*.sh text eol=lf
+*.py text eol=lf
+*.rb text eol=lf
+*.pl text eol=lf
+
+# Web files
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.jsx text eol=lf
+*.tsx text eol=lf
+
+# Data/config files
+*.csv text eol=lf
+*.tsv text eol=lf
+*.sql text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+
+# Xcode specific files
+*.pbxproj text eol=lf merge=union
+*.xcworkspacedata text eol=lf
+*.xcscheme text eol=lf
+*.xcschememanagement text eol=lf
+
+# Package manager files
+Package.swift text eol=lf
+Package.resolved text eol=lf
+Podfile text eol=lf
+Podfile.lock text eol=lf
+Cartfile text eol=lf
+Cartfile.resolved text eol=lf
+
+# Binary files - explicitly mark as binary to prevent git from trying to merge/diff them
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.icns binary
+*.tiff binary
+*.tif binary
+*.bmp binary
+*.webp binary
+*.svg binary
+
+# Audio/Video files
+*.mp3 binary
+*.mp4 binary
+*.mov binary
+*.wav binary
+*.avi binary
+*.mkv binary
+*.flv binary
+*.m4a binary
+*.aac binary
+*.ogg binary
+*.flac binary
+
+# Archive files
+*.zip binary
+*.tar binary
+*.tgz binary
+*.tar.gz binary
+*.tar.bz2 binary
+*.tar.xz binary
+*.7z binary
+*.rar binary
+
+# Application/executable files
+*.app binary
+*.ipa binary
+*.dSYM binary
+*.framework binary
+*.a binary
+*.dylib binary
+*.so binary
+*.dll binary
+*.exe binary
+
+# Font files
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+
+# Machine Learning models
+*.mlmodelc binary
+*.mlpackage binary
+*.ggml binary
+*.bin binary
+*.safetensors binary
+*.onnx binary
+*.pb binary
+*.tflite binary
+*.h5 binary
+*.hdf5 binary
+
+# Database files
+*.db binary
+*.sqlite binary
+*.sqlite3 binary
+
+# Document files
+*.pdf binary
+*.doc binary
+*.docx binary
+*.xls binary
+*.xlsx binary
+*.ppt binary
+*.pptx binary
+
+# Apple specific binaries
+*.car binary
+*.strings binary
+*.stringsdict binary
+*.lproj/InfoPlist.strings binary
+
+# Xcode specific binaries
+*.xcuserstate binary
+*.xcworkspace binary
+*.xcodeproj binary
+
+# Git LFS tracking for large files
+# Uncomment and configure if using Git LFS
+# *.mlmodelc filter=lfs diff=lfs merge=lfs -text
+# *.mlpackage filter=lfs diff=lfs merge=lfs -text
+# *.bin filter=lfs diff=lfs merge=lfs -text
+# *.ggml filter=lfs diff=lfs merge=lfs -text
+
+# Special handling for specific file types
+*.pbxproj merge=union
+*.xcworkspacedata merge=union
