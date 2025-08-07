@@ -1,0 +1,23 @@
+# User-specific and OS files
+.DS_Store
+
+# Xcode user data
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+*.moved-aside
+
+# Build artifacts
+DerivedData/
+build/
+
+# SwiftPM (Xcode integration)
+.swiftpm/xcode/xcuserdata/
+
+# IDEs
+.idea/
+
+# Editors
+.vscode/
+.history/
