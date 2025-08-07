@@ -1,0 +1,18 @@
+# Normalize line endings for text files
+* text=auto eol=lf
+
+# Treat Xcode project files as text for better diffs
+*.pbxproj text diff
+*.xcodeproj/* text diff
+*.xcworkspacedata text diff
+*.xcsettings text diff
+*.plist text diff
+
+# Keep binary as binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.xcuserstate binary
+
