@@ -12,7 +12,7 @@ import ApplicationServices
 /// PERMISSIONS step - guided permission setup
 struct PermissionsStepView: View {
     @EnvironmentObject private var coordinator: OnboardingCoordinator
-    
+
     var body: some View {
         OnboardingStepContainer {
             GuidePermissionsView(
@@ -22,7 +22,7 @@ struct PermissionsStepView: View {
             )
         }
     }
-    
+
 }
 
 // MARK: - Guided Permissions View
@@ -31,7 +31,7 @@ private struct GuidePermissionsView: View {
     let onContinue: () -> Void
     @State private var microphoneSetupCompleted = false
     @State private var accessibilitySetupCompleted = false
-    
+
     var body: some View {
         VStack(spacing: 40) {
             VStack(spacing: 16) {
@@ -42,7 +42,7 @@ private struct GuidePermissionsView: View {
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.primary)
             }
-            
+
             HStack(spacing: 60) {
                 // Left side - permission setup
                 VStack(spacing: 24) {
@@ -56,7 +56,7 @@ private struct GuidePermissionsView: View {
                             openMicrophoneSettings()
                         }
                     )
-                    
+
                     // Accessibility permission
                     permissionItem(
                         title: "Allow Hermes to insert spoken words",
@@ -69,29 +69,29 @@ private struct GuidePermissionsView: View {
                     )
                 }
                 .frame(width: 400)
-                
+
                 // Right side - setup guidance
                 VStack(spacing: 20) {
                     Text("Setup Guide")
                         .font(.headline)
                         .fontWeight(.semibold)
-                    
+
                     VStack(alignment: .leading, spacing: 16) {
                         guidanceStep(
                             number: 1,
                             title: "Microphone Access",
                             description: "Click the button to open System Settings, then enable Hermes under Privacy & Security > Microphone"
                         )
-                        
+
                         guidanceStep(
                             number: 2,
                             title: "Accessibility Access",
                             description: "In System Settings, go to Privacy & Security > Accessibility and enable Hermes"
                         )
-                        
+
                         guidanceStep(
                             number: 3,
-                            title: "Ready to Go", 
+                            title: "Ready to Go",
                             description: "Once permissions are set, you can configure keyboard shortcuts and use Hermes anywhere"
                         )
                     }
@@ -101,14 +101,14 @@ private struct GuidePermissionsView: View {
                 .background(Color(NSColor.controlBackgroundColor))
                 .cornerRadius(12)
             }
-            
+
             // Continue button - always available
             VStack(spacing: 16) {
                 Button("Continue") {
                     onContinue()
                 }
                 .primaryButtonStyle()
-                
+
                 Text("You can continue even if permissions aren't set up yet. Keyboard shortcuts will be configured automatically when you choose them.")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -117,7 +117,7 @@ private struct GuidePermissionsView: View {
             }
         }
     }
-    
+
     private func permissionItem(
         title: String,
         subtitle: String,
@@ -130,20 +130,20 @@ private struct GuidePermissionsView: View {
                 Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 18))
                     .foregroundColor(isCompleted ? Color(hex: HermesConstants.primaryAccentColor) : .secondary)
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.primary)
-                    
+
                     Text(subtitle)
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                 }
-                
+
                 Spacer()
             }
-            
+
             HStack {
                 Spacer()
                 if !isCompleted {
@@ -174,7 +174,7 @@ private struct GuidePermissionsView: View {
                 )
         )
     }
-    
+
     private func guidanceStep(number: Int, title: String, description: String) -> some View {
         HStack(alignment: .top, spacing: 12) {
             Circle()
@@ -186,51 +186,51 @@ private struct GuidePermissionsView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.black)
                 )
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.body)
                     .fontWeight(.medium)
                     .foregroundColor(.primary)
-                
+
                 Text(description)
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
         }
     }
-    
+
     private func openMicrophoneSettings() {
-        // Use the standard API that matches AudioManager
-        AVCaptureDevice.requestAccess(for: .audio) { granted in
+        // Use centralized manager to request mic permission
+        MicrophonePermissionManager.shared.requestPermission { granted in
             DispatchQueue.main.async {
                 self.microphoneSetupCompleted = granted
             }
         }
-        
+
         // Mark as completed for demonstration (user can continue regardless)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             microphoneSetupCompleted = true
         }
     }
-    
+
     private func openAccessibilitySettings() {
         // Request accessibility permission when user explicitly clicks the button
         print("🔐 User requested accessibility permission during onboarding")
-        
+
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true]
         let granted = AXIsProcessTrustedWithOptions(options as CFDictionary)
-        
+
         print("🔐 Accessibility permission request result: \(granted)")
-        
+
         // Mark as completed (user can continue regardless of result)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             accessibilitySetupCompleted = true
         }
     }
-    
-    
-    
+
+
+
 }
 
 // MARK: - Legacy Real Permissions View (for reference)
@@ -239,11 +239,11 @@ private struct RealPermissionsView: View {
     let hasMicrophonePermission: Bool
     let hasAccessibilityPermission: Bool
     let onContinue: () -> Void
-    
+
     var canContinue: Bool {
         hasMicrophonePermission && hasAccessibilityPermission
     }
-    
+
     var body: some View {
         VStack(spacing: 40) {
             VStack(spacing: 16) {
@@ -254,7 +254,7 @@ private struct RealPermissionsView: View {
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.primary)
             }
-            
+
             VStack(spacing: 24) {
                 // Microphone permission - always visible
                 permissionItem(
@@ -264,8 +264,8 @@ private struct RealPermissionsView: View {
                     showButton: !hasMicrophonePermission,
                     systemAction: .microphone
                 )
-                
-                // Accessibility permission - always visible  
+
+                // Accessibility permission - always visible
                 permissionItem(
                     title: "Allow Hermes to insert spoken words",
                     subtitle: "This lets Hermes put your spoken words in the right textbox",
@@ -275,7 +275,7 @@ private struct RealPermissionsView: View {
                     isEnabled: hasMicrophonePermission
                 )
             }
-            
+
             // System dialog mockup
             if !hasMicrophonePermission {
                 microphoneDialogMockup
@@ -284,7 +284,7 @@ private struct RealPermissionsView: View {
             } else {
                 completedSetupMockup
             }
-            
+
             // Continue button area - always reserve space
             VStack(spacing: 16) {
                 if canContinue {
@@ -296,7 +296,7 @@ private struct RealPermissionsView: View {
                             .fontWeight(.medium)
                             .foregroundColor(.primary)
                     }
-                    
+
                     Button("Continue") {
                         onContinue()
                     }
@@ -309,7 +309,7 @@ private struct RealPermissionsView: View {
             }
         }
     }
-    
+
     private func permissionItem(
         title: String,
         subtitle: String? = nil,
@@ -323,22 +323,22 @@ private struct RealPermissionsView: View {
                 Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
                     .font(.system(size: 18))
                     .foregroundColor(isCompleted ? Color(hex: HermesConstants.primaryAccentColor) : .secondary)
-                
+
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.system(size: 16))
                         .foregroundColor(.primary)
-                    
+
                     if let subtitle = subtitle {
                         Text(subtitle)
                             .font(.system(size: 14))
                             .foregroundColor(.secondary)
                     }
                 }
-                
+
                 Spacer()
             }
-            
+
             // Button on separate line
             if showButton, let systemAction = systemAction, isEnabled {
                 HStack {
@@ -371,7 +371,7 @@ private struct RealPermissionsView: View {
         .frame(width: 500)
         .opacity(isEnabled ? 1.0 : 0.6)
     }
-    
+
     private func openSystemSettings(for action: SystemPermissionAction) {
         switch action {
         case .microphone:
@@ -380,50 +380,50 @@ private struct RealPermissionsView: View {
             openAccessibilitySettings()
         }
     }
-    
+
     private func requestMicrophonePermission() {
         // Use the standard API that matches AudioManager
         AVCaptureDevice.requestAccess(for: .audio) { granted in
             // Permission handling is done by the timer checking
         }
     }
-    
+
     private func openAccessibilitySettings() {
         // Request accessibility permission when user explicitly clicks the button
         print("🔐 User requested accessibility permission during onboarding")
-        
+
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true]
         let granted = AXIsProcessTrustedWithOptions(options as CFDictionary)
-        
+
         print("🔐 Accessibility permission request result: \(granted)")
-        
+
         // Mark that user has gone through accessibility setup
         UserDefaults.standard.set(true, forKey: "hasCompletedAccessibilitySetup")
     }
-    
+
     // Microphone permission dialog mockup
     private var microphoneDialogMockup: some View {
         VStack(spacing: 16) {
             Image(systemName: "hand.raised.fill")
                 .font(.system(size: 40))
                 .foregroundColor(.blue)
-            
+
             VStack(spacing: 8) {
                 Text("\"Hermes\" would like to access the microphone.")
                     .font(.system(size: 16, weight: .semibold))
                     .multilineTextAlignment(.center)
-                
+
                 Text("Hermes needs access to your microphone to transcribe your speech!")
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
-            
+
             HStack(spacing: 12) {
                 Button("Don't Allow") {}
                     .buttonStyle(.bordered)
                     .foregroundColor(.secondary)
-                
+
                 Button("OK") {}
                     .buttonStyle(.borderedProminent)
             }
@@ -434,7 +434,7 @@ private struct RealPermissionsView: View {
         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
         .frame(width: 300)
     }
-    
+
     // Accessibility permission dialog mockup
     private var accessibilityDialogMockup: some View {
         // Mock macOS System Preferences Accessibility panel
@@ -454,7 +454,7 @@ private struct RealPermissionsView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(Color.secondary.opacity(0.1))
-            
+
             // Content
             HStack(spacing: 0) {
                 // Sidebar
@@ -466,20 +466,20 @@ private struct RealPermissionsView: View {
                 }
                 .frame(width: 120)
                 .padding(.leading, 8)
-                
+
                 Divider()
-                
+
                 // Main content
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Allow the applications below to control your computer.")
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
-                    
+
                     VStack(spacing: 4) {
                         accessibilityAppItem("Terminal", isEnabled: true)
                         accessibilityAppItem("Hermes", isEnabled: hasAccessibilityPermission, isHighlighted: true)
                     }
-                    
+
                     HStack {
                         Button("+") {}
                             .font(.system(size: 11))
@@ -502,19 +502,19 @@ private struct RealPermissionsView: View {
         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
         .frame(width: 350)
     }
-    
+
     // Completed setup mockup
     private var completedSetupMockup: some View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 40))
                 .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
-            
+
             VStack(spacing: 8) {
                 Text("All Set!")
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(.primary)
-                
+
                 Text("Hermes now has all the permissions it needs to work seamlessly with your system.")
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
@@ -528,7 +528,7 @@ private struct RealPermissionsView: View {
         .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
         .frame(width: 300)
     }
-    
+
     private func sidebarItem(_ title: String, isActive: Bool) -> some View {
         Text(title)
             .font(.system(size: 11))
@@ -538,7 +538,7 @@ private struct RealPermissionsView: View {
             .background(isActive ? Color.blue : Color.clear)
             .cornerRadius(4)
     }
-    
+
     private func accessibilityAppItem(_ name: String, isEnabled: Bool, isHighlighted: Bool = false) -> some View {
         HStack {
             Image(systemName: "app")

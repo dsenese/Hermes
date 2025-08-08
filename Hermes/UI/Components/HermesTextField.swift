@@ -14,11 +14,11 @@ struct HermesTextField: View {
     let placeholder: String
     let isSecure: Bool
     // Note: keyboardType is iOS-specific, not used on macOS
-    
+
     @State private var isHovered = false
     @State private var isFocused = false
     @FocusState private var textFieldFocused: Bool
-    
+
     init(
         title: String? = nil,
         text: Binding<String>,
@@ -32,7 +32,7 @@ struct HermesTextField: View {
         self.isSecure = isSecure
         // keyboardType not used on macOS
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             if let title = title {
@@ -40,17 +40,19 @@ struct HermesTextField: View {
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.primary)
             }
-            
+
             ZStack(alignment: .leading) {
                 // Custom background and border
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 10)
                     .fill(Color(NSColor.textBackgroundColor))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 8)
+                        RoundedRectangle(cornerRadius: 10)
                             .stroke(borderColor, lineWidth: borderWidth)
                     )
-                    .frame(height: 40)
-                
+                    .shadow(color: isFocused ? Color.black.opacity(0.08) : Color.clear,
+                            radius: isFocused ? 6 : 0, x: 0, y: 2)
+                    .frame(height: 42)
+
                 // Text field with no styling
                 Group {
                     if isSecure {
@@ -63,7 +65,7 @@ struct HermesTextField: View {
                 .textFieldStyle(.plain)
                 .padding(.horizontal, 12)
                 .focused($textFieldFocused)
-                
+
                 // Custom placeholder
                 if text.isEmpty {
                     Text(placeholder)
@@ -83,7 +85,7 @@ struct HermesTextField: View {
             }
         }
     }
-    
+
     private var borderColor: Color {
         if isFocused {
             return Color(hex: HermesConstants.primaryAccentColor)
@@ -93,7 +95,7 @@ struct HermesTextField: View {
             return Color.secondary.opacity(0.3)
         }
     }
-    
+
     private var borderWidth: CGFloat {
         isFocused ? 2 : 1
     }
@@ -128,7 +130,7 @@ extension View {
             placeholder: "Enter your email"
         )
         .frame(width: 300)
-        
+
         HermesTextField(
             title: "Password",
             text: Binding.constant(""),
@@ -136,7 +138,7 @@ extension View {
             isSecure: true
         )
         .frame(width: 300)
-        
+
         HermesTextField(
             text: Binding.constant("john@example.com"),
             placeholder: "Email"

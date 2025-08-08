@@ -17,8 +17,8 @@ struct MainAppView: View {
     @State private var userEmail: String = "isaccosta.889@gmail.com"
     @State private var showingOnboarding: Bool = !UserSettings.shared.isOnboardingCompleted
     @State private var showingProfileMenu: Bool = false
-    @State private var showingSettingsMenu: Bool = false
-    
+    @State private var showingSettingsModal: Bool = false
+
     var body: some View {
         ZStack {
             // Main app content
@@ -27,7 +27,7 @@ struct MainAppView: View {
                 sidebar
                     .frame(width: 220)
                     .background(sidebarBackground)
-                
+
                 // Main content area
                 mainContent
                     .frame(maxWidth: .infinity)
@@ -36,12 +36,11 @@ struct MainAppView: View {
             .disabled(showingOnboarding)
             .onTapGesture {
                 // Close dropdowns when clicking outside
-                if showingSettingsMenu || showingProfileMenu {
-                    showingSettingsMenu = false
+                if showingProfileMenu {
                     showingProfileMenu = false
                 }
             }
-            
+
             // Dropdown menus at root level to avoid clipping
             if showingProfileMenu {
                 VStack {
@@ -55,23 +54,26 @@ struct MainAppView: View {
                 .allowsHitTesting(true)
                 .zIndex(1001)
             }
-            
-            if showingSettingsMenu {
-                VStack {
-                    HStack {
-                        Spacer()
-                        settingsDropdownMenu
-                            .offset(x: -20, y: 84) // Adjust for header position  
-                    }
-                    Spacer()
+
+            // Settings modal overlay
+            if showingSettingsModal {
+                ZStack {
+                    // Dismiss when clicking outside the modal
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: HermesConstants.animationDuration)) {
+                                showingSettingsModal = false
+                            }
+                        }
+
+                    SettingsModalView(isPresented: $showingSettingsModal)
+                        .environmentObject(UserSettings.shared)
+                        .transition(.opacity)
                 }
-                .allowsHitTesting(true)
-                .zIndex(1002)
-                .onTapGesture {
-                    // Allow taps to pass through to buttons
-                }
+                .zIndex(1500)
             }
-            
+
             // Onboarding overlay - solid background
             if showingOnboarding {
                 OnboardingView(showingOnboarding: $showingOnboarding)
@@ -79,8 +81,8 @@ struct MainAppView: View {
                     .background(Color(NSColor.windowBackgroundColor))
                     .transition(.opacity.combined(with: .move(edge: .trailing)))
             }
-            
-            
+
+
             // Debug indicator
             if UserSettings.DEBUG_FORCE_ONBOARDING != nil {
                 VStack {
@@ -99,7 +101,7 @@ struct MainAppView: View {
                 .padding(8)
                 .allowsHitTesting(false)
             }
-            
+
             // Toast container - highest z-index for visibility
             ToastContainer()
                 .zIndex(2000)
@@ -111,46 +113,46 @@ struct MainAppView: View {
             // TODO: Check if user has completed onboarding
         }
     }
-    
+
     // MARK: - Sidebar
-    
+
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header with logo
             sidebarHeader
                 .padding(.top, 24)
                 .padding(.horizontal, 16)
-            
+
             // Navigation items - moved up
             navigationItems
                 .padding(.horizontal, 8)
                 .padding(.top, 24)
-            
+
             Spacer()
-            
+
             // Trial info - moved above footer
             trialInfoSection
                 .padding(.horizontal, 16)
                 .padding(.bottom, 16)
-            
+
             // Footer items
             sidebarFooter
                 .padding(.horizontal, 8)
                 .padding(.bottom, 24)
         }
     }
-    
+
     private var sidebarHeader: some View {
         // Logo with icon only
         HStack(spacing: 8) {
             Image(systemName: "waveform.circle.fill")
                 .font(.system(size: 20))
                 .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
-            
+
             Text("Hermes")
                 .font(.system(size: 18, weight: .bold))
                 .foregroundColor(.primary)
-            
+
             // Pro trial badge with green background and grey text
             Text("Pro Trial")
                 .font(.system(size: 10, weight: .semibold))
@@ -161,17 +163,17 @@ struct MainAppView: View {
                 .cornerRadius(8)
         }
     }
-    
+
     private var trialInfoSection: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Hermes Pro Trial")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(.primary)
-            
+
             Text("0 of 14 days used")
                 .font(.system(size: 11))
                 .foregroundColor(.secondary)
-            
+
             // Progress bar
             HStack {
                 Rectangle()
@@ -183,12 +185,12 @@ struct MainAppView: View {
             }
             .frame(maxWidth: .infinity)
             .cornerRadius(1.5)
-            
+
             Text("Upgrade to Hermes Pro\nbefore your trial ends")
                 .font(.system(size: 10))
                 .foregroundColor(.secondary)
                 .lineLimit(2)
-            
+
             Button("Explore Pro") {
                 // TODO: Handle upgrade action
             }
@@ -200,7 +202,7 @@ struct MainAppView: View {
             .cornerRadius(6)
         }
     }
-    
+
     private var navigationItems: some View {
         VStack(spacing: 4) {
             ForEach(SidebarSection.allCases, id: \.self) { section in
@@ -208,7 +210,7 @@ struct MainAppView: View {
             }
         }
     }
-    
+
     private func sidebarItem(_ section: SidebarSection) -> some View {
         Button(action: {
             selectedSection = section
@@ -218,13 +220,13 @@ struct MainAppView: View {
                     .font(.system(size: 16))
                     .foregroundColor(selectedSection == section ? Color(hex: HermesConstants.primaryAccentColor) : .secondary)
                     .frame(width: 20)
-                
+
                 Text(section.title)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(selectedSection == section ? .primary : .secondary)
-                
+
                 Spacer()
-                
+
                 if section == .home {
                     // Activity indicator
                     Circle()
@@ -241,7 +243,7 @@ struct MainAppView: View {
         }
         .plainHoverButtonStyle()
     }
-    
+
     private var sidebarFooter: some View {
         VStack(spacing: 12) {
             // Add your team
@@ -251,18 +253,17 @@ struct MainAppView: View {
                         .font(.system(size: 16))
                         .foregroundColor(.secondary)
                         .frame(width: 20)
-                    
+
                     Text("Add your team")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.secondary)
-                    
+
                     Spacer()
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
             }
             .plainHoverButtonStyle()
-            
             // Refer a friend
             Button(action: {}) {
                 HStack(spacing: 12) {
@@ -270,18 +271,17 @@ struct MainAppView: View {
                         .font(.system(size: 16))
                         .foregroundColor(.secondary)
                         .frame(width: 20)
-                    
+
                     Text("Refer a friend")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.secondary)
-                    
+
                     Spacer()
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
             }
             .plainHoverButtonStyle()
-            
             // Help
             Button(action: {}) {
                 HStack(spacing: 12) {
@@ -289,11 +289,11 @@ struct MainAppView: View {
                         .font(.system(size: 16))
                         .foregroundColor(.secondary)
                         .frame(width: 20)
-                    
+
                     Text("Help")
                         .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.secondary)
-                    
+
                     Spacer()
                 }
                 .padding(.horizontal, 12)
@@ -302,9 +302,9 @@ struct MainAppView: View {
             .plainHoverButtonStyle()
         }
     }
-    
+
     // MARK: - Main Content
-    
+
     private var mainContent: some View {
         VStack(spacing: 0) {
             // Header
@@ -319,7 +319,7 @@ struct MainAppView: View {
                         .opacity(0.3),
                     alignment: .bottom
                 )
-            
+
             // Content
             ScrollView {
                 contentForSelectedSection
@@ -329,14 +329,14 @@ struct MainAppView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
-    
+
     private var mainHeader: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Welcome back, \(userName)")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.primary)
-                
+
                 HStack(spacing: 6) {
                     Image(systemName: "star.fill")
                         .font(.system(size: 12))
@@ -346,9 +346,9 @@ struct MainAppView: View {
                         .foregroundColor(.secondary)
                 }
             }
-            
+
             Spacer()
-            
+
             // User profile menu with Pro Trial badge
             Button(action: {
                 showingProfileMenu.toggle()
@@ -362,7 +362,7 @@ struct MainAppView: View {
                             .font(.system(size: 12))
                             .foregroundColor(.secondary)
                     }
-                    
+
                     // Profile avatar
                     Circle()
                         .fill(Color.gray.opacity(0.3))
@@ -372,7 +372,7 @@ struct MainAppView: View {
                                 .font(.system(size: 12, weight: .semibold))
                                 .foregroundColor(.primary)
                         )
-                    
+
                     Text("Pro Trial")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundColor(Color(NSColor.tertiaryLabelColor))
@@ -389,10 +389,12 @@ struct MainAppView: View {
                     .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
             )
             .padding(8)
-            
+
             // Settings button - moved outside and to the far right
             Button(action: {
-                showingSettingsMenu.toggle()
+                withAnimation(.easeInOut(duration: HermesConstants.animationDuration)) {
+                    showingSettingsModal = true
+                }
             }) {
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 16))
@@ -407,13 +409,13 @@ struct MainAppView: View {
             .padding(.trailing, 8)
         }
     }
-    
-    
+
+
     // MARK: - Permission Status
-    
+
     @StateObject private var accessibilityManager = AccessibilityManager.shared
     @State private var isWhisperKitReady = false
-    
+
     private var permissionStatusSection: some View {
         VStack(spacing: 0) {
             // WhisperKit status (if not ready)
@@ -422,19 +424,19 @@ struct MainAppView: View {
                     Image(systemName: "arrow.down.circle.fill")
                         .font(.system(size: 20))
                         .foregroundColor(.blue)
-                    
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Downloading AI models")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.primary)
-                        
+
                         Text("Speech recognition models are being downloaded in the background (one-time setup)")
                             .font(.system(size: 14))
                             .foregroundColor(.secondary)
                     }
-                    
+
                     Spacer()
-                    
+
                     // Progress indicator
                     ProgressView()
                         .scaleEffect(0.8)
@@ -447,25 +449,25 @@ struct MainAppView: View {
                         .stroke(Color.blue.opacity(0.3), lineWidth: 1)
                 )
             }
-            
+
             if !accessibilityManager.isAccessibilityEnabled {
                 HStack(spacing: 16) {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .font(.system(size: 20))
                         .foregroundColor(.orange)
-                    
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text(accessibilityManager.permissionStatus == .inconsistent ? "Permission issue detected" : "Global shortcuts require accessibility permission")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.primary)
-                        
+
                         Text(accessibilityManager.statusMessage)
                             .font(.system(size: 14))
                             .foregroundColor(.secondary)
                     }
-                    
+
                     Spacer()
-                    
+
                     Button(accessibilityManager.recommendedAction) {
                         if accessibilityManager.permissionStatus == .inconsistent {
                             // For inconsistent state, try to recheck first
@@ -494,17 +496,17 @@ struct MainAppView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 20))
                         .foregroundColor(.green)
-                    
+
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Global shortcuts are enabled")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(.primary)
-                        
+
                         HStack(spacing: 8) {
                             Text("Hold \\(UserSettings.shared.keyboardShortcuts.globalDictationHotkey.displayString) to start dictation anywhere")
                                 .font(.system(size: 14))
                                 .foregroundColor(.secondary)
-                            
+
                             if GlobalShortcutManager.shared.isMonitoringActive {
                                 Text("• Monitoring Active")
                                     .font(.system(size: 12))
@@ -516,9 +518,9 @@ struct MainAppView: View {
                             }
                         }
                     }
-                    
+
                     Spacer()
-                    
+
                     if !GlobalShortcutManager.shared.isMonitoringActive {
                         Button("Activate") {
                             GlobalShortcutManager.shared.retrySetup()
@@ -538,7 +540,7 @@ struct MainAppView: View {
         .onAppear {
             // Start accessibility monitoring
             accessibilityManager.startMonitoring()
-            
+
             // Check if WhisperKit is already ready
             isWhisperKitReady = TranscriptionService.shared.isInitialized
         }
@@ -557,10 +559,10 @@ struct MainAppView: View {
             isWhisperKitReady = true
         }
     }
-    
-    
+
+
     // MARK: - Content Sections
-    
+
     @ViewBuilder
     private var contentForSelectedSection: some View {
         switch selectedSection {
@@ -570,25 +572,23 @@ struct MainAppView: View {
             dictionaryContent
         case .notes:
             notesContent
-        case .settings:
-            settingsContent
         }
     }
-    
+
     private var homeContent: some View {
         VStack(alignment: .leading, spacing: 32) {
             // Voice dictation instructions
             voiceDictationSection
-            
+
             // Permission status check
             permissionStatusSection
-            
+
             // Recent Activity
             recentActivitySection
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-    
+
     private var profileDropdownMenu: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Refer a friend section
@@ -596,11 +596,11 @@ struct MainAppView: View {
                 Text("Get 1 month of Hermes Pro free")
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundColor(.primary)
-                
+
                 Text("Refer friends, earn rewards")
                     .font(.system(size: 12))
                     .foregroundColor(.secondary)
-                
+
                 Button("Refer a friend") {
                     print("🔍 Refer a friend button tapped")
                     showingProfileMenu = false
@@ -614,9 +614,9 @@ struct MainAppView: View {
                 .cornerRadius(6)
             }
             .padding(16)
-            
+
             Divider()
-            
+
             // Download app
             Button(action: {
                 print("🔍 Download app button tapped")
@@ -642,9 +642,9 @@ struct MainAppView: View {
                     .fill(Color.clear)
                     .contentShape(Rectangle())
             )
-            
+
             Divider()
-            
+
             // Manage account
             Button(action: {
                 print("🔍 Manage account button tapped")
@@ -676,6 +676,7 @@ struct MainAppView: View {
         )
         .frame(width: 250)
     }
+<<<<<<< HEAD
     
     private var settingsDropdownMenu: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -719,7 +720,7 @@ struct MainAppView: View {
                 .padding(.vertical, 12)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.borderless)
+            .borderlessHoverButtonStyle()
             .background(
                 Rectangle()
                     .fill(Color.clear)
@@ -743,7 +744,7 @@ struct MainAppView: View {
                 .padding(.vertical, 12)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.borderless)
+            .borderlessHoverButtonStyle()
             .background(
                 Rectangle()
                     .fill(Color.clear)
@@ -765,12 +766,12 @@ struct MainAppView: View {
             Text("Voice dictation in any app")
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(.primary)
-            
+
             HStack(spacing: 6) {
                 Text("Hold down the trigger key")
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
-                
+
                 Text("fn")
                     .font(.system(size: 12, weight: .medium, design: .monospaced))
                     .foregroundColor(.primary)
@@ -780,63 +781,31 @@ struct MainAppView: View {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(Color(NSColor.quaternaryLabelColor).opacity(0.3))
                     )
-                
+
                 Text("and speak - text appears where your cursor is")
                     .font(.system(size: 14))
                     .foregroundColor(.secondary)
             }
         }
     }
-    
+
     // MARK: - Other Content Sections
-    
+
     private var dictionaryContent: some View {
         DictionaryView()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
+
     private var notesContent: some View {
         NotesView(dictationEngine: dictationEngine.engine)
     }
-    
-    private var settingsContent: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            // Header
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Settings")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.primary)
-                
-                Text("Customize your Hermes experience")
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
-            }
-            
-            Divider()
-            
-            // Keyboard shortcut customization - embedded in content area
-            KeyboardShortcutCustomizationView(
-                onSave: {
-                    // Settings saved
-                    print("✅ Keyboard shortcut saved from settings")
-                },
-                onCancel: {
-                    // Navigate back to home
-                    selectedSection = .home
-                },
-                isMainApp: true
-            )
-            .environmentObject(UserSettings.shared)
-            
-            Spacer()
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-    }
-    
-    
+
+
+
+
     // MARK: - Computed Properties
-    
-    
+
+
     private var sidebarBackground: some View {
         // Use design system colors for sidebar
         Color(NSColor.windowBackgroundColor)
@@ -845,7 +814,7 @@ struct MainAppView: View {
                     .fill(sidebarTintColor)
             )
     }
-    
+
     private var sidebarTintColor: Color {
         // Light mode: #F5F5F7, Dark mode: #2C2C2E (from design system)
         if NSApp.effectiveAppearance.name == .darkAqua {
@@ -854,57 +823,55 @@ struct MainAppView: View {
             return Color(hex: "F5F5F7")
         }
     }
-    
+
     private var recentActivitySection: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Recent activity")
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.secondary)
-            
+
             VStack(alignment: .leading, spacing: 12) {
                 Text("TODAY")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(.secondary)
                     .padding(.top, 8)
-                
+
                 HStack(spacing: 12) {
                     Text("03:04 PM")
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
                         .frame(width: 60, alignment: .leading)
-                    
+
                     Text("Hello, this is Isabela.")
                         .font(.system(size: 14))
                         .foregroundColor(.primary)
-                    
+
                     Spacer()
                 }
                 .padding(.vertical, 4)
             }
         }
     }
-    
-    
+
+
 }
 
 // MARK: - Supporting Types
 
 enum SidebarSection: String, CaseIterable {
     case home = "Home"
-    case dictionary = "Dictionary"  
+    case dictionary = "Dictionary"
     case notes = "Notes"
-    case settings = "Settings"
-    
+
     var title: String {
         rawValue
     }
-    
+
     var icon: String {
         switch self {
         case .home: return "house.fill"
         case .dictionary: return "book.fill"
         case .notes: return "note.text"
-        case .settings: return "gearshape.fill"
         }
     }
 }
