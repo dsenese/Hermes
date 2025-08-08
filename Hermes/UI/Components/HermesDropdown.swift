@@ -75,7 +75,7 @@ struct HermesDropdown<SelectionValue: Hashable>: View {
                         )
                 )
             }
-            .buttonStyle(.plain)
+            .plainHoverButtonStyle()
             .focused($isFocused)
             .onHover { hovering in
                 isHovered = hovering

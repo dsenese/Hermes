@@ -47,7 +47,7 @@ struct OnboardingStepContainer<Content: View>: View {
                         }
                         .foregroundColor(.secondary)
                     }
-                    .buttonStyle(.plain)
+                    .plainHoverButtonStyle()
                 } else {
                     Spacer()
                 }
@@ -61,8 +61,10 @@ struct OnboardingStepContainer<Content: View>: View {
             // Dynamic content area
             if useScrollView {
                 ScrollView {
-                    contentWithAlignment
-                        .padding(.horizontal, 32)
+                    VStack(spacing: 0) {
+                        content()
+                    }
+                    .padding(.horizontal, 32)
                 }
             } else {
                 contentWithAlignment
@@ -76,23 +78,14 @@ struct OnboardingStepContainer<Content: View>: View {
     private var contentWithAlignment: some View {
         switch verticalAlignment {
         case .center:
-            VStack {
-                Spacer()
-                content()
-                Spacer()
-            }
+            content()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         case .top:
-            VStack {
-                content()
-                    .padding(.top, 24)
-                Spacer(minLength: 0)
-            }
+            content()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         case .balanced:
-            VStack {
-                Spacer(minLength: 20)
-                content()
-                Spacer(minLength: 40)
-            }
+            content()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
     }
 }

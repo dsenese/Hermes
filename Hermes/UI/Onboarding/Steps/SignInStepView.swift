@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AppKit
 
 /// SIGN IN step - contains authentication, free trial, data privacy, and welcome survey sub-flows
 struct SignInStepView: View {
@@ -94,13 +95,13 @@ enum SignInSubStep {
 private struct AuthenticationView: View {
     let onContinue: () -> Void
     @State private var showEmailSection = false
+    @State private var email: String = ""
     
     var body: some View {
-        VStack(spacing: 32) {
-            // App icon
-            Image(systemName: "waveform.circle.fill")
-                .font(.system(size: 64))
-                .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
+        VStack(spacing: 24) {
+            // App icon (uses asset if available for better light/dark rendering)
+            OnboardingLogoView()
+                .frame(width: 96, height: 96)
             
             VStack(spacing: 12) {
                 Text("Get started with Hermes")
@@ -112,14 +113,14 @@ private struct AuthenticationView: View {
                     .foregroundColor(.secondary)
             }
             
-            VStack(spacing: 24) {
+                VStack(spacing: 24) {
                 // OAuth buttons - 4 options in 2x2 grid with proper spacing
                 VStack(spacing: 16) {
                     HStack(spacing: 16) {
-                        Button("Sign in with Gmail") {
+                            Button("Sign in with Google") {
                             onContinue()
                         }
-                        .gmailButtonStyle()
+                            .googleButtonStyle()
                         
                         Button("Sign in with Apple") {
                             onContinue()
@@ -133,60 +134,57 @@ private struct AuthenticationView: View {
                         }
                         .microsoftButtonStyle()
                         
-                        Button("Single sign-on (SSO)") {
+                            Button("Single sign-on (SSO)") {
                             onContinue()
                         }
                         .ssoButtonStyle()
                     }
                 }
-                
-                // Show email option button
-                Button("Continue with Email") {
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        showEmailSection = true
-                    }
+
+                // Divider with OR (persistent between OAuth and email)
+                HStack {
+                    Rectangle()
+                        .fill(Color.secondary.opacity(0.3))
+                        .frame(height: 1)
+                    Text("OR")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 16)
+                    Rectangle()
+                        .fill(Color.secondary.opacity(0.3))
+                        .frame(height: 1)
                 }
-                .secondaryButtonStyle()
-                .opacity(showEmailSection ? 0 : 1)
-                
-                // Email input section - only shown when requested
+                .padding(.vertical, 4)
+
+                // Email toggle button
+                Button(action: {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        showEmailSection.toggle()
+                    }
+                }) {
+                    Text(showEmailSection ? "Hide email sign in" : "Continue with Email")
+                }
+                .secondaryNeutralButtonStyle()
+
+                // Email input section - expands/collapses below the toggle
                 if showEmailSection {
                     VStack(spacing: 16) {
-                        // Divider with OR
-                        HStack {
-                            Rectangle()
-                                .fill(Color.secondary.opacity(0.3))
-                                .frame(height: 1)
-                            
-                            Text("OR")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal, 16)
-                            
-                            Rectangle()
-                                .fill(Color.secondary.opacity(0.3))
-                                .frame(height: 1)
-                        }
-                        .padding(.vertical, 8)
-                        
-                        VStack(spacing: 16) {
-                            HermesTextField(
-                                text: Binding.constant(""),
-                                placeholder: "Enter your work or school email"
-                            )
+                        HermesTextField(
+                            text: $email,
+                            placeholder: "Enter your work or school email"
+                        )
+                        .frame(width: 400)
+
+                        Text("Use your work or school email to enjoy the upcoming team and collaboration features.")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
                             .frame(width: 400)
-                            
-                            Text("Use your work or school email to enjoy the upcoming team and collaboration features.")
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                                .frame(width: 400)
-                            
-                            Button("Continue with Email") {
-                                onContinue()
-                            }
-                            .primaryButtonStyle()
+
+                        Button("Continue with Email") {
+                            onContinue()
                         }
+                        .primaryButtonStyle()
                     }
                     .transition(.opacity.combined(with: .move(edge: .top)))
                 }
@@ -203,72 +201,140 @@ private struct AuthenticationView: View {
     
 }
 
-private struct FreeTrialView: View {
-    let onContinue: () -> Void
-    
+// Prefer asset "OnboardingLogo" (PNG/PDF) if available; fall back to system glyph
+private struct OnboardingLogoView: View {
     var body: some View {
-        VStack(spacing: 32) {
-            // Title with better hierarchy
-            VStack(spacing: 6) {
-                Text("Congratulations isabel!")
-                    .font(.system(size: 30, weight: .bold))
-                    .foregroundColor(.primary)
-                    .multilineTextAlignment(.center)
-            }
-            
-            // Content with improved hierarchy
-            VStack(spacing: 28) {
-                // Main offer
-                VStack(spacing: 16) {
-                    Text("We're giving you 2 weeks of")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(.primary)
-                    
-                    Text("Hermes Pro")
-                        .font(.system(size: 28, weight: .bold))
-                        .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
-                    
-                    Text("free")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(.primary)
-                }
-                
-                // Features
-                VStack(spacing: 16) {
-                    Text("You get everything in Hermes Basic, plus:")
+        if NSImage(named: "OnboardingLogo") != nil {
+            Image("OnboardingLogo")
+                .resizable()
+                .renderingMode(.original)
+                .scaledToFit()
+                .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
+        } else {
+            Image(systemName: "waveform.circle.fill")
+                .font(.system(size: 64))
+                .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
+        }
+    }
+}
+
+private struct FreeTrialView: View {
+    struct TrialConfig {
+        let userFirstName: String
+        let trialDays: Int
+        let productName: String
+        let endDateText: String
+        let pricePerMonthText: String
+        let features: [String]
+        let requiresCreditCard: Bool
+
+        static let `default` = TrialConfig(
+            userFirstName: "isabel",
+            trialDays: 14,
+            productName: "Hermes Pro",
+            endDateText: "August 6",
+            pricePerMonthText: "$12/month",
+            features: [
+                "Unlimited words per week",
+                "Access to command mode"
+            ],
+            requiresCreditCard: false
+        )
+    }
+
+    let onContinue: () -> Void
+    let config: TrialConfig
+
+    init(onContinue: @escaping () -> Void, config: TrialConfig = .default) {
+        self.onContinue = onContinue
+        self.config = config
+    }
+
+    private var trialDurationText: String {
+        if config.trialDays % 7 == 0 {
+            "\(config.trialDays / 7) weeks"
+        } else {
+            "\(config.trialDays) days"
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 20) {
+            // Title
+            Text("Congratulations \(config.userFirstName.capitalized)!")
+                .font(.system(size: 26, weight: .bold))
+                .foregroundColor(.primary)
+                .multilineTextAlignment(.center)
+
+            // Centered card container
+            VStack(spacing: 16) {
+                // Headline
+                VStack(spacing: 6) {
+                    Text("Enjoy \(trialDurationText) of")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.secondary)
-                    
-                    VStack(alignment: .leading, spacing: 12) {
-                        featureItem("Unlimited words per week")
-                        featureItem("Access to command mode")
-                    }
-                }
-                
-                // Trial details
-                VStack(spacing: 12) {
-                    Text("Unlimited access until August 6")
-                        .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.primary)
-                    
-                    Text("Experience Hermes Pro for the next 14 days. You can upgrade at just $12 / month any time.")
-                        .font(.system(size: 14))
+                    Text(config.productName)
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundColor(.primary)
+                }
+
+                // Badges row
+                HStack(spacing: 8) {
+                    Text("Free")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(RoundedRectangle(cornerRadius: 6).fill(Color(hex: HermesConstants.primaryAccentColor)))
+                    Text("No credit card required")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+
+                Divider().opacity(0.5)
+
+                // Features
+                VStack(alignment: .center, spacing: 8) {
+                    Text("Everything in Basic, plus:")
+                        .font(.system(size: 14, weight: .medium))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
-                        .frame(width: 400)
-                    
-                    Text("No credit card required.")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
-                    
-                    Text("If you decide not to upgrade by August 6, your account will go back to Hermes Basic.")
+                    VStack(spacing: 6) {
+                        ForEach(config.features, id: \.self) { item in
+                            featureItem(item)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity)
+
+                // Details
+                VStack(spacing: 6) {
+                    Text("Unlimited access until \(config.endDateText).")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.primary)
+                    Text("Upgrade any time for \(config.pricePerMonthText).")
+                        .font(.system(size: 13))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    Text("If you don’t upgrade by \(config.endDateText), you’ll return to Hermes Basic.")
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
-                        .frame(width: 400)
                 }
+                .frame(maxWidth: .infinity)
             }
-            
+            .padding(24)
+            .frame(maxWidth: 520)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(NSColor.controlBackgroundColor))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.secondary.opacity(0.25), lineWidth: 1)
+                    )
+            )
+            .shadow(color: .black.opacity(0.06), radius: 12, x: 0, y: 4)
+
             Button("Continue") {
                 onContinue()
             }
@@ -277,18 +343,16 @@ private struct FreeTrialView: View {
     }
     
     private func featureItem(_ text: String) -> some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 16))
                 .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
             
             Text(text)
-                .font(.system(size: 16))
+                .font(.system(size: 14))
                 .foregroundColor(.primary)
-            
-            Spacer()
         }
-        .frame(width: 300)
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
@@ -378,7 +442,7 @@ private struct DataPrivacyView: View {
                     )
             )
         }
-        .buttonStyle(.plain)
+        .plainHoverButtonStyle()
     }
     
     enum PrivacyMode {

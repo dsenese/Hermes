@@ -99,7 +99,7 @@ struct MenuBarView: View {
                     .font(.title3)
                     .foregroundColor(.secondary)
             }
-            .buttonStyle(.plain)
+            .plainHoverButtonStyle()
             .help("Open Dashboard")
             
             // Dictation toggle button
@@ -108,7 +108,7 @@ struct MenuBarView: View {
                     .font(.title2)
                     .foregroundColor(dictationEngine.engine.isActive ? .red : Color(hex: HermesConstants.primaryAccentColor))
             }
-            .buttonStyle(.plain)
+            .plainHoverButtonStyle()
             .help(dictationEngine.engine.isActive ? "Stop Dictation" : "Start Dictation")
             
             // Settings button
@@ -117,7 +117,7 @@ struct MenuBarView: View {
                     .font(.title3)
                     .foregroundColor(.secondary)
             }
-            .buttonStyle(.plain)
+            .plainHoverButtonStyle()
             .help("Settings")
             
             // Quit button
@@ -126,7 +126,7 @@ struct MenuBarView: View {
                     .font(.title3)
                     .foregroundColor(.secondary)
             }
-            .buttonStyle(.plain)
+            .plainHoverButtonStyle()
             .help("Quit Hermes")
         }
     }
@@ -146,7 +146,7 @@ struct MenuBarView: View {
                 Button("Full Settings...") {
                     openFullSettings()
                 }
-                .buttonStyle(.plain)
+                .plainHoverButtonStyle()
                 .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
             }
             

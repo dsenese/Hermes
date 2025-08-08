@@ -239,7 +239,7 @@ struct MainAppView: View {
                     .fill(selectedSection == section ? Color(hex: HermesConstants.primaryAccentColor).opacity(0.1) : Color.clear)
             )
         }
-        .buttonStyle(.plain)
+        .plainHoverButtonStyle()
     }
     
     private var sidebarFooter: some View {
@@ -261,7 +261,7 @@ struct MainAppView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
             }
-            .buttonStyle(.plain)
+            .plainHoverButtonStyle()
             
             // Refer a friend
             Button(action: {}) {
@@ -280,7 +280,7 @@ struct MainAppView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
             }
-            .buttonStyle(.plain)
+            .plainHoverButtonStyle()
             
             // Help
             Button(action: {}) {
@@ -299,7 +299,7 @@ struct MainAppView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
             }
-            .buttonStyle(.plain)
+            .plainHoverButtonStyle()
         }
     }
     
@@ -636,7 +636,7 @@ struct MainAppView: View {
                 .padding(.vertical, 12)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.borderless)
+            .borderlessHoverButtonStyle()
             .background(
                 Rectangle()
                     .fill(Color.clear)
@@ -660,7 +660,7 @@ struct MainAppView: View {
                 .padding(.vertical, 12)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.borderless)
+            .borderlessHoverButtonStyle()
             .background(
                 Rectangle()
                     .fill(Color.clear)
@@ -695,7 +695,7 @@ struct MainAppView: View {
                 .padding(.vertical, 12)
                 .contentShape(Rectangle()) // Ensure entire area is tappable
             }
-            .buttonStyle(.borderless)
+            .borderlessHoverButtonStyle()
             .background(
                 Rectangle()
                     .fill(Color.clear)

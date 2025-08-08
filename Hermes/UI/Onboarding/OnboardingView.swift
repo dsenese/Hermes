@@ -14,8 +14,10 @@ struct OnboardingView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Top navigation bar - always stays at top
-            OnboardingProgressBar(currentStep: currentStep)
+            // Top navigation bar - hidden for sign-in step per spec
+            if currentStep != .signIn {
+                OnboardingProgressBar(currentStep: currentStep)
+            }
             
             // Step content
             Group {

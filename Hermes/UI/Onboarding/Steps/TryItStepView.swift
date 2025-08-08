@@ -342,7 +342,7 @@ private struct InteractiveDemoView: View {
                         .fill(selectedDemo == app ? Color.blue : Color(NSColor.controlBackgroundColor))
                 )
         }
-        .buttonStyle(.plain)
+        .plainHoverButtonStyle()
     }
     
     private var demoInterface: some View {

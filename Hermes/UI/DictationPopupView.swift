@@ -73,7 +73,7 @@ struct DictationPopupView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                .buttonStyle(.plain)
+                .plainHoverButtonStyle()
                 .help("Minimize")
                 
                 // Stop dictation button
@@ -82,7 +82,7 @@ struct DictationPopupView: View {
                         .font(.caption)
                         .foregroundColor(.red)
                 }
-                .buttonStyle(.plain)
+                .plainHoverButtonStyle()
                 .help("Stop Dictation")
             }
         }

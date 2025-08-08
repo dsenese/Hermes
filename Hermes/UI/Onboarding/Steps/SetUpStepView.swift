@@ -363,7 +363,7 @@ private struct KeyboardShortcutView: View {
             }
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .plainHoverButtonStyle()
     }
     
     private func keyVisualizationRow(isPressed: Bool) -> some View {
