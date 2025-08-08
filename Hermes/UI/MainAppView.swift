@@ -676,7 +676,6 @@ struct MainAppView: View {
         )
         .frame(width: 250)
     }
-<<<<<<< HEAD
     
     private var settingsDropdownMenu: some View {
         VStack(alignment: .leading, spacing: 0) {
