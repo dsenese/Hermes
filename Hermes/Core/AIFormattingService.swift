@@ -17,7 +17,7 @@ enum FormattingContext: String, CaseIterable {
     case messaging = "messaging"
     case document = "document"
     case social = "social"
-    
+
     var displayName: String {
         switch self {
         case .casual: return "Casual"
@@ -29,7 +29,7 @@ enum FormattingContext: String, CaseIterable {
         case .social: return "Social Media"
         }
     }
-    
+
     var systemPrompt: String {
         switch self {
         case .casual:
@@ -57,7 +57,7 @@ struct AIFormattingConfig {
     var preserveStyle: Bool = true
     var contextDetection: Bool = true
     var maxProcessingTime: TimeInterval = 3.0
-    
+
     static let `default` = AIFormattingConfig()
 }
 
@@ -66,96 +66,104 @@ struct AIFormattingConfig {
 class AIFormattingService: ObservableObject {
     // MARK: - Singleton
     static let shared = AIFormattingService()
-    
+
     // MARK: - Published Properties
     @Published private(set) var isInitialized = false
     @Published private(set) var isProcessing = false
     @Published private(set) var lastProcessingTime: TimeInterval = 0
     @Published var config = AIFormattingConfig.default
-    
+
     // MARK: - Private Properties
     private let dictionaryManager = CustomDictionaryManager.shared
+    private let contentCapture = TextFieldContentCapture()
     private var cancellables = Set<AnyCancellable>()
-    
+
     // LLM integration (will be implemented once LLM.swift is added)
     // private var llmService: LLMService?
-    
+
     private init() {
         setupLLMIntegration()
     }
-    
+
     // MARK: - Public Methods
-    
+
     /// Initialize the AI formatting service
     func initialize() async throws {
         guard !isInitialized else { return }
-        
+
         print("🤖 Initializing AI formatting service...")
-        
+
         // TODO: Initialize GPT-OSS-20b model through LLM.swift
         // This will be implemented once the dependency is added
-        
+
         isInitialized = true
         print("✅ AI formatting service initialized")
     }
-    
-    /// Format text using AI and dictionary corrections
+
+    /// Format text using AI and dictionary corrections, taking into account the current text field content for accurate context across sessions
     func formatText(_ text: String, context: FormattingContext? = nil, appBundleId: String? = nil) async -> String {
         let startTime = Date()
-        
+
         guard config.isEnabled else {
             // Apply only dictionary corrections if AI formatting is disabled
             return dictionaryManager.applyCorrections(to: text)
         }
-        
+
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return text
         }
-        
+
         isProcessing = true
         defer { isProcessing = false }
-        
+
         print("🤖 Starting AI formatting for text: '\(text.prefix(50))...'")
-        
+
         // Step 1: Apply dictionary corrections first
         let dictionaryCorrectedText = dictionaryManager.applyCorrections(to: text)
         print("📖 Dictionary corrections applied")
-        
-        // Step 2: Detect context if not provided
+
+        // Step 2: Capture current text field content for broader context (across sessions)
+        let existingContent: TextFieldContent = await contentCapture.captureIfNeeded()
+        print("🧩 Existing field context: \(existingContent.contextDescription)")
+
+        // Step 3: Detect context if not provided
         let detectedContext = context ?? (config.contextDetection ? detectContext(appBundleId: appBundleId) : .casual)
         print("🎯 Using formatting context: \(detectedContext.displayName)")
-        
-        // Step 3: Apply AI formatting
-        let aiFormattedText = await applyAIFormatting(dictionaryCorrectedText, context: detectedContext)
-        
+
+        // Step 4: Apply AI formatting, guided by existing field content
+        let aiFormattedText = await applyAIFormatting(dictionaryCorrectedText, context: detectedContext, existingContent: existingContent)
+
+        // Step 5: Re-apply dictionary to enforce exact capitalization/spelling after AI tweaks
+        let finalText = dictionaryManager.applyCorrections(to: aiFormattedText)
+
         let processingTime = Date().timeIntervalSince(startTime)
         lastProcessingTime = processingTime
-        
+
         print("✅ AI formatting completed in \(String(format: "%.2f", processingTime * 1000))ms")
-        print("🤖 Result: '\(aiFormattedText)'")
-        
-        return aiFormattedText
+        print("🤖 Result: '\(finalText)'")
+
+        return finalText
     }
-    
+
     /// Update formatting configuration
     func updateConfig(_ newConfig: AIFormattingConfig) {
         config = newConfig
         print("🤖 AI formatting config updated")
     }
-    
+
     // MARK: - Private Methods
-    
+
     private func setupLLMIntegration() {
         // TODO: Set up LLM.swift integration for GPT-OSS-20b
         // This will be implemented once the dependency is added
         print("🤖 LLM integration setup pending dependency addition")
     }
-    
+
     private func detectContext(appBundleId: String?) -> FormattingContext {
         guard let bundleId = appBundleId?.lowercased() else {
             return .casual
         }
-        
+
         // Detect context based on application bundle ID
         if bundleId.contains("mail") || bundleId.contains("outlook") || bundleId.contains("airmail") {
             return .email
@@ -171,44 +179,54 @@ class AIFormattingService: ObservableObject {
             return .casual
         }
     }
-    
-    private func applyAIFormatting(_ text: String, context: FormattingContext) async -> String {
+
+    private func applyAIFormatting(_ text: String, context: FormattingContext, existingContent: TextFieldContent?) async -> String {
         // TODO: Implement actual GPT-OSS-20b integration
         // For now, return a placeholder implementation with basic formatting
-        
+
         // Simulate AI processing delay
         try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-        
-        return placeholderFormatting(text, context: context)
+
+        return placeholderFormatting(text, context: context, existingContent: existingContent)
     }
-    
+
     // Placeholder formatting until GPT-OSS-20b is integrated
-    private func placeholderFormatting(_ text: String, context: FormattingContext) -> String {
+    private func placeholderFormatting(_ text: String, context: FormattingContext, existingContent: TextFieldContent?) -> String {
         var formatted = text
-        
+        let before = existingContent?.textBeforeCursor ?? ""
+        let after = existingContent?.textAfterCursor ?? ""
+        let isAtSentenceStart = before.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+                                before.hasSuffix(".") || before.hasSuffix("!") || before.hasSuffix("?") ||
+                                before.hasSuffix("\n")
+
         // Basic formatting rules based on context
         switch context {
         case .email, .formal, .document:
-            // Ensure sentences start with capital letters
-            formatted = formatted.capitalized
-            
-            // Add proper punctuation if missing
-            if !formatted.hasSuffix(".") && !formatted.hasSuffix("!") && !formatted.hasSuffix("?") {
-                formatted += "."
+            // Ensure sentence starts capitalized only if at sentence start
+            if isAtSentenceStart, let first = formatted.first {
+                formatted.replaceSubrange(formatted.startIndex...formatted.startIndex, with: String(first).uppercased())
             }
-            
+
+            // Add proper punctuation if it appears to be a complete sentence and not followed by punctuation
+            if !formatted.isEmpty,
+               !formatted.hasSuffix(".") && !formatted.hasSuffix("!") && !formatted.hasSuffix("?"),
+               (after.isEmpty || ![".", "!", "?", ",", ":", ";"].contains(where: { after.hasPrefix($0) })) {
+                let wordCount = formatted.split(separator: " ").count
+                if wordCount >= 3 { formatted += "." }
+            }
+
         case .code:
             // For code context, maintain technical terminology
             formatted = formatted.replacingOccurrences(of: " dot ", with: ".")
             formatted = formatted.replacingOccurrences(of: " equals ", with: " = ")
             formatted = formatted.replacingOccurrences(of: " open paren ", with: "(")
             formatted = formatted.replacingOccurrences(of: " close paren ", with: ")")
-            
+
         case .messaging, .social, .casual:
             // Keep casual tone, minimal changes
             break
         }
-        
+
         return formatted.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
@@ -246,17 +264,17 @@ extension AIFormattingService {
         .document: ["pages", "word", "docs", "notion", "bear", "obsidian"],
         .social: ["twitter", "facebook", "instagram", "linkedin", "mastodon", "threads"]
     ]
-    
+
     /// Get suggested context for an application
     static func getSuggestedContext(for bundleId: String) -> FormattingContext {
         let lowercasedId = bundleId.lowercased()
-        
+
         for (context, patterns) in contextPatterns {
             if patterns.contains(where: { lowercasedId.contains($0) }) {
                 return context
             }
         }
-        
+
         return .casual
     }
 }
