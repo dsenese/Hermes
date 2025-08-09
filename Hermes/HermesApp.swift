@@ -94,6 +94,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         print("👀 Look for the waveform icon in your menu bar (top right of screen) for quick access")
     }
 
+    // Handle OAuth redirect URLs like hermes://auth-callback
+    func application(_ application: NSApplication, open urls: [URL]) {
+        Task { @MainActor in
+            for url in urls {
+                if url.scheme == "hermes" {
+                    await AuthManager.shared.handleOAuthRedirect(url)
+                }
+            }
+        }
+    }
+
     private func setupMenuBar() {
         // Create status bar item with fixed length first
         statusBarItem = NSStatusBar.system.statusItem(withLength: 30)

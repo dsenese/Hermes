@@ -32,5 +32,16 @@
 	<string>Hermes needs access to your microphone for real-time dictation and transcription.</string>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>Hermes uses AppleScript to inject transcribed text into other applications with maximum compatibility and reliability.</string>
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>com.dominicsenese.Hermes.oauth</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>hermes</string>
+      </array>
+    </dict>
+  </array>
 </dict>
 </plist>

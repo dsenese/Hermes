@@ -13,8 +13,7 @@ import ApplicationServices
 struct MainAppView: View {
     @StateObject private var dictationEngine = DictationEngineWrapper()
     @State private var selectedSection: SidebarSection = .home
-    @State private var userName: String = "isabela"
-    @State private var userEmail: String = "isaccosta.889@gmail.com"
+    @EnvironmentObject private var userSettings: UserSettings
     @State private var showingOnboarding: Bool = !UserSettings.shared.isOnboardingCompleted
     @State private var showingProfileMenu: Bool = false
     @State private var showingSettingsModal: Bool = false
@@ -335,7 +334,7 @@ struct MainAppView: View {
     private var mainHeader: some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Welcome back, \(userName)")
+                Text("Welcome back, \(userSettings.userFirstName)")
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(.primary)
 
@@ -357,10 +356,10 @@ struct MainAppView: View {
             }) {
                 HStack(spacing: 12) {
                     VStack(alignment: .trailing, spacing: 2) {
-                        Text("\(userName) carvalho")
+                        Text(userSettings.userDisplayName ?? userSettings.userFirstName)
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.primary)
-                        Text(userEmail)
+                        Text(userSettings.userEmail ?? "")
                             .font(.system(size: 12))
                             .foregroundColor(.secondary)
                     }

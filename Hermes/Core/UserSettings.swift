@@ -14,28 +14,36 @@ import SwiftUI
 @MainActor
 class UserSettings: ObservableObject {
     static let shared = UserSettings()
-    
+
     // MARK: - Debug Flags
-    
+
     /// Set to true to always show onboarding, false to respect saved state, nil to auto-detect
     static let DEBUG_FORCE_ONBOARDING: Bool? = true  // Change to false or nil for production
-    
+
     // MARK: - Published Properties
-    
+
     @Published var onboardingSettings: OnboardingSettings
     @Published var keyboardShortcuts: KeyboardShortcuts
     @Published var privacySettings: PrivacySettings
     @Published var dictationSettings: DictationSettings
     @Published var interfaceSettings: InterfaceSettings
     @Published var teamSettings: TeamSettings?
-    
+
     // MARK: - System Properties
-    
+
     @Published var isOnboardingCompleted: Bool
     @Published var lastSyncDate: Date?
     @Published var deviceId: String
     @Published var appVersion: String
-    
+
+    // MARK: - User Identity
+
+    @Published var userEmail: String?
+    @Published var userDisplayName: String?
+    @Published var avatarURL: String?
+    @Published var subscriptionPlan: SubscriptionPlan
+    @Published var trialEndsAt: Date?
+
     private init() {
         // Initialize with default values
         self.onboardingSettings = OnboardingSettings()
@@ -44,26 +52,31 @@ class UserSettings: ObservableObject {
         self.dictationSettings = DictationSettings()
         self.interfaceSettings = InterfaceSettings()
         self.teamSettings = nil
-        
+
         // System properties
         self.isOnboardingCompleted = false
         self.lastSyncDate = nil
         self.deviceId = UserSettings.generateDeviceId()
         self.appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
-        
+        self.userEmail = nil
+        self.userDisplayName = nil
+        self.avatarURL = nil
+        self.subscriptionPlan = .free
+        self.trialEndsAt = nil
+
         // Load from local storage
         loadFromLocalStorage()
-        
+
         // Apply debug flags after loading
         applyDebugFlags()
     }
-    
+
     // MARK: - Storage Methods
-    
+
     func saveToLocalStorage() {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
-        
+
         do {
             let data = try encoder.encode(self.toStorableSettings())
             UserDefaults.standard.set(data, forKey: "HermesUserSettings")
@@ -72,26 +85,26 @@ class UserSettings: ObservableObject {
             print("❌ Failed to save settings: \(error)")
         }
     }
-    
+
     /// Update keyboard shortcut
     func updateKeyboardShortcut(_ newHotkey: HotkeyConfiguration) async {
         keyboardShortcuts.globalDictationHotkey = newHotkey
         saveToLocalStorage()
-        
+
         // We're using GlobalShortcutManager now, not Services
         print("✅ Keyboard shortcut updated: \(newHotkey.displayString)")
     }
-    
-    
+
+
     private func loadFromLocalStorage() {
         guard let data = UserDefaults.standard.data(forKey: "HermesUserSettings") else {
             print("ℹ️ No local settings found, using defaults")
             return
         }
-        
+
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        
+
         do {
             let storableSettings = try decoder.decode(StorableUserSettings.self, from: data)
             self.applyStorableSettings(storableSettings)
@@ -100,26 +113,26 @@ class UserSettings: ObservableObject {
             print("❌ Failed to load settings: \(error)")
         }
     }
-    
+
     // MARK: - Supabase Sync Methods (Future Implementation)
-    
+
     func syncToSupabase() async {
         guard !privacySettings.isPrivacyModeEnabled else {
             print("🔒 Privacy mode enabled, skipping Supabase sync")
             return
         }
-        
+
         // TODO: Implement Supabase sync
         print("🔄 Supabase sync not yet implemented")
     }
-    
+
     func syncFromSupabase() async {
         // TODO: Implement Supabase sync
         print("🔄 Supabase sync not yet implemented")
     }
-    
+
     // MARK: - Helper Methods
-    
+
     private func applyDebugFlags() {
         // Apply debug flags for testing
         if let forceOnboarding = UserSettings.DEBUG_FORCE_ONBOARDING {
@@ -134,24 +147,24 @@ class UserSettings: ObservableObject {
             print("🔧 DEBUG: Using saved onboarding state: \(isOnboardingCompleted ? "completed" : "not completed")")
         }
     }
-    
+
     private static func generateDeviceId() -> String {
         if let existingId = UserDefaults.standard.string(forKey: "HermesDeviceId") {
             return existingId
         }
-        
+
         let newId = UUID().uuidString
         UserDefaults.standard.set(newId, forKey: "HermesDeviceId")
         return newId
     }
-    
+
     /// Reset onboarding for testing purposes
     func resetOnboarding() {
         print("🔧 Resetting onboarding state")
         isOnboardingCompleted = false
         saveToLocalStorage()
     }
-    
+
     func resetToDefaults() {
         onboardingSettings = OnboardingSettings()
         keyboardShortcuts = KeyboardShortcuts()
@@ -160,7 +173,7 @@ class UserSettings: ObservableObject {
         interfaceSettings = InterfaceSettings()
         teamSettings = nil
         isOnboardingCompleted = false
-        
+
         saveToLocalStorage()
     }
 }
@@ -174,7 +187,7 @@ struct OnboardingSettings: Codable {
     var agreedToPrivacyPolicy: Bool
     var enabledNotifications: Bool
     var completedAt: Date?
-    
+
     init() {
         self.completedSteps = []
         self.selectedPlan = nil
@@ -190,7 +203,7 @@ struct KeyboardShortcuts: Codable {
     var stopDictationHotkey: HotkeyConfiguration?
     var quickFormatHotkey: HotkeyConfiguration?
     var showMainAppHotkey: HotkeyConfiguration?
-    
+
     init() {
         // Default to fn key as recommended
         self.globalDictationHotkey = HotkeyConfiguration(
@@ -219,7 +232,7 @@ struct PrivacySettings: Codable {
     var allowCloudSync: Bool
     var allowCrashReports: Bool
     var autoDeleteHistoryAfterDays: Int?
-    
+
     init() {
         self.isPrivacyModeEnabled = false
         self.storeDictationHistory = true
@@ -239,7 +252,7 @@ struct DictationSettings: Codable {
     var maxRecordingDuration: TimeInterval
     var autoSubmitAfterSilence: Bool
     var preferredModel: String
-    
+
     init() {
         self.defaultLanguage = "en"
         self.autoFormatting = true
@@ -259,7 +272,7 @@ struct InterfaceSettings: Codable {
     var animationsEnabled: Bool
     var compactMode: Bool
     var fontSize: FontSize
-    
+
     init() {
         self.theme = .auto
         self.showMenuBarIcon = true
@@ -276,7 +289,7 @@ struct TeamSettings: Codable {
     var userRole: TeamRole?
     var sharedDictionaries: [String]
     var allowTeamInsights: Bool
-    
+
     init() {
         self.teamId = nil
         self.teamName = nil
@@ -292,7 +305,7 @@ struct HotkeyConfiguration: Codable, Equatable {
     let key: KeyboardKey
     let modifiers: Set<KeyboardModifier>
     let description: String
-    
+
     var displayString: String {
         let modifierStrings = modifiers.sorted(by: { $0.sortOrder < $1.sortOrder }).map { $0.symbol }
         return (modifierStrings + [key.symbol]).joined()
@@ -311,7 +324,7 @@ enum KeyboardKey: String, Codable, CaseIterable {
     case five = "5", six = "6", seven = "7", eight = "8", nine = "9"
     case f1 = "F1", f2 = "F2", f3 = "F3", f4 = "F4", f5 = "F5", f6 = "F6"
     case f7 = "F7", f8 = "F8", f9 = "F9", f10 = "F10", f11 = "F11", f12 = "F12"
-    
+
     var symbol: String {
         switch self {
         case .fn: return "fn"
@@ -323,7 +336,7 @@ enum KeyboardKey: String, Codable, CaseIterable {
         default: return rawValue.uppercased()
         }
     }
-    
+
     var displayIcon: String? {
         switch self {
         case .fn: return "globe"
@@ -334,7 +347,7 @@ enum KeyboardKey: String, Codable, CaseIterable {
         default: return nil
         }
     }
-    
+
     var displayText: String? {
         switch self {
         case .fn: return "fn"
@@ -352,7 +365,7 @@ enum KeyboardModifier: String, Codable, CaseIterable {
     case option = "opt"
     case shift = "shift"
     case control = "ctrl"
-    
+
     var symbol: String {
         switch self {
         case .command: return "⌘"
@@ -361,7 +374,7 @@ enum KeyboardModifier: String, Codable, CaseIterable {
         case .control: return "⌃"
         }
     }
-    
+
     var sortOrder: Int {
         switch self {
         case .control: return 0
@@ -370,11 +383,11 @@ enum KeyboardModifier: String, Codable, CaseIterable {
         case .command: return 3
         }
     }
-    
+
     var displayText: String {
         switch self {
         case .command: return "command"
-        case .option: return "option" 
+        case .option: return "option"
         case .shift: return "shift"
         case .control: return "control"
         }
@@ -421,6 +434,11 @@ private struct StorableUserSettings: Codable {
     let lastSyncDate: Date?
     let deviceId: String
     let appVersion: String
+    let userEmail: String?
+    let userDisplayName: String?
+    let avatarURL: String?
+    let subscriptionPlan: SubscriptionPlan
+    let trialEndsAt: Date?
 }
 
 // MARK: - UserSettings Extensions
@@ -437,10 +455,15 @@ extension UserSettings {
             isOnboardingCompleted: isOnboardingCompleted,
             lastSyncDate: lastSyncDate,
             deviceId: deviceId,
-            appVersion: appVersion
+            appVersion: appVersion,
+            userEmail: userEmail,
+            userDisplayName: userDisplayName,
+            avatarURL: avatarURL,
+            subscriptionPlan: subscriptionPlan,
+            trialEndsAt: trialEndsAt
         )
     }
-    
+
     private func applyStorableSettings(_ settings: StorableUserSettings) {
         self.onboardingSettings = settings.onboardingSettings
         self.keyboardShortcuts = settings.keyboardShortcuts
@@ -452,6 +475,25 @@ extension UserSettings {
         self.lastSyncDate = settings.lastSyncDate
         self.deviceId = settings.deviceId
         self.appVersion = settings.appVersion
+        self.userEmail = settings.userEmail
+        self.userDisplayName = settings.userDisplayName
+        self.avatarURL = settings.avatarURL
+        self.subscriptionPlan = settings.subscriptionPlan
+        self.trialEndsAt = settings.trialEndsAt
+    }
+}
+
+// MARK: - User Identity Helpers
+
+extension UserSettings {
+    var userFirstName: String {
+        if let display = userDisplayName, !display.isEmpty {
+            return display.components(separatedBy: " ").first ?? display
+        }
+        if let email = userEmail, let local = email.split(separator: "@").first {
+            return String(local)
+        }
+        return "there"
     }
 }
 

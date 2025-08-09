@@ -11,7 +11,7 @@ import SwiftUI
 struct SignInStepView: View {
     @State private var currentSubStep: SignInSubStep = .authentication
     @EnvironmentObject private var coordinator: OnboardingCoordinator
-    
+
     var body: some View {
         OnboardingStepContainer(
             showBackButton: canGoBack,
@@ -54,11 +54,11 @@ struct SignInStepView: View {
             coordinator.subStepBackHandler = nil
         }
     }
-    
+
     private var canGoBack: Bool {
         currentSubStep != .authentication
     }
-    
+
     private func handleSubStepBack() -> Bool {
         switch currentSubStep {
         case .authentication:
@@ -94,52 +94,60 @@ enum SignInSubStep {
 private struct AuthenticationView: View {
     let onContinue: () -> Void
     @State private var showEmailSection = false
-    
+    @State private var email: String = ""
+    @State private var otp: String = ""
+    @State private var isCodeSent: Bool = false
+    @StateObject private var auth = AuthManager.shared
+    @EnvironmentObject private var userSettings: UserSettings
+
     var body: some View {
         VStack(spacing: 32) {
             // App icon
             Image(systemName: "waveform.circle.fill")
                 .font(.system(size: 64))
                 .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
-            
+
             VStack(spacing: 12) {
                 Text("Get started with Hermes")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.primary)
-                
+
                 Text("Dictate 3x faster. Everywhere you type.")
                     .font(.system(size: 16))
                     .foregroundColor(.secondary)
             }
-            
+
             VStack(spacing: 24) {
                 // OAuth buttons - 4 options in 2x2 grid with proper spacing
                 VStack(spacing: 16) {
                     HStack(spacing: 16) {
-                        Button("Sign in with Gmail") {
-                            onContinue()
+                        Button("Sign in with Google") {
+                            Task { @MainActor in
+                                let ok = await AuthManager.shared.signInWithGoogle()
+                                if ok { /* wait for callback to complete */ }
+                            }
                         }
                         .gmailButtonStyle()
-                        
+
                         Button("Sign in with Apple") {
                             onContinue()
                         }
                         .appleButtonStyle()
                     }
-                    
+
                     HStack(spacing: 16) {
                         Button("Sign in with Microsoft") {
                             onContinue()
                         }
                         .microsoftButtonStyle()
-                        
+
                         Button("Single sign-on (SSO)") {
                             onContinue()
                         }
                         .ssoButtonStyle()
                     }
                 }
-                
+
                 // Show email option button
                 Button("Continue with Email") {
                     withAnimation(.easeInOut(duration: 0.3)) {
@@ -148,7 +156,7 @@ private struct AuthenticationView: View {
                 }
                 .secondaryButtonStyle()
                 .opacity(showEmailSection ? 0 : 1)
-                
+
                 // Email input section - only shown when requested
                 if showEmailSection {
                     VStack(spacing: 16) {
@@ -157,40 +165,70 @@ private struct AuthenticationView: View {
                             Rectangle()
                                 .fill(Color.secondary.opacity(0.3))
                                 .frame(height: 1)
-                            
+
                             Text("OR")
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.secondary)
                                 .padding(.horizontal, 16)
-                            
+
                             Rectangle()
                                 .fill(Color.secondary.opacity(0.3))
                                 .frame(height: 1)
                         }
                         .padding(.vertical, 8)
-                        
+
                         VStack(spacing: 16) {
                             HermesTextField(
-                                text: Binding.constant(""),
+                                text: $email,
                                 placeholder: "Enter your work or school email"
                             )
                             .frame(width: 400)
-                            
+
                             Text("Use your work or school email to enjoy the upcoming team and collaboration features.")
                                 .font(.system(size: 12))
                                 .foregroundColor(.secondary)
                                 .multilineTextAlignment(.center)
                                 .frame(width: 400)
-                            
-                            Button("Continue with Email") {
-                                onContinue()
+
+                            if !isCodeSent {
+                                Button(auth.isSendingCode ? "Sending…" : "Send sign-in code") {
+                                    Task {
+                                        let ok = await auth.sendEmailOTP(to: email)
+                                        if ok { withAnimation { isCodeSent = true } }
+                                    }
+                                }
+                                .disabled(email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || auth.isSendingCode)
+                                .primaryButtonStyle()
+                            } else {
+                                HermesTextField(
+                                    text: $otp,
+                                    placeholder: "Enter the code from your email"
+                                )
+                                .frame(width: 400)
+
+                                Button(auth.isVerifyingCode ? "Verifying…" : "Verify and continue") {
+                                    Task {
+                                        let ok = await auth.verifyEmailOTP(email: email, token: otp)
+                                        if ok {
+                                            // Update greeting immediately
+                                            userSettings.userEmail = userSettings.userEmail // trigger change
+                                            onContinue()
+                                        }
+                                    }
+                                }
+                                .disabled(otp.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || auth.isVerifyingCode)
+                                .primaryButtonStyle()
                             }
-                            .primaryButtonStyle()
+                            if let err = auth.lastErrorMessage {
+                                Text(err)
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.red)
+                            }
                         }
                     }
                     .transition(.opacity.combined(with: .move(edge: .top)))
                 }
-                
+
                 Text("By signing up, you agree to our Terms of Service and Privacy Policy. Your name and email will be used to personalize your Hermes experience.")
                     .font(.system(size: 11))
                     .foregroundColor(.secondary)
@@ -199,23 +237,28 @@ private struct AuthenticationView: View {
                     .padding(.top, 6)
             }
         }
+        .onChange(of: auth.isAuthenticated) { isAuthed in
+            if isAuthed {
+                onContinue()
+            }
+        }
     }
-    
+
 }
 
 private struct FreeTrialView: View {
     let onContinue: () -> Void
-    
+
     var body: some View {
         VStack(spacing: 32) {
             // Title with better hierarchy
             VStack(spacing: 6) {
-                Text("Congratulations isabel!")
+                Text("Congratulations \(UserSettings.shared.userFirstName)!")
                     .font(.system(size: 30, weight: .bold))
                     .foregroundColor(.primary)
                     .multilineTextAlignment(.center)
             }
-            
+
             // Content with improved hierarchy
             VStack(spacing: 28) {
                 // Main offer
@@ -223,79 +266,97 @@ private struct FreeTrialView: View {
                     Text("We're giving you 2 weeks of")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(.primary)
-                    
+
                     Text("Hermes Pro")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
-                    
+
                     Text("free")
                         .font(.system(size: 20, weight: .medium))
                         .foregroundColor(.primary)
                 }
-                
+
                 // Features
                 VStack(spacing: 16) {
                     Text("You get everything in Hermes Basic, plus:")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.secondary)
-                    
+
                     VStack(alignment: .leading, spacing: 12) {
                         featureItem("Unlimited words per week")
                         featureItem("Access to command mode")
                     }
                 }
-                
+
                 // Trial details
                 VStack(spacing: 12) {
-                    Text("Unlimited access until August 6")
+                    Text(trialHeadline)
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.primary)
-                    
+
                     Text("Experience Hermes Pro for the next 14 days. You can upgrade at just $12 / month any time.")
                         .font(.system(size: 14))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                         .frame(width: 400)
-                    
+
                     Text("No credit card required.")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
-                    
-                    Text("If you decide not to upgrade by August 6, your account will go back to Hermes Basic.")
+
+                    Text(trialFooter)
                         .font(.system(size: 12))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                         .frame(width: 400)
                 }
             }
-            
+
             Button("Continue") {
                 onContinue()
             }
             .primaryButtonStyle()
         }
     }
-    
+
     private func featureItem(_ text: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 16))
                 .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
-            
+
             Text(text)
                 .font(.system(size: 16))
                 .foregroundColor(.primary)
-            
+
             Spacer()
         }
         .frame(width: 300)
+    }
+
+    private var trialHeadline: String {
+        if let end = UserSettings.shared.trialEndsAt {
+            let df = DateFormatter()
+            df.dateFormat = "MMM d"
+            return "Unlimited access until \(df.string(from: end))"
+        }
+        return "Enjoy your 14-day trial"
+    }
+
+    private var trialFooter: String {
+        if let end = UserSettings.shared.trialEndsAt {
+            let df = DateFormatter()
+            df.dateFormat = "MMM d"
+            return "If you decide not to upgrade by \(df.string(from: end)), your account will go back to Hermes Basic."
+        }
+        return "Your account will return to Hermes Basic at the end of the trial."
     }
 }
 
 private struct DataPrivacyView: View {
     let onContinue: () -> Void
     @State private var selectedMode: PrivacyMode = .helpImprove
-    
+
     var body: some View {
         VStack(spacing: 32) {
             VStack(spacing: 12) {
@@ -303,7 +364,7 @@ private struct DataPrivacyView: View {
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.primary)
             }
-            
+
             VStack(spacing: 16) {
                 // Help improve option
                 privacyOption(
@@ -314,7 +375,7 @@ private struct DataPrivacyView: View {
                 ) {
                     selectedMode = .helpImprove
                 }
-                
+
                 // Privacy mode option
                 privacyOption(
                     mode: .privacyMode,
@@ -325,7 +386,7 @@ private struct DataPrivacyView: View {
                 ) {
                     selectedMode = .privacyMode
                 }
-                
+
                 Text("You can always change this later in settings.")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -333,14 +394,14 @@ private struct DataPrivacyView: View {
                     .font(.caption)
                     .foregroundColor(.blue)
             }
-            
+
             Button("Continue") {
                 onContinue()
             }
             .primaryButtonStyle()
         }
     }
-    
+
     private func privacyOption(
         mode: PrivacyMode,
         title: String,
@@ -361,7 +422,7 @@ private struct DataPrivacyView: View {
                             .foregroundColor(Color(hex: HermesConstants.primaryAccentColor))
                     }
                 }
-                
+
                 Text(description)
                     .font(.body)
                     .foregroundColor(.secondary)
@@ -380,7 +441,7 @@ private struct DataPrivacyView: View {
         }
         .buttonStyle(.plain)
     }
-    
+
     enum PrivacyMode {
         case helpImprove
         case privacyMode
@@ -390,24 +451,24 @@ private struct DataPrivacyView: View {
 private struct WelcomeSurveyView: View {
     let onContinue: () -> Void
     @State private var selectedSource = "Reddit"
-    
+
     var body: some View {
         VStack(spacing: 32) {
             VStack(spacing: 12) {
-                Text("Welcome, isabel!")
+                Text("Welcome, \(UserSettings.shared.userFirstName)!")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.primary)
-                
+
                 Text("Where did you hear about us?")
                     .font(.body)
                     .foregroundColor(.secondary)
-                
+
                 Text("(Optional)")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .italic()
             }
-            
+
             VStack(spacing: 20) {
                 HermesDropdown(
                     selection: $selectedSource,
@@ -415,13 +476,13 @@ private struct WelcomeSurveyView: View {
                     placeholder: "Where did you hear about us?"
                 )
                 .frame(width: 250)
-                
+
                 VStack(spacing: 12) {
                     Button("Continue") {
                         onContinue()
                     }
                     .primaryButtonStyle()
-                    
+
                     Button("Skip") {
                         onContinue()
                     }

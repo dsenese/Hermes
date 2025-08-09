@@ -27,35 +27,37 @@ struct SettingsModalView: View {
             let modalHeight = min(max(proxy.size.height - 120, 500), proxy.size.height - 80)
 
             ZStack(alignment: .topTrailing) {
-                // Panel background
+                // Base rounded container with shadow and border
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .fill(Color(NSColor.windowBackgroundColor))
+                    .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
+                    .overlay(
+                        // Content overlaid and clipped to the same rounded shape
+                        HStack(spacing: 0) {
+                            // Sidebar
+                            VStack(spacing: 0) { sidebar }
+                                .frame(width: 240)
+                                .background(Color(NSColor.windowBackgroundColor))
+
+                            // Divider view (respects clipping)
+                            Rectangle()
+                                .fill(Color(NSColor.separatorColor).opacity(0.2))
+                                .frame(width: 1)
+
+                            // Scrollable content area
+                            ScrollView {
+                                content
+                            }
+                            .padding(.trailing, 8)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .scrollIndicators(.hidden)
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    )
                     .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .stroke(Color(NSColor.separatorColor).opacity(0.15), lineWidth: 1)
                     )
-                    .shadow(color: .black.opacity(0.15), radius: 20, x: 0, y: 10)
-                    .allowsHitTesting(false)
-
-                HStack(spacing: 0) {
-                    sidebar
-                        .frame(width: 240)
-                        .background(Color(NSColor.windowBackgroundColor))
-
-                    // Divider drawn as a view to respect clipping
-                    Rectangle()
-                        .fill(Color(NSColor.separatorColor).opacity(0.2))
-                        .frame(width: 1)
-
-                    // Scrollable content area only
-                    ScrollView {
-                        content
-                    }
-                    .padding(.trailing, 8) // inset scroller from rounded edge
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .scrollIndicators(.hidden)
-                    .clipped()
-                }
 
                 // Close button inside the panel bounds
                 Button(action: { withAnimation { isPresented = false } }) {
@@ -69,14 +71,6 @@ struct SettingsModalView: View {
             }
             .frame(width: modalWidth, height: modalHeight)
             .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
-            .overlay(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(Color.clear, lineWidth: 0)
-            )
-            .mask(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-            )
-            .compositingGroup()
         }
         .environmentObject(UserSettings.shared)
     }
